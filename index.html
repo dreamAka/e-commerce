@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NexGear – Geymerlar uchun Aksessuarlar</title>
+  <meta name="description" content="NexGear – O'zbek geymerlar uchun eng yaxshi kompyuter aksessuarlari: sichqoncha, klaviatura, headset va boshqalar." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <!-- Swiper.js -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ======= INTRO SPLASH ======= -->
+  <div id="introOverlay" class="intro-overlay">
+    <!-- Matrix canvas -->
+    <canvas id="matrixCanvas" class="matrix-canvas"></canvas>
+
+    <!-- Scan lines -->
+    <div class="scanlines"></div>
+
+    <!-- Center content -->
+    <div class="intro-center">
+      <!-- Hexagonal ring animation -->
+      <div class="hex-rings">
+        <div class="hex-ring hex-ring-1"></div>
+        <div class="hex-ring hex-ring-2"></div>
+        <div class="hex-ring hex-ring-3"></div>
+        <div class="hex-core">
+          <span class="hex-icon">⚡</span>
+        </div>
+      </div>
+
+      <!-- Glitch logo -->
+      <div class="intro-logo" data-text="NEXGEAR">
+        NEX<span>GEAR</span>
+      </div>
+
+      <!-- Tagline -->
+      <div class="intro-tagline">PROFESSIONAL GAMING GEAR</div>
+
+      <!-- Loading bar -->
+      <div class="intro-load-wrap">
+        <div class="intro-load-bar" id="introBar"></div>
+        <div class="intro-load-text" id="introLoadText">INITIALIZING...</div>
+      </div>
+
+      <!-- Stats burst -->
+      <div class="intro-stats">
+        <div class="intro-stat"><span>144</span>Hz</div>
+        <div class="intro-stat"><span>1ms</span>Ping</div>
+        <div class="intro-stat"><span>PRO</span>Grade</div>
+      </div>
+    </div>
+
+    <!-- Corner decorations -->
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+
+    <!-- Skip button -->
+    <button class="intro-skip" id="introSkip">o'tkazib yuborish ›</button>
+  </div>
+
+
+  <!-- ======= NAVBAR ======= -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#home" class="nav-logo">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">NEX<span class="logo-accent">GEAR</span></span>
+      </a>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#home" class="nav-link active">Bosh sahifa</a></li>
+        <li><a href="#products" class="nav-link">Mahsulotlar</a></li>
+        <li><a href="#categories" class="nav-link">Kategoriyalar</a></li>
+        <li><a href="#brands" class="nav-link">Brendlar</a></li>
+        <li><a href="#contact" class="nav-link">Aloqa</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Rejimni almashtirish" title="Kunduzgi/Tungi rejim">
+          <span class="theme-icon">☀️</span>
+        </button>
+        <button class="search-btn" id="searchBtn" aria-label="Qidirish">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </button>
+        <button class="cart-btn" id="cartBtn" aria-label="Savatcha">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+        <button class="admin-btn" id="adminBtn" aria-label="Admin panel" title="Admin Panel">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </button>
+        <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-bar" id="searchBar">
+      <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Mahsulot qidirish..." class="search-input" />
+        <button class="search-close" id="searchClose">✕</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ======= HERO CAROUSEL (Swiper.js) ======= -->
+  <section class="hero-swiper-section" id="home">
+
+    <!-- Floating particles (reused) -->
+    <div class="hero-particles" id="particles"></div>
+
+    <div class="swiper heroSwiper">
+      <div class="swiper-wrapper">
+
+        <!-- ── SLIDE 1 : Gaming Mouse (UPG-style) ── -->
+        <div class="swiper-slide hs-slide hs-slide--photo hs-slide--fullbleed" data-theme="green">
+          <div class="hs-bg">
+            <div class="hs-bg-photo" style="background-image:url('assets/slide1.png')"></div>
+            <div class="hs-bg-overlay hs-bg-overlay--mouse"></div>
+            <div class="hs-grid"></div>
+          </div>
+          <div class="hs-inner hs-inner--fullbleed">
+            <div class="hs-content">
+              <span class="hs-badge">🔥 Yangi 2025</span>
+              <h1 class="hs-title">
+                Razer DeathAdder
+                <span class="hs-accent">V3 Pro</span>
+              </h1>
+              <p class="hs-subtitle">8000 DPI · 60G Tezlatnish · 100 soat batareya · HyperSpeed Wireless</p>
+              <div class="hs-price-row">
+                <span class="hs-price">1 890 000 so'm</span>
+                <span class="hs-old-price">2 200 000 so'm</span>
+                <span class="hs-discount">−14%</span>
+              </div>
+              <div class="hs-actions">
+                <a href="#products" class="hs-btn hs-btn-primary">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                  Sotib Olish
+                </a>
+                <a href="javascript:void(0)" class="hs-btn hs-btn-outline hs-detail-btn" data-product="mouse">Batafsil →</a>
+              </div>
+              <div class="hs-stats">
+                <div class="hs-stat"><strong>8000</strong><span>DPI</span></div>
+                <div class="hs-stat-div"></div>
+                <div class="hs-stat"><strong>60G</strong><span>Tezlatnish</span></div>
+                <div class="hs-stat-div"></div>
+                <div class="hs-stat"><strong>100H</strong><span>Batareya</span></div>
+              </div>
+            </div>
+            <div class="hs-visual hs-visual--fullbleed">
+              <img src="assets/slide1.png" alt="Razer DeathAdder V3 Pro Gaming Mouse" class="hs-hero-product hs-hero-product--green" />
+              <div class="hs-brand-tag" style="position:absolute;bottom:24px;right:0">RAZER · DeathAdder V3 Pro</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SLIDE 2 : Mechanical Keyboard (UPG-style) ── -->
+        <div class="swiper-slide hs-slide hs-slide--photo hs-slide--fullbleed" data-theme="purple">
+          <div class="hs-bg">
+            <div class="hs-bg-photo" style="background-image:url('assets/slide2.png')"></div>
+            <div class="hs-bg-overlay hs-bg-overlay--kbd"></div>
+            <div class="hs-grid"></div>
+          </div>
+          <div class="hs-inner hs-inner--fullbleed">
+            <div class="hs-content">
+              <span class="hs-badge" style="border-color:#a855f7;color:#a855f7;background:rgba(168,85,247,.1)">⌨️ Mexanik Klaviatura</span>
+              <h1 class="hs-title">
+                Corsair K100
+                <span class="hs-accent" style="color:#c084fc">RGB Mechanical</span>
+              </h1>
+              <p class="hs-subtitle">Optical Switch · Per-key RGB · Alüminium Korpus · iCUE Control · N-Key Rollover</p>
+              <div class="hs-price-row">
+                <span class="hs-price" style="color:#c084fc">2 990 000 so'm</span>
+                <span class="hs-old-price">3 500 000 so'm</span>
+                <span class="hs-discount" style="background:rgba(168,85,247,.2);color:#c084fc">−15%</span>
+              </div>
+              <div class="hs-actions">
+                <a href="#products" class="hs-btn" style="background:#a855f7;color:#fff;box-shadow:0 0 28px rgba(168,85,247,.4)">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                  Sotib Olish
+                </a>
+                <a href="javascript:void(0)" class="hs-btn hs-btn-outline hs-detail-btn" data-product="keyboard" style="border-color:#a855f7;color:#c084fc">Batafsil →</a>
+              </div>
+              <div class="hs-stats">
+                <div class="hs-stat"><strong>0.2ms</strong><span>Javob Vaqti</span></div>
+                <div class="hs-stat-div"></div>
+                <div class="hs-stat"><strong>RGB</strong><span>Per Key</span></div>
+                <div class="hs-stat-div"></div>
+                <div class="hs-stat"><strong>100M</strong><span>Kalit Umri</span></div>
+              </div>
+            </div>
+            <div class="hs-visual hs-visual--fullbleed">
+              <img src="assets/slide2.png" alt="Corsair K100 RGB Mechanical Keyboard" class="hs-hero-product hs-hero-product--purple" />
+              <div class="hs-brand-tag" style="position:absolute;bottom:24px;right:0">CORSAIR · K100 RGB Mechanical</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SLIDE 3 : Headset (UPG-style) ── -->
+        <div class="swiper-slide hs-slide hs-slide--photo hs-slide--fullbleed" data-theme="cyan">
+          <div class="hs-bg">
+            <div class="hs-bg-photo" style="background-image:url('assets/slide3.png')"></div>
+            <div class="hs-bg-overlay hs-bg-overlay--headset"></div>
+            <div class="hs-grid"></div>
+          </div>
+          <div class="hs-inner hs-inner--fullbleed">
+            <div class="hs-content">
+              <span class="hs-badge" style="border-color:#06b6d4;color:#06b6d4;background:rgba(6,182,212,.1)">🎧 Surround Sound</span>
+              <h1 class="hs-title">
+                SteelSeries Arctis
+                <span class="hs-accent" style="color:#22d3ee">Nova Pro</span>
+              </h1>
+              <p class="hs-subtitle">40mm Neodimium · ANC · 7.1 Surround · 50 soat batareya · USB-C</p>
+              <div class="hs-price-row">
+                <span class="hs-price" style="color:#22d3ee">4 200 000 so'm</span>
+                <span class="hs-old-price">4 800 000 so'm</span>
+                <span class="hs-discount" style="background:rgba(6,182,212,.2);color:#22d3ee">−13%</span>
+              </div>
+              <div class="hs-actions">
+                <a href="#products" class="hs-btn" style="background:#0891b2;color:#fff;box-shadow:0 0 28px rgba(6,182,212,.4)">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                  Sotib Olish
+                </a>
+                <a href="javascript:void(0)" class="hs-btn hs-btn-outline hs-detail-btn" data-product="headset" style="border-color:#06b6d4;color:#22d3ee">Batafsil →</a>
+              </div>
+              <div class="hs-stats">
+                <div class="hs-stat"><strong>7.1</strong><span>Surround</span></div>
+                <div class="hs-stat-div"></div>
+                <div class="hs-stat"><strong>ANC</strong><span>Noise Cancel</span></div>
+                <div class="hs-stat-div"></div>
+                <div class="hs-stat"><strong>50H</strong><span>Batareya</span></div>
+              </div>
+            </div>
+            <div class="hs-visual hs-visual--fullbleed">
+              <img src="assets/slide3.png" alt="SteelSeries Arctis Nova Pro Wireless Headset" class="hs-hero-product hs-hero-product--cyan" />
+              <div class="hs-brand-tag" style="position:absolute;bottom:24px;right:0">STEELSERIES · Arctis Nova Pro</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SLIDE 4 : Gaming Monitor (UPG-style) ── -->
+        <div class="swiper-slide hs-slide hs-slide--photo hs-slide--fullbleed" data-theme="orange">
+          <div class="hs-bg">
+            <div class="hs-bg-photo" style="background-image:url('assets/slide4.png')"></div>
+            <div class="hs-bg-overlay hs-bg-overlay--monitor"></div>
+            <div class="hs-grid"></div>
+          </div>
+          <div class="hs-inner hs-inner--fullbleed">
+            <div class="hs-content">
+              <span class="hs-badge" style="border-color:#f97316;color:#f97316;background:rgba(249,115,22,.1)">🖥️ 4K OLED</span>
+              <h1 class="hs-title">
+                ASUS ROG Swift
+                <span class="hs-accent" style="color:#fb923c">360Hz OLED</span>
+              </h1>
+              <p class="hs-subtitle">27" OLED · 0.03ms Javob · HDR10 · 1000nit · DisplayPort 2.1</p>
+              <div class="hs-price-row">
+                <span class="hs-price" style="color:#fb923c">12 500 000 so'm</span>
+                <span class="hs-old-price">14 000 000 so'm</span>
+                <span class="hs-discount" style="background:rgba(249,115,22,.2);color:#fb923c">−11%</span>
+              </div>
+              <div class="hs-actions">
+                <a href="#products" class="hs-btn" style="background:#ea580c;color:#fff;box-shadow:0 0 28px rgba(249,115,22,.4)">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                  Sotib Olish
+                </a>
+                <a href="javascript:void(0)" class="hs-btn hs-btn-outline hs-detail-btn" data-product="monitor" style="border-color:#f97316;color:#fb923c">Batafsil →</a>
+              </div>
+              <div class="hs-stats">
+                <div class="hs-stat"><strong>360</strong><span>Hz</span></div>
+                <div class="hs-stat-div"></div>
+                <div class="hs-stat"><strong>4K</strong><span>OLED</span></div>
+                <div class="hs-stat-div"></div>
+                <div class="hs-stat"><strong>0.03</strong><span>ms Javob</span></div>
+              </div>
+            </div>
+            <div class="hs-visual hs-visual--fullbleed">
+              <img src="assets/slide4.png" alt="ASUS ROG Swift PG27AQN 360Hz OLED Monitor" class="hs-hero-product hs-hero-product--orange" />
+              <div class="hs-brand-tag" style="position:absolute;bottom:24px;right:0">ASUS ROG · Swift PG27AQN 360Hz</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /swiper-wrapper -->
+
+      <!-- Navigation Arrows -->
+      <button class="hs-arrow hs-arrow-prev" id="hsPrev" aria-label="Oldingi">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="hs-arrow hs-arrow-next" id="hsNext" aria-label="Keyingi">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+
+      <!-- Pagination Dots -->
+      <div class="swiper-pagination hs-pagination" id="hsPagination"></div>
+
+      <!-- Progress bar -->
+      <div class="hs-progress-track">
+        <div class="hs-progress-bar" id="hsProgressBar"></div>
+      </div>
+
+    </div><!-- /swiper -->
+
+    <!-- Slide counter -->
+    <div class="hs-counter">
+      <span id="hsCurrent">01</span>
+      <span class="hs-counter-sep"></span>
+      <span class="hs-counter-total">04</span>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="hero-scroll">
+      <div class="scroll-indicator">
+        <span>Pastga suring</span>
+        <div class="scroll-line"></div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ======= TICKER ======= -->
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <span>🎮 Bepul yetkazib berish 500 000 so'mdan yuqori xaridlarda</span>
+      <span>⚡ 24 soat ichida yetkazish</span>
+      <span>🛡️ 1 yil kafolat</span>
+      <span>🔥 Yangi mahsulotlar har hafta</span>
+      <span>💳 Bo'lib to'lash imkoniyati</span>
+      <span>🎮 Bepul yetkazib berish 500 000 so'mdan yuqori xaridlarda</span>
+      <span>⚡ 24 soat ichida yetkazish</span>
+      <span>🛡️ 1 yil kafolat</span>
+      <span>🔥 Yangi mahsulotlar har hafta</span>
+      <span>💳 Bo'lib to'lash imkoniyati</span>
+    </div>
+  </div>
+
+  <!-- ======= CATEGORIES ======= -->
+  <section class="categories" id="categories">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Kategoriyalar</span>
+        <h2 class="section-title">Nima Izlayapsiz?</h2>
+      </div>
+      <div class="categories-grid">
+        <div class="category-card" data-filter="mouse">
+          <div class="cat-icon">🖱️</div>
+          <h3>Sichqoncha</h3>
+          <p>Gaming & Ofis</p>
+          <span class="cat-count">48 mahsulot</span>
+        </div>
+        <div class="category-card" data-filter="keyboard">
+          <div class="cat-icon">⌨️</div>
+          <h3>Klaviatura</h3>
+          <p>Mexanik & Membran</p>
+          <span class="cat-count">62 mahsulot</span>
+        </div>
+        <div class="category-card" data-filter="headset">
+          <div class="cat-icon">🎧</div>
+          <h3>Headset</h3>
+          <p>Surround Sound</p>
+          <span class="cat-count">35 mahsulot</span>
+        </div>
+        <div class="category-card" data-filter="monitor">
+          <div class="cat-icon">🖥️</div>
+          <h3>Monitor</h3>
+          <p>4K & 144Hz</p>
+          <span class="cat-count">29 mahsulot</span>
+        </div>
+        <div class="category-card" data-filter="chair">
+          <div class="cat-icon">🪑</div>
+          <h3>Gaming Stul</h3>
+          <p>Ergonomik</p>
+          <span class="cat-count">18 mahsulot</span>
+        </div>
+        <div class="category-card" data-filter="mousepad">
+          <div class="cat-icon">🎯</div>
+          <h3>Mousepad</h3>
+          <p>XXL & RGB</p>
+          <span class="cat-count">24 mahsulot</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= PRODUCTS ======= -->
+  <section class="products" id="products">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Mahsulotlar</span>
+        <h2 class="section-title">Ommabop Mahsulotlar</h2>
+      </div>
+
+      <div class="filter-tabs" id="filterTabs">
+        <button class="filter-btn active" data-filter="all">Hammasi</button>
+        <button class="filter-btn" data-filter="mouse">Sichqoncha</button>
+        <button class="filter-btn" data-filter="keyboard">Klaviatura</button>
+        <button class="filter-btn" data-filter="headset">Headset</button>
+        <button class="filter-btn" data-filter="mousepad">Mousepad</button>
+        <button class="filter-btn" data-filter="monitor">Monitor</button>
+      </div>
+
+      <div class="products-grid" id="productsGrid">
+        <!-- Products inserted by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= BRANDS ======= -->
+  <section class="brands" id="brands">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Brendlar</span>
+        <h2 class="section-title">Ishonchli Hamkorlar</h2>
+      </div>
+      <div class="brands-row">
+        <div class="brand-item">RAZER</div>
+        <div class="brand-item">LOGITECH</div>
+        <div class="brand-item">CORSAIR</div>
+        <div class="brand-item">ASUS ROG</div>
+        <div class="brand-item">STEELSERIES</div>
+        <div class="brand-item">HyperX</div>
+        <div class="brand-item">ZOWIE</div>
+        <div class="brand-item">ALIENWARE</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= FEATURES ======= -->
+  <section class="features">
+    <div class="container">
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🚀</div>
+          <h3>Tez Yetkazish</h3>
+          <p>Toshkent bo'yicha 24 soat, viloyatlarga 2-3 kun ichida</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🛡️</div>
+          <h3>Kafolat</h3>
+          <p>Barcha mahsulotlarga 1 yillik rasmiy kafolat beriladi</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💳</div>
+          <h3>Bo'lib To'lash</h3>
+          <p>0% foiz bilan 12 oyga bo'lib to'lash imkoniyati</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔄</div>
+          <h3>Qaytarish</h3>
+          <p>14 kun ichida muammo bo'lsa, bepul qaytarish</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= NEWSLETTER ======= -->
+  <section class="newsletter">
+    <div class="container">
+      <div class="newsletter-content">
+        <div class="nl-text">
+          <h2>Yangiliklar & Chegirmalar</h2>
+          <p>Birinchilar qatorida yangi mahsulotlar va maxsus chegirmalardan xabardor bo'ling!</p>
+        </div>
+        <form class="nl-form" id="nlForm">
+          <input type="email" id="nlEmail" placeholder="Email manzilingiz..." class="nl-input" required />
+          <button type="submit" class="btn btn-primary">Obuna Bo'lish</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= FOOTER ======= -->
+  <footer class="footer" id="contact">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="nav-logo" style="margin-bottom:1rem">
+            <span class="logo-icon">⚡</span>
+            <span class="logo-text">NEX<span class="logo-accent">GEAR</span></span>
+          </div>
+          <p class="footer-desc">O'zbek geymerlar uchun eng yaxshi gaming aksessuarlar do'koni. Professional o'yindan zavqlanish biz bilan boshlanadi.</p>
+          <div class="social-links">
+            <a href="#" class="social-link" aria-label="Instagram">📸</a>
+            <a href="#" class="social-link" aria-label="Telegram">✉️</a>
+            <a href="#" class="social-link" aria-label="YouTube">▶️</a>
+            <a href="#" class="social-link" aria-label="Facebook">👍</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Mahsulotlar</h4>
+          <ul class="footer-links">
+            <li><a href="#">Gaming Sichqoncha</a></li>
+            <li><a href="#">Mexanik Klaviatura</a></li>
+            <li><a href="#">Gaming Headset</a></li>
+            <li><a href="#">Monitor</a></li>
+            <li><a href="#">Mousepad</a></li>
+            <li><a href="#">Gaming Stul</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Kompaniya</h4>
+          <ul class="footer-links">
+            <li><a href="#">Biz haqimizda</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Karera</a></li>
+            <li><a href="#">Hamkorlik</a></li>
+            <li><a href="#">Ommaviy taklif</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Aloqa</h4>
+          <ul class="footer-contact">
+            <li>📍 Toshkent, Chilonzor tumani</li>
+            <li>📞 +998 90 123 45 67</li>
+            <li>✉️ info@nexgear.uz</li>
+            <li>🕐 Dush–Shan: 09:00–21:00</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 NexGear. Barcha huquqlar himoyalangan.</p>
+        <div class="footer-legal">
+          <a href="#">Maxfiylik siyosati</a>
+          <a href="#">Foydalanish shartlari</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ======= CART SIDEBAR ======= -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h3>🛒 Savatcha</h3>
+      <button class="cart-close" id="cartClose">✕</button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <div class="cart-empty">
+        <div class="empty-icon">🛒</div>
+        <p>Savatingiz bo'sh</p>
+      </div>
+    </div>
+    <div class="cart-footer" id="cartFooter" style="display:none">
+      <div class="cart-total">
+        <span>Jami:</span>
+        <span id="cartTotal">0 so'm</span>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center">Buyurtma Berish</button>
+    </div>
+  </aside>
+
+  <!-- ======= TOAST ======= -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ======= BACK TO TOP ======= -->
+  <button class="back-top" id="backTop" aria-label="Tepaga qaytish">↑</button>
+
+  <!-- ======= ADMIN PANEL ======= -->
+  <div class="admin-overlay" id="adminOverlay"></div>
+  <div class="admin-panel" id="adminPanel">
+    <div class="admin-panel-header">
+      <div class="admin-panel-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        <span>Admin Panel</span>
+      </div>
+      <button class="admin-close" id="adminClose">✕</button>
+    </div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-tab="products">📦 Mahsulotlar</button>
+      <button class="admin-tab" data-tab="orders">📋 Buyurtmalar</button>
+      <button class="admin-tab" data-tab="stats">📊 Statistika</button>
+      <button class="admin-tab" data-tab="settings">⚙️ Sozlamalar</button>
+    </div>
+    <div class="admin-content">
+      <!-- Products Tab -->
+      <div class="admin-tab-pane active" id="tab-products">
+        <div class="admin-actions-bar">
+          <button class="admin-action-btn" id="addProductBtn">+ Mahsulot Qo'shish</button>
+          <input type="text" class="admin-search-input" id="adminProductSearch" placeholder="Mahsulot qidirish..." />
+        </div>
+        <div class="admin-products-table">
+          <table id="adminProductsTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Emoji</th>
+                <th>Nomi</th>
+                <th>Brend</th>
+                <th>Kategoriya</th>
+                <th>Narxi</th>
+                <th>Badge</th>
+                <th>Amallar</th>
+              </tr>
+            </thead>
+            <tbody id="adminProductsTbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Orders Tab -->
+      <div class="admin-tab-pane" id="tab-orders">
+        <div class="admin-empty-state">
+          <div style="font-size:3rem;margin-bottom:16px">📋</div>
+          <h3>Buyurtmalar</h3>
+          <p>Hozircha buyurtmalar mavjud emas</p>
+        </div>
+      </div>
+      <!-- Stats Tab -->
+      <div class="admin-tab-pane" id="tab-stats">
+        <div class="admin-stats-grid">
+          <div class="admin-stat-card">
+            <div class="admin-stat-icon">📦</div>
+            <div class="admin-stat-num" id="statProducts">0</div>
+            <div class="admin-stat-label">Jami mahsulotlar</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-icon">🛒</div>
+            <div class="admin-stat-num" id="statCartItems">0</div>
+            <div class="admin-stat-label">Savatchadagi mahsulotlar</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-icon">❤️</div>
+            <div class="admin-stat-num" id="statWishlist">0</div>
+            <div class="admin-stat-label">Sevimlilar</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-icon">💰</div>
+            <div class="admin-stat-num" id="statRevenue">0</div>
+            <div class="admin-stat-label">Savatcha qiymati</div>
+          </div>
+        </div>
+      </div>
+      <!-- Settings Tab -->
+      <div class="admin-tab-pane" id="tab-settings">
+        <div class="admin-settings">
+          <div class="admin-setting-item">
+            <div>
+              <h4>Sayt rejimi</h4>
+              <p>Kunduzgi yoki tungi rejimni tanlang</p>
+            </div>
+            <button class="admin-toggle-theme" id="adminToggleTheme">🌙 Tungi</button>
+          </div>
+          <div class="admin-setting-item">
+            <div>
+              <h4>Savatcha</h4>
+              <p>Barcha mahsulotlarni savatdan o'chirish</p>
+            </div>
+            <button class="admin-danger-btn" id="clearCartAdmin">🗑️ Tozalash</button>
+          </div>
+          <div class="admin-setting-item">
+            <div>
+              <h4>Versiya</h4>
+              <p>NexGear Admin Panel</p>
+            </div>
+            <span style="color:var(--green);font-weight:700">v2.0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div class="product-form-overlay" id="productFormOverlay">
+      <div class="product-form">
+        <div class="product-form-header">
+          <h3 id="productFormTitle">Mahsulot Qo'shish</h3>
+          <button class="admin-close" id="productFormClose">✕</button>
+        </div>
+        <div class="product-form-body">
+          <input type="hidden" id="formProductId" />
+          <div class="form-row">
+            <div class="form-group">
+              <label>Mahsulot nomi</label>
+              <input type="text" id="formName" class="form-input" placeholder="Masalan: Razer DeathAdder V3" />
+            </div>
+            <div class="form-group">
+              <label>Brend</label>
+              <input type="text" id="formBrand" class="form-input" placeholder="Masalan: Razer" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Kategoriya</label>
+              <select id="formCategory" class="form-input">
+                <option value="mouse">🖱️ Sichqoncha</option>
+                <option value="keyboard">⌨️ Klaviatura</option>
+                <option value="headset">🎧 Headset</option>
+                <option value="monitor">🖥️ Monitor</option>
+                <option value="mousepad">🎯 Mousepad</option>
+                <option value="chair">🪑 Gaming Stul</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Badge</label>
+              <select id="formBadge" class="form-input">
+                <option value="">Yo'q</option>
+                <option value="new">Yangi</option>
+                <option value="hot">🔥 Hot</option>
+                <option value="sale">% Sale</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Narxi (so'm)</label>
+              <input type="number" id="formPrice" class="form-input" placeholder="1500000" />
+            </div>
+            <div class="form-group">
+              <label>Eski narxi (ixtiyoriy)</label>
+              <input type="number" id="formOldPrice" class="form-input" placeholder="2000000" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Reyting (1-5)</label>
+              <input type="number" id="formRating" class="form-input" min="1" max="5" step="0.1" placeholder="4.8" />
+            </div>
+            <div class="form-group">
+              <label>Sharhlar soni</label>
+              <input type="number" id="formReviews" class="form-input" placeholder="250" />
+            </div>
+          </div>
+        </div>
+        <div class="product-form-footer">
+          <button class="admin-cancel-btn" id="productFormCancel">Bekor qilish</button>
+          <button class="admin-save-btn" id="productFormSave">💾 Saqlash</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       PRODUCT DETAIL MODAL
+       ============================================ -->
+  <div class="pd-overlay" id="pdOverlay"></div>
+  <div class="pd-modal" id="pdModal">
+    <button class="pd-close" id="pdClose">✕</button>
+    <div class="pd-body">
+      <div class="pd-gallery">
+        <div class="pd-img-wrap">
+          <img id="pdImage" src="" alt="" class="pd-main-img" />
+        </div>
+        <div class="pd-brand-strip" id="pdBrand"></div>
+      </div>
+      <div class="pd-info">
+        <span class="pd-category" id="pdCategory"></span>
+        <h2 class="pd-name" id="pdName"></h2>
+        <p class="pd-desc" id="pdDesc"></p>
+        <div class="pd-price-block">
+          <span class="pd-price" id="pdPrice"></span>
+          <span class="pd-old-price" id="pdOldPrice"></span>
+          <span class="pd-discount-tag" id="pdDiscountTag"></span>
+        </div>
+        <div class="pd-specs" id="pdSpecs"></div>
+        <div class="pd-features" id="pdFeatures"></div>
+        <div class="pd-actions">
+          <button class="pd-cart-btn" id="pdCartBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            Savatchaga qo'shish
+          </button>
+          <button class="pd-back-btn" id="pdBackBtn">← Orqaga</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="intro.js"></script>
+  <!-- Swiper.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
