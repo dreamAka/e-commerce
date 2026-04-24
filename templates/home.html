@@ -4,13 +4,14 @@
 {% block title %}Bosh Sahifa{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
+
+<!-- ═══════════════ HERO ═══════════════ -->
 <section class="hero-section" id="heroSection">
   <div class="swiper heroSwiper">
     <div class="swiper-wrapper">
       {% for hero in heroes %}
       <div class="swiper-slide hs-slide hs-slide--fullbleed">
-        <div class="hs-bg-layer" style="background: linear-gradient(135deg, #0a0a0a 40%, {{ hero.accent_color }}22 100%)"></div>
+        <div class="hs-bg-layer" style="background:linear-gradient(135deg,#0a0a0a 40%,{{ hero.accent_color }}22 100%)"></div>
         <div class="hs-inner hs-inner--fullbleed">
           <div class="hs-content">
             <h1 class="hs-title">{{ hero.title }}</h1>
@@ -21,15 +22,16 @@
               </a>
             </div>
           </div>
-          <div class="hs-visual hs-visual--fullbleed" style="align-items:center;justify-content:center;min-height:300px">
-            {% if hero.image %}<img src="{{ hero.image.url }}" alt="{{ hero.title }}" class="hs-hero-product" style="align-self:center;object-position:center center">{% endif %}
+          <div class="hs-visual hs-visual--fullbleed">
+            {% if hero.image %}
+            <img src="{{ hero.image.url }}" alt="{{ hero.title }}" class="hs-hero-product">
+            {% endif %}
           </div>
         </div>
       </div>
       {% empty %}
-      <!-- Static slides if no DB heroes -->
       <div class="swiper-slide hs-slide hs-slide--fullbleed">
-        <div class="hs-bg-layer" style="background: linear-gradient(135deg, #0a0a0a 40%, #44d62c22 100%)"></div>
+        <div class="hs-bg-layer" style="background:linear-gradient(135deg,#0a0a0a 40%,#44d62c22 100%)"></div>
         <div class="hs-inner hs-inner--fullbleed">
           <div class="hs-content">
             <span class="hs-badge">🎮 Gaming Aksessuarlar</span>
@@ -57,19 +59,17 @@
   </div>
 </section>
 
-<!-- Categories -->
+<!-- ═══════════════ KATEGORIYALAR ═══════════════ -->
 {% if categories %}
-<section class="section" id="categories" style="padding: 80px 0">
+<section class="home-section" id="categories">
   <div class="container">
-    <h2 class="section-title" style="text-align:center;margin-bottom:48px;font-family:'Orbitron',sans-serif;font-size:2rem">
-      Kategoriyalar
-    </h2>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px">
+    <h2 class="home-section-title">Kategoriyalar</h2>
+    <div class="home-cats-grid">
       {% for cat in categories %}
-      <a href="{% url 'catalog:product_list' %}?category={{ cat.slug }}" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;padding:32px 20px;text-align:center;transition:all 0.3s;text-decoration:none;color:#fff">
-        <div style="font-size:2.5rem;margin-bottom:12px">🎮</div>
-        <div style="font-weight:600;font-size:0.95rem">{{ cat.category_name }}</div>
-        <div style="color:#666;font-size:0.8rem;margin-top:4px">{{ cat.products.count }} mahsulot</div>
+      <a href="{% url 'catalog:product_list' %}?category={{ cat.slug }}" class="home-cat-card">
+        <div class="home-cat-icon">🎮</div>
+        <div class="home-cat-name">{{ cat.category_name }}</div>
+        <div class="home-cat-count">{{ cat.products.count }} mahsulot</div>
       </a>
       {% endfor %}
     </div>
@@ -77,73 +77,64 @@
 </section>
 {% endif %}
 
-<!-- Featured Products -->
-<section class="section" id="products" style="padding: 80px 0">
+<!-- ═══════════════ MASHHUR MAHSULOTLAR ═══════════════ -->
+<section class="home-section" id="products">
   <div class="container">
-    <h2 class="section-title" style="text-align:center;margin-bottom:48px;font-family:'Orbitron',sans-serif;font-size:2rem">
-      ⭐ Mashhur Mahsulotlar
-    </h2>
-    <div class="products-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px">
+    <h2 class="home-section-title">⭐ Mashhur Mahsulotlar</h2>
+    <div class="home-products-grid">
       {% for product in featured_products %}
-      <a href="{% url 'catalog:product_detail' product.slug %}" class="product-card" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;overflow:hidden;transition:all 0.3s;text-decoration:none;color:#fff">
-        <div style="height:220px;background:#111;display:flex;align-items:center;justify-content:center;overflow:hidden">
+      <a href="{% url 'catalog:product_detail' product.slug %}" class="home-product-card">
+        <div class="home-product-img">
           {% if product.primary_image %}
-          <img src="{{ product.primary_image.image_url.url }}" alt="{{ product.product_name }}" style="max-height:200px;max-width:90%;object-fit:contain;transition:transform 0.4s">
+          <img src="{{ product.primary_image.image_url.url }}" alt="{{ product.product_name }}">
           {% else %}
-          <span style="font-size:4rem">🎮</span>
+          <span class="home-product-placeholder">🎮</span>
           {% endif %}
         </div>
-        <div style="padding:20px">
+        <div class="home-product-info">
           {% if product.category %}
-          <span style="font-size:0.75rem;color:#44d62c;text-transform:uppercase;letter-spacing:1px">{{ product.category.category_name }}</span>
+          <span class="home-product-cat">{{ product.category.category_name }}</span>
           {% endif %}
-          <h3 style="font-size:1rem;font-weight:600;margin:8px 0">{{ product.product_name }}</h3>
-          <div style="display:flex;align-items:baseline;gap:10px;margin-top:12px">
-            <span style="font-size:1.2rem;font-weight:700;font-family:'Orbitron',sans-serif;color:#44d62c">
-              {{ product.current_price|floatformat:0 }} so'm
-            </span>
+          <h3 class="home-product-name">{{ product.product_name }}</h3>
+          <div class="home-product-price-row">
+            <span class="home-product-price">{{ product.current_price|floatformat:0 }} so'm</span>
             {% if product.sale_price %}
-            <span style="font-size:0.85rem;color:#666;text-decoration:line-through">{{ product.base_price|floatformat:0 }}</span>
-            <span style="background:rgba(68,214,44,0.15);color:#44d62c;padding:2px 8px;border-radius:6px;font-size:0.75rem;font-weight:600">
-              -{{ product.discount_percent }}%
-            </span>
+            <span class="home-product-old">{{ product.base_price|floatformat:0 }}</span>
+            <span class="home-product-badge">-{{ product.discount_percent }}%</span>
             {% endif %}
           </div>
           {% if product.average_rating %}
-          <div style="margin-top:8px;color:#ffaa00;font-size:0.85rem">
-            ★ {{ product.average_rating }} / 5
-          </div>
+          <div class="home-product-rating">★ {{ product.average_rating }} / 5</div>
           {% endif %}
         </div>
       </a>
       {% empty %}
-      <div style="grid-column:1/-1;text-align:center;padding:60px;color:#666">
-        <p style="font-size:1.2rem">Hozircha mahsulotlar yo'q</p>
+      <div class="home-empty">
+        <p>Hozircha mahsulotlar yo'q</p>
         <p>Manager paneldan mahsulot qo'shing</p>
       </div>
       {% endfor %}
     </div>
     {% if featured_products %}
-    <div style="text-align:center;margin-top:48px">
-      <a href="{% url 'catalog:product_list' %}" style="display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:#44d62c;color:#000;border-radius:12px;font-weight:600;text-decoration:none;transition:all 0.3s">
-        Barcha mahsulotlar →
-      </a>
+    <div class="home-cta">
+      <a href="{% url 'catalog:product_list' %}" class="home-cta-btn">Barcha mahsulotlar →</a>
     </div>
     {% endif %}
   </div>
 </section>
 
-<!-- Brands -->
+<!-- ═══════════════ BRENDLAR ═══════════════ -->
 {% if brands %}
-<section style="padding:60px 0;background:#0a0a0a">
+<section class="home-brands-section">
   <div class="container">
-    <h2 style="text-align:center;margin-bottom:40px;font-family:'Orbitron',sans-serif;font-size:1.5rem;color:#fff">Brendlar</h2>
-    <div style="display:flex;justify-content:center;gap:40px;flex-wrap:wrap;opacity:0.6">
+    <h2 class="home-brands-title">Brendlar</h2>
+    <div class="home-brands-list">
       {% for brand in brands %}
-      <div style="font-size:1.2rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#888">{{ brand.brand_name }}</div>
+      <div class="home-brand-item">{{ brand.brand_name }}</div>
       {% endfor %}
     </div>
   </div>
 </section>
 {% endif %}
+
 {% endblock %}
