@@ -1,0 +1,62 @@
+{% extends "manager/base_manager.html" %}
+{% block title %}Buyurtmalar{% endblock %}
+{% block page_title %}📦 Buyurtmalar{% endblock %}
+
+{% block content %}
+<div class="tab-filters" id="statusTabs">
+  <button class="tab-filter active" data-status="">Barchasi <span class="badge" style="background:var(--border);color:#fff;margin-left:4px">{{ counts.all }}</span></button>
+  <button class="tab-filter" data-status="pending">Kutilmoqda <span class="badge badge-pending" style="margin-left:4px">{{ counts.pending }}</span></button>
+  <button class="tab-filter" data-status="processing">Tayyorlanmoqda <span class="badge badge-processing" style="margin-left:4px">{{ counts.processing }}</span></button>
+  <button class="tab-filter" data-status="shipped">Jo'natildi <span class="badge badge-shipped" style="margin-left:4px">{{ counts.shipped }}</span></button>
+  <button class="tab-filter" data-status="delivered">Yetkazildi <span class="badge badge-delivered" style="margin-left:4px">{{ counts.delivered }}</span></button>
+</div>
+
+<div class="filter-bar">
+  <input type="text" id="searchInput" placeholder="🔍 Buyurtma raqami yoki mijoz..." style="width:300px">
+</div>
+
+<div class="card">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Buyurtma</th><th>Xaridor</th><th>Summa</th>
+        <th>Status</th><th>To'lov</th><th>Sana</th><th></th>
+      </tr>
+    </thead>
+    <tbody id="orderRows">
+      {% include "manager/partials/order_rows.html" %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let debounceTimer;
+const tbody = document.getElementById('orderRows');
+const tabs = document.querySelectorAll('.tab-filter');
+
+function fetchOrders() {
+  const status = document.querySelector('.tab-filter.active')?.dataset.status || '';
+  const q = document.getElementById('searchInput').value;
+  const url = `?status=${status}&q=${encodeURIComponent(q)}`;
+
+  fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+    .then(r => r.json())
+    .then(data => { tbody.innerHTML = data.html; });
+}
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    fetchOrders();
+  });
+});
+
+document.getElementById('searchInput').addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(fetchOrders, 400);
+});
+</script>
+{% endblock %}

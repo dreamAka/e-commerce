@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<section style="padding:100px 0 60px;min-height:100vh">
+  <div class="container" style="max-width:1000px;margin:0 auto;padding:0 20px">
+    <h1 style="font-family:'Orbitron',sans-serif;font-size:1.8rem;margin-bottom:32px">📋 Buyurtma berish</h1>
+
+    <form method="post">
+      {% csrf_token %}
+      <div style="display:grid;grid-template-columns:1fr 360px;gap:32px">
+        <div>
+          <!-- Payment Method -->
+          <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;padding:24px;margin-bottom:20px">
+            <h3 style="font-size:1rem;margin-bottom:16px">To'lov usuli</h3>
+            <div style="display:grid;gap:10px">
+              <label style="display:flex;align-items:center;gap:12px;padding:14px;border:1px solid #2a2a2a;border-radius:10px;cursor:pointer;transition:border 0.2s"
+                onmouseover="this.style.borderColor='#44d62c'" onmouseout="this.style.borderColor='#2a2a2a'">
+                <input type="radio" name="payment_method" value="naqd" checked style="accent-color:#44d62c">
+                <span>💵 Naqd pul</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:12px;padding:14px;border:1px solid #2a2a2a;border-radius:10px;cursor:pointer;transition:border 0.2s"
+                onmouseover="this.style.borderColor='#44d62c'" onmouseout="this.style.borderColor='#2a2a2a'">
+                <input type="radio" name="payment_method" value="karta" style="accent-color:#44d62c">
+                <span>💳 Karta orqali</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:12px;padding:14px;border:1px solid #2a2a2a;border-radius:10px;cursor:pointer;transition:border 0.2s"
+                onmouseover="this.style.borderColor='#44d62c'" onmouseout="this.style.borderColor='#2a2a2a'">
+                <input type="radio" name="payment_method" value="click" style="accent-color:#44d62c">
+                <span>📱 Click / Payme</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;padding:24px">
+            <h3 style="font-size:1rem;margin-bottom:12px">Izoh</h3>
+            <textarea name="notes" placeholder="Qo'shimcha izoh (ixtiyoriy)..." rows="3"
+              style="width:100%;background:#111;border:1px solid #2a2a2a;border-radius:10px;padding:12px;color:#fff;font-size:0.9rem;resize:vertical"></textarea>
+          </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;padding:24px;height:fit-content;position:sticky;top:100px">
+          <h3 style="font-size:1rem;margin-bottom:16px">Buyurtma</h3>
+          {% for item in cart_items %}
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #222;font-size:0.88rem">
+            <div>
+              <span>{{ item.product.product_name }}</span>
+              <span style="color:#666"> × {{ item.quantity }}</span>
+            </div>
+            <span style="font-weight:600">{{ item.product.current_price|floatformat:0 }}</span>
+          </div>
+          {% endfor %}
+          <div style="border-top:1px solid #2a2a2a;margin-top:16px;padding-top:16px;display:flex;justify-content:space-between">
+            <span style="font-weight:700;font-size:1.1rem">Jami</span>
+            <span style="font-weight:900;font-size:1.3rem;color:#44d62c;font-family:'Orbitron',sans-serif">{{ total|floatformat:0 }} so'm</span>
+          </div>
+          <button type="submit" style="width:100%;padding:16px;background:#44d62c;color:#000;border:none;border-radius:10px;font-size:1.05rem;font-weight:700;cursor:pointer;margin-top:20px;transition:all 0.3s">
+            ✅ Tasdiqlash
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "manager/base_manager.html" %}
+{% block title %}Mahsulotlar{% endblock %}
+{% block page_title %}🎮 Mahsulotlar{% endblock %}
+
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+  <div class="filter-bar" style="margin-bottom:0">
+    <input type="text" id="searchInput" placeholder="🔍 Mahsulot qidirish..." style="width:300px">
+    <select id="categoryFilter">
+      <option value="">Barcha kategoriyalar</option>
+      {% for cat in categories %}<option value="{{ cat.pk }}">{{ cat.category_name }}</option>{% endfor %}
+    </select>
+    <select id="statusFilter">
+      <option value="">Barcha statuslar</option>
+      <option value="active">Faol</option>
+      <option value="draft">Qoralama</option>
+      <option value="out_of_stock">Tugagan</option>
+    </select>
+  </div>
+  <a href="{% url 'manager:product_add' %}" class="btn btn-primary">+ Yangi mahsulot</a>
+</div>
+
+<div class="card">
+  <table class="data-table">
+    <thead>
+      <tr><th>Mahsulot</th><th>Kategoriya</th><th>Brend</th><th>Narx</th><th>Chegirma</th><th>Status</th><th></th></tr>
+    </thead>
+    <tbody id="productRows">{% include "manager/partials/product_rows.html" %}</tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let timer;
+function fetchProducts() {
+  const q = document.getElementById('searchInput').value;
+  const cat = document.getElementById('categoryFilter').value;
+  const st = document.getElementById('statusFilter').value;
+  fetch(`?q=${encodeURIComponent(q)}&category=${cat}&status=${st}`, {headers:{'X-Requested-With':'XMLHttpRequest'}})
+    .then(r=>r.json()).then(d=>{document.getElementById('productRows').innerHTML=d.html;});
+}
+document.getElementById('searchInput').addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(fetchProducts,400);});
+document.getElementById('categoryFilter').addEventListener('change',fetchProducts);
+document.getElementById('statusFilter').addEventListener('change',fetchProducts);
+</script>
+{% endblock %}

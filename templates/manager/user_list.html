@@ -1,0 +1,35 @@
+{% extends "manager/base_manager.html" %}
+{% block title %}Foydalanuvchilar{% endblock %}
+{% block page_title %}👥 Foydalanuvchilar{% endblock %}
+
+{% block content %}
+<div class="filter-bar">
+  <input type="text" id="searchInput" placeholder="🔍 Username, email yoki telefon..." style="width:300px">
+  <select id="typeFilter">
+    <option value="">Barcha turlar</option>
+    <option value="customer">Xaridor</option>
+    <option value="seller">Sotuvchi</option>
+    <option value="admin">Admin</option>
+  </select>
+</div>
+<div class="card">
+  <table class="data-table">
+    <thead><tr><th>Foydalanuvchi</th><th>Telefon</th><th>Tur</th><th>Status</th><th>Ro'yxatdan</th><th></th></tr></thead>
+    <tbody id="userRows">{% include "manager/partials/user_rows.html" %}</tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let t;
+function fetchUsers() {
+  const q = document.getElementById('searchInput').value;
+  const type = document.getElementById('typeFilter').value;
+  fetch(`?q=${encodeURIComponent(q)}&type=${type}`, {headers:{'X-Requested-With':'XMLHttpRequest'}})
+    .then(r=>r.json()).then(d=>{document.getElementById('userRows').innerHTML=d.html;});
+}
+document.getElementById('searchInput').addEventListener('input', () => { clearTimeout(t); t = setTimeout(fetchUsers, 400); });
+document.getElementById('typeFilter').addEventListener('change', fetchUsers);
+</script>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Buyurtma {{ order.order_number }}{% endblock %}
+
+{% block content %}
+<section style="padding:100px 0 60px;min-height:100vh">
+  <div class="container" style="max-width:900px;margin:0 auto;padding:0 20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px">
+      <h1 style="font-family:'Orbitron',sans-serif;font-size:1.5rem">{{ order.order_number }}</h1>
+      <span style="padding:6px 16px;border-radius:10px;font-weight:600;
+        {% if order.order_status == 'delivered' %}background:rgba(68,214,44,0.15);color:#44d62c
+        {% elif order.order_status == 'pending' %}background:rgba(255,170,0,0.15);color:#ffaa00
+        {% else %}background:rgba(59,130,246,0.15);color:#3b82f6{% endif %}">
+        {{ order.get_order_status_display }}
+      </span>
+    </div>
+
+    <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;padding:24px;margin-bottom:24px">
+      {% for item in items %}
+      <div style="display:flex;gap:16px;padding:16px 0;border-bottom:1px solid #222;align-items:center">
+        <div style="width:60px;height:60px;background:#111;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          {% if item.product.primary_image %}
+          <img src="{{ item.product.primary_image.image_url.url }}" style="max-height:50px;object-fit:contain">
+          {% else %}<span style="font-size:1.5rem">🎮</span>{% endif %}
+        </div>
+        <div style="flex:1">
+          <h3 style="font-size:0.95rem;font-weight:600">{{ item.product.product_name }}</h3>
+          <span style="color:#888;font-size:0.82rem">{{ item.unit_price|floatformat:0 }} so'm × {{ item.quantity }}</span>
+        </div>
+        <span style="font-weight:700;font-family:'Orbitron',sans-serif">{{ item.subtotal|floatformat:0 }} so'm</span>
+      </div>
+      {% endfor %}
+
+      <div style="display:flex;justify-content:space-between;margin-top:20px;padding-top:16px;border-top:1px solid #2a2a2a">
+        <span style="font-weight:700;font-size:1.1rem">Jami</span>
+        <span style="font-weight:900;font-size:1.3rem;color:#44d62c;font-family:'Orbitron',sans-serif">{{ order.total_amount|floatformat:0 }} so'm</span>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:14px;padding:20px">
+        <h3 style="font-size:0.9rem;color:#44d62c;margin-bottom:10px">To'lov</h3>
+        <p style="color:#ccc">Usul: {{ order.payment_method|default:"—" }}</p>
+        <p style="color:#ccc">Holat: {{ order.get_payment_status_display }}</p>
+      </div>
+      <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:14px;padding:20px">
+        <h3 style="font-size:0.9rem;color:#44d62c;margin-bottom:10px">Sana</h3>
+        <p style="color:#ccc">Yaratilgan: {{ order.created_at|date:"d.m.Y H:i" }}</p>
+        <p style="color:#ccc">Yangilangan: {{ order.updated_at|date:"d.m.Y H:i" }}</p>
+      </div>
+    </div>
+
+    <div style="margin-top:24px">
+      <a href="{% url 'orders:order_list' %}" style="color:#44d62c;font-size:0.9rem">← Barcha buyurtmalar</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% for p in products %}
+<tr>
+  <td>
+    <div style="display:flex;align-items:center;gap:12px">
+      {% if p.primary_image %}<img src="{{ p.primary_image.image_url.url }}" style="width:40px;height:40px;border-radius:8px;object-fit:cover">{% endif %}
+      <div>
+        <div style="font-weight:600">{{ p.product_name }}</div>
+        <div style="font-size:0.8rem;color:var(--text-muted)">SKU: {{ p.sku }}</div>
+      </div>
+    </div>
+  </td>
+  <td>{{ p.category.category_name|default:"-" }}</td>
+  <td>{{ p.brand.brand_name|default:"-" }}</td>
+  <td style="font-weight:600">{{ p.base_price|floatformat:0 }} so'm</td>
+  <td>{% if p.sale_price %}<span style="color:var(--accent)">{{ p.sale_price|floatformat:0 }} so'm</span>{% else %}-{% endif %}</td>
+  <td><span class="badge badge-{{ p.product_status }}">{{ p.get_product_status_display }}</span></td>
+  <td>
+    <a href="{% url 'manager:product_edit' p.pk %}" class="btn btn-outline btn-sm">✏️</a>
+    <a href="{% url 'manager:product_delete' p.pk %}" class="btn btn-sm" style="color:var(--danger)" onclick="return confirm('O\'chirilsinmi?')">🗑</a>
+  </td>
+</tr>
+{% empty %}
+<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:40px">Mahsulotlar topilmadi</td></tr>
+{% endfor %}

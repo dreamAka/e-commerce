@@ -1,0 +1,43 @@
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+.Python
+
+# ── Virtual environment ──
+venv/
+env/
+.venv/
+.env/
+
+# ── Django ──
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+
+# ── Environment variables ──
+.env
+.env.*
+!.env.example
+
+# ── Static (collected) ──
+staticfiles/
+static_root/
+
+# ── IDE ──
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Docker ──
+*.pid
+
+# ── Node (if any) ──
+node_modules/

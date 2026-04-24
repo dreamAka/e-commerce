@@ -1,0 +1,137 @@
+{% extends "manager/base_manager.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}📊 Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon">📦</div>
+    <div class="stat-value">{{ total_orders }}</div>
+    <div class="stat-label">Jami buyurtmalar</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">💰</div>
+    <div class="stat-value">{{ total_revenue|floatformat:0 }}</div>
+    <div class="stat-label">Jami daromad (so'm)</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">🎮</div>
+    <div class="stat-value">{{ total_products }}</div>
+    <div class="stat-label">Faol mahsulotlar</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">👥</div>
+    <div class="stat-value">{{ total_users }}</div>
+    <div class="stat-label">Foydalanuvchilar</div>
+  </div>
+</div>
+
+<!-- Today stats -->
+<div class="stats-grid" style="margin-bottom:32px">
+  <div class="stat-card" style="border-left:3px solid var(--accent)">
+    <div class="stat-value" style="font-size:1.4rem">{{ today_orders }}</div>
+    <div class="stat-label">Bugungi buyurtmalar</div>
+  </div>
+  <div class="stat-card" style="border-left:3px solid var(--warning)">
+    <div class="stat-value" style="font-size:1.4rem">{{ today_revenue|floatformat:0 }}</div>
+    <div class="stat-label">Bugungi daromad</div>
+  </div>
+  <div class="stat-card" style="border-left:3px solid var(--danger)">
+    <div class="stat-value" style="font-size:1.4rem">{{ pending_reviews }}</div>
+    <div class="stat-label">Kutayotgan sharhlar</div>
+  </div>
+  <div class="stat-card" style="border-left:3px solid var(--info)">
+    <div class="stat-value" style="font-size:1.4rem">{{ pending_returns }}</div>
+    <div class="stat-label">Qaytarish so'rovlari</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+  <!-- Chart -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">📈 Oxirgi 7 kun — Buyurtmalar</h3>
+    </div>
+    <div class="chart-container">
+      <canvas id="ordersChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Recent Orders -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">🕐 Oxirgi buyurtmalar</h3>
+      <a href="{% url 'manager:order_list' %}" class="btn btn-outline btn-sm">Barchasi →</a>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr><th>#</th><th>Xaridor</th><th>Summa</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for order in recent_orders %}
+        <tr>
+          <td><a href="{% url 'manager:order_detail' order.pk %}">{{ order.order_number }}</a></td>
+          <td>{{ order.user.username }}</td>
+          <td>{{ order.total_amount|floatformat:0 }} so'm</td>
+          <td><span class="badge badge-{{ order.order_status }}">{{ order.get_order_status_display }}</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:40px">Buyurtmalar yo'q</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if low_stock %}
+<div class="card" style="margin-top:24px">
+  <div class="card-header">
+    <h3 class="card-title">⚠️ Kam zaxira (≤5 dona)</h3>
+  </div>
+  <table class="data-table">
+    <thead><tr><th>Mahsulot</th><th>Ombor</th><th>Qoldiq</th></tr></thead>
+    <tbody>
+      {% for inv in low_stock %}
+      <tr>
+        <td>{{ inv.product.product_name }}</td>
+        <td>{{ inv.warehouse.warehouse_name }}</td>
+        <td><span class="badge badge-cancelled">{{ inv.quantity_available }} dona</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const ctx = document.getElementById('ordersChart').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: {{ chart_labels|safe }},
+    datasets: [{
+      label: 'Buyurtmalar',
+      data: {{ chart_data|safe }},
+      backgroundColor: 'rgba(68, 214, 44, 0.3)',
+      borderColor: '#44d62c',
+      borderWidth: 2,
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: '#222' } },
+      x: { ticks: { color: '#666' }, grid: { display: false } }
+    }
+  }
+});
+</script>
+{% endblock %}

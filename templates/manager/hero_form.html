@@ -1,0 +1,275 @@
+{% extends "manager/base_manager.html" %}
+{% block title %}{% if hero %}Bannerni Tahrirlash{% else %}Yangi Banner{% endif %}{% endblock %}
+{% block page_title %}{% if hero %}✏️ Bannerni Tahrirlash{% else %}➕ Yangi Hero Banner{% endif %}{% endblock %}
+
+{% block content %}
+
+<!-- Rasm yo'riqnomasi -->
+<div style="background:rgba(68,214,44,0.06);border:1px solid rgba(68,214,44,0.2);border-radius:12px;padding:16px 20px;margin-bottom:24px;font-size:0.85rem">
+  <strong style="color:var(--accent)">📐 Rasm o'lchami:</strong>
+  <span style="color:#ccc;margin:0 12px">Tavsiya: <code style="color:#44d62c">1920 × 700 px</code></span>
+  <span style="color:#888">|</span>
+  <span style="color:#ccc;margin:0 12px">Format: <code style="color:#44d62c">JPG / PNG / WEBP</code></span>
+  <span style="color:#888">|</span>
+  <span style="color:#ccc;margin:0 12px">Max hajm: <code style="color:#44d62c">2 MB</code></span>
+  <span style="color:#888">|</span>
+  <span style="color:#ccc;margin-left:12px">Fon rangi: <code style="color:#44d62c">Qora/to'q (matn yaxshi ko'rinadi)</code></span>
+</div>
+
+<form method="post" enctype="multipart/form-data" id="heroForm">
+  {% csrf_token %}
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+
+    <!-- CHAP: Matn sozlamalari -->
+    <div>
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">📝 Matn sozlamalari</h3></div>
+
+        <div class="form-group">
+          <label>Sarlavha (Title) *</label>
+          <input type="text" name="title" class="form-control" required
+            value="{{ hero.title|default:'' }}"
+            placeholder="Masalan: Razer Yeni Nesil Sichqonchalar">
+          <small style="color:#666;font-size:0.78rem">Qisqa va ta'sirli — 30-60 belgi</small>
+        </div>
+
+        <div class="form-group">
+          <label>Tavsif (Subtitle)</label>
+          <textarea name="subtitle" class="form-control" rows="3"
+            placeholder="Qo'shimcha tavsif — ixtiyoriy">{{ hero.subtitle|default:'' }}</textarea>
+          <small style="color:#666;font-size:0.78rem">Ixtiyoriy — 60-120 belgi</small>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tugma matni</label>
+            <input type="text" name="button_text" class="form-control"
+              value="{{ hero.button_text|default:'Sotib Olish' }}"
+              placeholder="Sotib Olish">
+          </div>
+          <div class="form-group">
+            <label>Tugma URL</label>
+            <input type="text" name="button_url" class="form-control"
+              value="{{ hero.button_url|default:'#products' }}"
+              placeholder="/products/ yoki #products">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tartib raqami</label>
+            <input type="number" name="order" class="form-control" min="0"
+              value="{{ hero.order|default:0 }}"
+              placeholder="0">
+            <small style="color:#666;font-size:0.78rem">0 = birinchi ko'rinadi</small>
+          </div>
+          <div class="form-group" style="padding-top:28px;display:flex;align-items:center;gap:10px">
+            <input type="checkbox" name="is_active" id="is_active"
+              {% if hero.is_active or not hero %}checked{% endif %}
+              style="width:18px;height:18px;accent-color:var(--accent)">
+            <label for="is_active" style="margin:0;cursor:pointer;font-size:0.9rem">✅ Faol (ko'rinadigan)</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rang sozlamalari -->
+      <div class="card" style="margin-top:20px">
+        <div class="card-header"><h3 class="card-title">🎨 Accent rang</h3></div>
+
+        <div class="form-group">
+          <label>Rang tanlang</label>
+          <div style="display:flex;gap:12px;align-items:center">
+            <input type="color" name="accent_color" id="accentColor"
+              value="{{ hero.accent_color|default:'#44d62c' }}"
+              style="width:60px;height:44px;border:none;background:none;cursor:pointer;border-radius:8px;overflow:hidden">
+            <input type="text" id="accentHex" class="form-control"
+              value="{{ hero.accent_color|default:'#44d62c' }}"
+              placeholder="#44d62c" maxlength="7"
+              style="font-family:monospace;max-width:120px"
+              oninput="document.getElementById('accentColor').value=this.value">
+            <div style="display:flex;gap:8px">
+              {% for color in preset_colors %}
+              <div onclick="setColor('{{ color }}')"
+                style="width:30px;height:30px;border-radius:6px;background:{{ color }};cursor:pointer;border:2px solid transparent;transition:all 0.2s"
+                onmouseover="this.style.borderColor='#fff'" onmouseout="this.style.borderColor='transparent'"
+                title="{{ color }}"></div>
+              {% endfor %}
+            </div>
+          </div>
+          <small style="color:#666;font-size:0.78rem;margin-top:6px;display:block">
+            Bu rang sarlavha va tugmada ishlatiladi — quyida preview
+          </small>
+        </div>
+
+        <!-- Rang preview -->
+        <div id="colorPreview" style="padding:20px;background:#0a0a0a;border-radius:12px;border:1px solid var(--border);text-align:center">
+          <div id="previewTitle" style="font-size:1.4rem;font-weight:700;font-family:'Orbitron',sans-serif;margin-bottom:10px">
+            {{ hero.title|default:"Sarlavha matni" }}
+          </div>
+          <div id="previewSubtitle" style="font-size:0.85rem;color:#aaa;margin-bottom:16px">
+            {{ hero.subtitle|default:"Tavsif matni bu yerda ko'rinadi" }}
+          </div>
+          <div id="previewBtn" style="display:inline-block;padding:10px 28px;border-radius:8px;font-weight:700;font-size:0.9rem">
+            {{ hero.button_text|default:"Sotib Olish" }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- O'NG: Rasm yuklash -->
+    <div>
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">🖼️ Banner rasmi</h3></div>
+
+        <!-- Mavjud rasm -->
+        {% if hero and hero.image %}
+        <div style="margin-bottom:20px">
+          <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:10px">Hozirgi rasm:</p>
+          <div style="border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#0a0a0a;max-height:200px;display:flex;align-items:center;justify-content:center;position:relative">
+            <img src="{{ hero.image.url }}" alt="{{ hero.title }}"
+              style="width:100%;height:200px;object-fit:cover;opacity:0.8">
+            <div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.7);color:#888;font-size:0.7rem;padding:4px 10px;border-radius:6px">
+              Yangi rasm tanlanmasa, bu saqlanadi
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Yangi rasm yuklash -->
+        <input type="file" name="image" id="imageInput" accept="image/jpeg,image/png,image/webp"
+          style="display:none" onchange="previewImage(this)">
+
+        <label for="imageInput" style="cursor:pointer;display:block">
+          <div id="dropZone"
+            style="padding:{% if hero and hero.image %}30px{% else %}60px{% endif %} 40px;text-align:center;border:2px dashed var(--border);border-radius:14px;transition:all 0.3s;background:#0a0a0a"
+            ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='rgba(68,214,44,0.05)'"
+            ondragleave="this.style.borderColor='var(--border)';this.style.background='#0a0a0a'"
+            ondrop="handleDrop(event)">
+            <div style="font-size:2.5rem;margin-bottom:12px">📁</div>
+            <p style="font-size:0.95rem;font-weight:600;margin-bottom:6px;color:#fff">Rasmni bu yerga tashlang</p>
+            <p style="font-size:0.82rem;color:var(--text-muted)">yoki bosing va tanlang</p>
+            <div style="margin-top:14px;display:inline-flex;gap:8px;flex-wrap:wrap;justify-content:center">
+              <span style="background:#111;border:1px solid var(--border);padding:4px 12px;border-radius:6px;font-size:0.75rem;color:#888">JPG</span>
+              <span style="background:#111;border:1px solid var(--border);padding:4px 12px;border-radius:6px;font-size:0.75rem;color:#888">PNG</span>
+              <span style="background:#111;border:1px solid var(--border);padding:4px 12px;border-radius:6px;font-size:0.75rem;color:#888">WEBP</span>
+              <span style="background:#111;border:1px solid var(--border);padding:4px 12px;border-radius:6px;font-size:0.75rem;color:#888">Max 2MB</span>
+            </div>
+          </div>
+        </label>
+
+        <!-- Yangi rasm preview -->
+        <div id="newImgPreview" style="display:none;margin-top:16px;border-radius:12px;overflow:hidden;border:2px solid var(--accent);position:relative">
+          <img id="newImgEl" src="" alt="Yangi rasm"
+            style="width:100%;height:200px;object-fit:cover;display:block">
+          <div style="position:absolute;top:8px;right:8px">
+            <button type="button" onclick="clearImage()"
+              style="background:rgba(255,68,68,0.85);color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:600">
+              ✕ Bekor
+            </button>
+          </div>
+          <div id="imgInfo" style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.75);color:#fff;font-size:0.72rem;padding:5px 12px;border-radius:6px"></div>
+        </div>
+
+        <!-- Foydali maslahat -->
+        <div style="margin-top:20px;padding:16px;background:#0a0a0a;border-radius:10px;border:1px solid var(--border)">
+          <div style="font-size:0.82rem;color:#888;font-weight:600;margin-bottom:10px">💡 Maslahatlar:</div>
+          <ul style="list-style:none;display:grid;gap:6px;font-size:0.8rem;color:#666">
+            <li>✅ To'q fon ishlatish — matn yaxshi ko'rinadi</li>
+            <li>✅ 16:9 nisbat — barcha ekranlarda chiroyli</li>
+            <li>✅ WEBP format — eng kichik hajm, tez yuklash</li>
+            <li>⚠️ Rasmi bo'sh banner avtomatik saqlanmaydi</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:12px;margin-top:8px">
+    <button type="submit" class="btn btn-primary">💾 Saqlash</button>
+    <a href="{% url 'manager:storefront' %}" class="btn btn-outline">← Orqaga</a>
+    {% if hero %}
+    <a href="{% url 'manager:hero_delete' hero.pk %}"
+      onclick="return confirm('Bannerni o\'chirmoqchimisiz?')"
+      style="margin-left:auto;color:var(--danger);border:1px solid var(--border);background:transparent;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:0.88rem;display:inline-flex;align-items:center">
+      🗑 O'chirish
+    </a>
+    {% endif %}
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Rang sync ──
+document.getElementById('accentColor').addEventListener('input', function() {
+  document.getElementById('accentHex').value = this.value;
+  updatePreview();
+});
+
+function setColor(hex) {
+  document.getElementById('accentColor').value = hex;
+  document.getElementById('accentHex').value = hex;
+  updatePreview();
+}
+
+function updatePreview() {
+  const color = document.getElementById('accentColor').value;
+  document.getElementById('previewTitle').style.color = color;
+  document.getElementById('previewBtn').style.background = color;
+  document.getElementById('previewBtn').style.color = '#000';
+  document.getElementById('previewBtn').style.boxShadow = `0 0 20px ${color}55`;
+}
+
+// ── Matn preview ──
+document.querySelector('[name="title"]')?.addEventListener('input', function() {
+  document.getElementById('previewTitle').textContent = this.value || 'Sarlavha matni';
+});
+document.querySelector('[name="subtitle"]')?.addEventListener('input', function() {
+  document.getElementById('previewSubtitle').textContent = this.value || 'Tavsif matni bu yerda ko\'rinadi';
+});
+document.querySelector('[name="button_text"]')?.addEventListener('input', function() {
+  document.getElementById('previewBtn').textContent = this.value || 'Sotib Olish';
+});
+
+// ── Rasm preview ──
+function previewImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  if (file.size > 2 * 1024 * 1024) {
+    alert('⚠️ Fayl hajmi 2MB dan oshmasin!');
+    input.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('newImgEl').src = e.target.result;
+    document.getElementById('newImgPreview').style.display = 'block';
+    document.getElementById('imgInfo').textContent = `${file.name} • ${(file.size/1024).toFixed(0)}KB`;
+    document.getElementById('dropZone').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearImage() {
+  document.getElementById('imageInput').value = '';
+  document.getElementById('newImgPreview').style.display = 'none';
+  document.getElementById('dropZone').style.display = 'block';
+}
+
+function handleDrop(event) {
+  event.preventDefault();
+  const file = event.dataTransfer.files[0];
+  if (!file || !file.type.startsWith('image/')) return;
+  const dt = new DataTransfer();
+  dt.items.add(file);
+  document.getElementById('imageInput').files = dt.files;
+  previewImage(document.getElementById('imageInput'));
+}
+
+// init preview
+updatePreview();
+</script>
+{% endblock %}

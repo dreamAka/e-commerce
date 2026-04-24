@@ -1,0 +1,29 @@
+{% extends "manager/base_manager.html" %}
+{% block title %}Zaxira{% endblock %}
+{% block page_title %}📋 Ombor Zaxirasi{% endblock %}
+
+{% block content %}
+<div class="filter-bar">
+  <input type="text" id="searchInput" placeholder="🔍 Mahsulot qidirish..." style="width:300px">
+</div>
+<div class="card">
+  <table class="data-table">
+    <thead><tr><th>Mahsulot</th><th>Ombor</th><th>Mavjud</th><th>Rezerv</th><th>Shikastlangan</th></tr></thead>
+    <tbody id="invRows">{% include "manager/partials/inventory_rows.html" %}</tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let t;
+document.getElementById('searchInput').addEventListener('input', () => {
+  clearTimeout(t);
+  t = setTimeout(() => {
+    const q = document.getElementById('searchInput').value;
+    fetch(`?q=${encodeURIComponent(q)}`, {headers:{'X-Requested-With':'XMLHttpRequest'}})
+      .then(r=>r.json()).then(d=>{document.getElementById('invRows').innerHTML=d.html;});
+  }, 400);
+});
+</script>
+{% endblock %}

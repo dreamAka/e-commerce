@@ -1,0 +1,20 @@
+{% for u in users %}
+<tr>
+  <td>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem">{{ u.username|first|upper }}</div>
+      <div>
+        <div style="font-weight:600">{{ u.username }}</div>
+        <div style="font-size:0.8rem;color:var(--text-muted)">{{ u.email }}</div>
+      </div>
+    </div>
+  </td>
+  <td>{{ u.phone|default:"-" }}</td>
+  <td><span class="badge badge-{{ u.user_type }}">{{ u.get_user_type_display }}</span></td>
+  <td><span class="badge badge-{{ u.account_status }}">{{ u.get_account_status_display }}</span></td>
+  <td style="color:var(--text-muted);font-size:0.85rem">{{ u.date_joined|date:"d.m.Y" }}</td>
+  <td><a href="{% url 'manager:user_detail' u.pk %}" class="btn btn-outline btn-sm">Ko'rish</a></td>
+</tr>
+{% empty %}
+<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:40px">Foydalanuvchilar topilmadi</td></tr>
+{% endfor %}

@@ -1,0 +1,27 @@
+{% extends "manager/base_manager.html" %}
+{% block title %}Kategoriyalar{% endblock %}
+{% block page_title %}📂 Kategoriyalar{% endblock %}
+
+{% block content %}
+<div style="display:flex;justify-content:flex-end;margin-bottom:24px">
+  <a href="{% url 'manager:category_add' %}" class="btn btn-primary">+ Yangi kategoriya</a>
+</div>
+<div class="card">
+  <table class="data-table">
+    <thead><tr><th>Nom</th><th>Slug</th><th>Ota kategoriya</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for cat in categories %}
+      <tr>
+        <td style="font-weight:600">{{ cat.category_name }}</td>
+        <td style="color:var(--text-muted)">{{ cat.slug }}</td>
+        <td>{{ cat.parent.category_name|default:"—" }}</td>
+        <td>{% if cat.is_active %}<span class="badge badge-active">Faol</span>{% else %}<span class="badge badge-draft">Nofaol</span>{% endif %}</td>
+        <td><a href="{% url 'manager:category_edit' cat.pk %}" class="btn btn-outline btn-sm">✏️</a></td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:40px">Kategoriyalar yo'q</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

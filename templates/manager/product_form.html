@@ -1,0 +1,266 @@
+{% extends "manager/base_manager.html" %}
+{% block title %}{% if product %}Tahrirlash{% else %}Yangi mahsulot{% endif %}{% endblock %}
+{% block page_title %}{% if product %}✏️ {{ product.product_name }}{% else %}➕ Yangi mahsulot{% endif %}{% endblock %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data" id="productForm">
+  {% csrf_token %}
+
+  <!-- Asosiy ma'lumotlar -->
+  <div class="card">
+    <div class="card-header"><h3 class="card-title">📋 Asosiy ma'lumotlar</h3></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Mahsulot nomi *</label>
+        <input type="text" name="product_name" id="productName" class="form-control"
+          value="{{ product.product_name|default:'' }}" required
+          oninput="autoSlug(this.value)">
+      </div>
+      <div class="form-group">
+        <label>Slug *</label>
+        <input type="text" name="slug" id="slugField" class="form-control"
+          value="{{ product.slug|default:'' }}" required>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>SKU *</label>
+        <input type="text" name="sku" class="form-control"
+          value="{{ product.sku|default:'' }}" required>
+      </div>
+      <div class="form-group">
+        <label>Kategoriya</label>
+        <select name="category" class="form-control">
+          <option value="">Tanlang...</option>
+          {% for cat in categories %}
+          <option value="{{ cat.pk }}" {% if product and product.category_id == cat.pk %}selected{% endif %}>{{ cat.category_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Brend</label>
+        <select name="brand" class="form-control">
+          <option value="">Tanlang...</option>
+          {% for brand in brands %}
+          <option value="{{ brand.pk }}" {% if product and product.brand_id == brand.pk %}selected{% endif %}>{{ brand.brand_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select name="product_status" class="form-control">
+          <option value="draft" {% if product and product.product_status == 'draft' %}selected{% endif %}>Qoralama</option>
+          <option value="active" {% if product and product.product_status == 'active' %}selected{% endif %}>Faol</option>
+          <option value="out_of_stock" {% if product and product.product_status == 'out_of_stock' %}selected{% endif %}>Tugagan</option>
+          <option value="discontinued" {% if product and product.product_status == 'discontinued' %}selected{% endif %}>To'xtatilgan</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Tavsif</label>
+      <textarea name="description" class="form-control">{{ product.description|default:'' }}</textarea>
+    </div>
+  </div>
+
+  <!-- Narxlar -->
+  <div class="card">
+    <div class="card-header"><h3 class="card-title">💰 Narxlar</h3></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Asosiy narx (so'm) *</label>
+        <input type="number" name="base_price" class="form-control"
+          value="{{ product.base_price|default:'' }}" required min="0">
+      </div>
+      <div class="form-group">
+        <label>Chegirmali narx (so'm)</label>
+        <input type="number" name="sale_price" class="form-control"
+          value="{{ product.sale_price|default:'' }}" min="0">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Tannarx (so'm)</label>
+        <input type="number" name="cost_price" class="form-control"
+          value="{{ product.cost_price|default:'' }}" min="0">
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:10px;padding-top:28px">
+        <input type="checkbox" name="is_featured" id="is_featured"
+          {% if product and product.is_featured %}checked{% endif %}
+          style="width:18px;height:18px;accent-color:var(--accent)">
+        <label for="is_featured" style="margin:0;cursor:pointer;font-size:0.9rem">⭐ Featured (Mashhur) mahsulot</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ RASMLAR ═══════════════ -->
+  <div class="card">
+    <div class="card-header"><h3 class="card-title">🖼️ Rasmlar</h3></div>
+
+    <!-- Mavjud rasmlar -->
+    {% if existing_images %}
+    <div style="margin-bottom:24px">
+      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px">Mavjud rasmlar — birini asosiy qiling yoki o'chiring:</p>
+      <div id="existingImages" style="display:flex;flex-wrap:wrap;gap:16px">
+        {% for img in existing_images %}
+        <div class="img-card" id="imgCard{{ img.pk }}" style="position:relative;width:120px">
+          <div style="width:120px;height:120px;border-radius:12px;overflow:hidden;border:2px solid {% if img.is_primary %}var(--accent){% else %}var(--border){% endif %};background:#111;display:flex;align-items:center;justify-content:center">
+            <img src="{{ img.image_url.url }}" style="max-width:100%;max-height:100%;object-fit:contain">
+          </div>
+
+          {% if img.is_primary %}
+          <div style="text-align:center;margin-top:6px">
+            <span style="font-size:0.7rem;background:rgba(68,214,44,0.15);color:var(--accent);padding:3px 10px;border-radius:8px;font-weight:600">✓ Asosiy</span>
+          </div>
+          {% else %}
+          <div style="text-align:center;margin-top:6px">
+            <label style="cursor:pointer;font-size:0.72rem;color:var(--text-secondary);display:flex;align-items:center;justify-content:center;gap:4px">
+              <input type="radio" name="primary_image" value="{{ img.pk }}" style="accent-color:var(--accent)">
+              Asosiy qil
+            </label>
+          </div>
+          {% endif %}
+
+          <!-- O'chirish -->
+          <label style="position:absolute;top:-8px;right:-8px;cursor:pointer;z-index:2"
+                 title="O'chirish">
+            <input type="checkbox" name="delete_image" value="{{ img.pk }}"
+              style="display:none" onchange="toggleDelete(this, {{ img.pk }})">
+            <span id="delBtn{{ img.pk }}" style="width:22px;height:22px;border-radius:50%;background:rgba(255,68,68,0.85);color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;transition:all 0.2s">✕</span>
+          </label>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Yangi rasm yuklash -->
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" name="images" id="imageInput" multiple accept="image/*"
+        style="display:none" onchange="previewImages(this)">
+      <label for="imageInput" style="cursor:pointer;display:block">
+        <div style="padding:40px;text-align:center;border:2px dashed var(--border);border-radius:16px;transition:all 0.3s"
+          id="dropArea"
+          ondragover="event.preventDefault();this.style.borderColor='var(--accent)'"
+          ondragleave="this.style.borderColor='var(--border)'"
+          ondrop="handleDrop(event)">
+          <div style="font-size:2.5rem;margin-bottom:12px">📁</div>
+          <p style="font-size:0.95rem;font-weight:600;margin-bottom:6px">Rasmlarni bu yerga tashlang</p>
+          <p style="font-size:0.82rem;color:var(--text-muted)">yoki bosing va tanlang</p>
+          <p style="font-size:0.75rem;color:var(--text-muted);margin-top:8px">JPG, PNG, WEBP — max 5MB/ta, ko'p rasm tanlash mumkin</p>
+        </div>
+      </label>
+    </div>
+
+    <!-- Preview yangi rasmlar -->
+    <div id="newPreviews" style="display:flex;flex-wrap:wrap;gap:12px;margin-top:16px"></div>
+  </div>
+
+  <div style="display:flex;gap:12px">
+    <button type="submit" class="btn btn-primary">💾 Saqlash</button>
+    <a href="{% url 'manager:product_list' %}" class="btn btn-outline">Bekor qilish</a>
+    {% if product %}
+    <a href="{% url 'manager:product_delete' product.pk %}" class="btn btn-sm"
+      style="color:var(--danger);border:1px solid var(--border);background:transparent;padding:10px 20px;border-radius:8px;text-decoration:none;display:inline-flex;align-items:center"
+      onclick="return confirm('Mahsulot o\'chirilsinmi?')">🗑 O'chirish</a>
+    {% endif %}
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ── Slug avtomatik generatsiya ── */
+function autoSlug(name) {
+  const slug = name.toLowerCase()
+    .replace(/[^a-z0-9\s\-]/g, '')
+    .trim().replace(/\s+/g, '-');
+  document.getElementById('slugField').value = slug;
+}
+
+/* ── Rasm o'chirish toggle ── */
+function toggleDelete(checkbox, id) {
+  const card = document.getElementById('imgCard' + id);
+  const btn  = document.getElementById('delBtn' + id);
+  if (checkbox.checked) {
+    card.style.opacity = '0.35';
+    card.style.pointerEvents = 'none';
+    checkbox.style.display = 'block'; // uncheck qilish uchun
+    btn.style.background = 'rgba(255,68,68,0.4)';
+    btn.textContent = '↩';
+  } else {
+    card.style.opacity = '1';
+    card.style.pointerEvents = 'auto';
+    btn.style.background = 'rgba(255,68,68,0.85)';
+    btn.textContent = '✕';
+  }
+  // checkbox ni label orqali toggle qilish uchun visibility saqlaymiz
+  checkbox.style.display = 'none';
+}
+
+/* ── Drag & drop ── */
+function handleDrop(event) {
+  event.preventDefault();
+  document.getElementById('dropArea').style.borderColor = 'var(--border)';
+  const files = event.dataTransfer.files;
+  addFilesToInput(files);
+}
+
+/* ── Mavjud input ga file qo'shish ── */
+let currentFiles = [];
+
+function addFilesToInput(newFiles) {
+  for (let f of newFiles) currentFiles.push(f);
+
+  // DataTransfer orqali input ga yozish
+  const dt = new DataTransfer();
+  currentFiles.forEach(f => dt.items.add(f));
+  document.getElementById('imageInput').files = dt.files;
+
+  renderPreviews();
+}
+
+function previewImages(input) {
+  currentFiles = Array.from(input.files);
+  renderPreviews();
+}
+
+function renderPreviews() {
+  const container = document.getElementById('newPreviews');
+  container.innerHTML = '';
+
+  currentFiles.forEach((file, index) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const div = document.createElement('div');
+      div.style.cssText = 'position:relative;width:100px';
+      div.innerHTML = `
+        <div style="width:100px;height:100px;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:#111;display:flex;align-items:center;justify-content:center">
+          <img src="${e.target.result}" style="max-width:100%;max-height:100%;object-fit:contain">
+        </div>
+        <p style="font-size:0.68rem;color:var(--text-muted);margin-top:4px;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${file.name}</p>
+        <button type="button" onclick="removeFile(${index})"
+          style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:rgba(255,68,68,0.85);color:#fff;border:none;cursor:pointer;font-size:0.7rem;font-weight:700;display:flex;align-items:center;justify-content:center">✕</button>
+      `;
+      container.appendChild(div);
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Upload zone ni yangilash
+  const dropArea = document.getElementById('dropArea');
+  if (currentFiles.length > 0) {
+    dropArea.style.borderColor = 'var(--accent)';
+  }
+}
+
+function removeFile(index) {
+  currentFiles.splice(index, 1);
+  const dt = new DataTransfer();
+  currentFiles.forEach(f => dt.items.add(f));
+  document.getElementById('imageInput').files = dt.files;
+  renderPreviews();
+}
+</script>
+{% endblock %}

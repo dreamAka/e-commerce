@@ -803,13 +803,18 @@ function initHeroSwiper() {
 
   const AUTOPLAY_DELAY = 5000; // 5 seconds per slide
 
+  const swiperEl = document.querySelector('.heroSwiper');
+  if (!swiperEl) return;
+
+  const slideCount = swiperEl.querySelectorAll('.swiper-slide').length;
+  const useLoop = slideCount >= 3;
+
   const heroSwiper = new Swiper('.heroSwiper', {
     // Core
-    loop: true,
+    loop: useLoop,
     speed: 900,
     grabCursor: true,
-    watchOverflow: false,
-    loopAdditionalSlides: 2,
+    watchOverflow: true,
 
     // Effect – smooth slide
     effect: 'slide',
@@ -889,13 +894,16 @@ function initHeroSwiper() {
 
   // ── Content animation on slide change ──
   const animateSlide = (swiper) => {
-    const activeSlide = swiper.slides[swiper.activeIndex];
-    if (!activeSlide) return;
+    if (!swiper || !swiper.slides) return;
+    const slides = swiper.slides;
+    const activeIndex = swiper.activeIndex;
+    if (!slides[activeIndex]) return;
+    const activeSlide = slides[activeIndex];
     const content = activeSlide.querySelector('.hs-content');
     const visual  = activeSlide.querySelector('.hs-visual, .hs-visual--fullbleed');
     if (content) {
       content.style.animation = 'none';
-      void content.offsetWidth; // reflow
+      void content.offsetWidth;
       content.style.animation = 'hs-content-in .7s cubic-bezier(.4,0,.2,1) forwards';
     }
     if (visual) {

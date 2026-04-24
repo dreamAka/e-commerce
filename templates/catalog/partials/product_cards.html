@@ -1,0 +1,28 @@
+{% load static %}
+{% for product in products %}
+<a href="{% url 'catalog:product_detail' product.slug %}" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;overflow:hidden;transition:all 0.3s;text-decoration:none;color:#fff;display:block">
+  <div style="height:200px;background:#111;display:flex;align-items:center;justify-content:center;overflow:hidden">
+    {% if product.primary_image %}
+    <img src="{{ product.primary_image.image_url.url }}" alt="{{ product.product_name }}" style="max-height:180px;max-width:90%;object-fit:contain;transition:transform 0.4s">
+    {% else %}
+    <span style="font-size:3.5rem">🎮</span>
+    {% endif %}
+  </div>
+  <div style="padding:16px 20px">
+    {% if product.category %}
+    <span style="font-size:0.72rem;color:#44d62c;text-transform:uppercase;letter-spacing:1px">{{ product.category.category_name }}</span>
+    {% endif %}
+    <h3 style="font-size:0.95rem;font-weight:600;margin:6px 0">{{ product.product_name }}</h3>
+    <div style="display:flex;align-items:baseline;gap:8px;margin-top:10px">
+      <span style="font-size:1.1rem;font-weight:700;font-family:'Orbitron',sans-serif;color:#44d62c">{{ product.current_price|floatformat:0 }} so'm</span>
+      {% if product.sale_price %}
+      <span style="font-size:0.8rem;color:#666;text-decoration:line-through">{{ product.base_price|floatformat:0 }}</span>
+      {% endif %}
+    </div>
+  </div>
+</a>
+{% empty %}
+<div style="grid-column:1/-1;text-align:center;padding:60px;color:#666">
+  <p style="font-size:1.1rem">Mahsulot topilmadi</p>
+</div>
+{% endfor %}

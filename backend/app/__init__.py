@@ -1,1 +1,0 @@
-# NexGear Backend – app package

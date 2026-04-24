@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Bosh Sahifa{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section" id="heroSection">
+  <div class="swiper heroSwiper">
+    <div class="swiper-wrapper">
+      {% for hero in heroes %}
+      <div class="swiper-slide hs-slide hs-slide--fullbleed">
+        <div class="hs-bg-layer" style="background: linear-gradient(135deg, #0a0a0a 40%, {{ hero.accent_color }}22 100%)"></div>
+        <div class="hs-inner hs-inner--fullbleed">
+          <div class="hs-content">
+            <h1 class="hs-title">{{ hero.title }}</h1>
+            <p class="hs-subtitle">{{ hero.subtitle }}</p>
+            <div class="hs-actions">
+              <a href="{{ hero.button_url }}" class="hs-btn hs-btn-primary" style="background:{{ hero.accent_color }}">
+                {{ hero.button_text }}
+              </a>
+            </div>
+          </div>
+          <div class="hs-visual hs-visual--fullbleed" style="align-items:center;justify-content:center;min-height:300px">
+            {% if hero.image %}<img src="{{ hero.image.url }}" alt="{{ hero.title }}" class="hs-hero-product" style="align-self:center;object-position:center center">{% endif %}
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <!-- Static slides if no DB heroes -->
+      <div class="swiper-slide hs-slide hs-slide--fullbleed">
+        <div class="hs-bg-layer" style="background: linear-gradient(135deg, #0a0a0a 40%, #44d62c22 100%)"></div>
+        <div class="hs-inner hs-inner--fullbleed">
+          <div class="hs-content">
+            <span class="hs-badge">🎮 Gaming Aksessuarlar</span>
+            <h1 class="hs-title">NexGear<br><span class="hs-accent">Gaming Store</span></h1>
+            <p class="hs-subtitle">O'zbekistondagi eng yaxshi gaming aksessuarlar do'koni</p>
+            <div class="hs-actions">
+              <a href="{% url 'catalog:product_list' %}" class="hs-btn hs-btn-primary">Mahsulotlar →</a>
+            </div>
+          </div>
+          <div class="hs-visual hs-visual--fullbleed">
+            <img src="{% static 'images/slide1.png' %}" alt="Gaming Mouse" class="hs-hero-product hs-hero-product--green">
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <button class="hs-arrow hs-arrow-prev" id="hsPrev">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <button class="hs-arrow hs-arrow-next" id="hsNext">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+    <div class="hs-pagination"></div>
+  </div>
+</section>
+
+<!-- Categories -->
+{% if categories %}
+<section class="section" id="categories" style="padding: 80px 0">
+  <div class="container">
+    <h2 class="section-title" style="text-align:center;margin-bottom:48px;font-family:'Orbitron',sans-serif;font-size:2rem">
+      Kategoriyalar
+    </h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px">
+      {% for cat in categories %}
+      <a href="{% url 'catalog:product_list' %}?category={{ cat.slug }}" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;padding:32px 20px;text-align:center;transition:all 0.3s;text-decoration:none;color:#fff">
+        <div style="font-size:2.5rem;margin-bottom:12px">🎮</div>
+        <div style="font-weight:600;font-size:0.95rem">{{ cat.category_name }}</div>
+        <div style="color:#666;font-size:0.8rem;margin-top:4px">{{ cat.products.count }} mahsulot</div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Featured Products -->
+<section class="section" id="products" style="padding: 80px 0">
+  <div class="container">
+    <h2 class="section-title" style="text-align:center;margin-bottom:48px;font-family:'Orbitron',sans-serif;font-size:2rem">
+      ⭐ Mashhur Mahsulotlar
+    </h2>
+    <div class="products-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px">
+      {% for product in featured_products %}
+      <a href="{% url 'catalog:product_detail' product.slug %}" class="product-card" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;overflow:hidden;transition:all 0.3s;text-decoration:none;color:#fff">
+        <div style="height:220px;background:#111;display:flex;align-items:center;justify-content:center;overflow:hidden">
+          {% if product.primary_image %}
+          <img src="{{ product.primary_image.image_url.url }}" alt="{{ product.product_name }}" style="max-height:200px;max-width:90%;object-fit:contain;transition:transform 0.4s">
+          {% else %}
+          <span style="font-size:4rem">🎮</span>
+          {% endif %}
+        </div>
+        <div style="padding:20px">
+          {% if product.category %}
+          <span style="font-size:0.75rem;color:#44d62c;text-transform:uppercase;letter-spacing:1px">{{ product.category.category_name }}</span>
+          {% endif %}
+          <h3 style="font-size:1rem;font-weight:600;margin:8px 0">{{ product.product_name }}</h3>
+          <div style="display:flex;align-items:baseline;gap:10px;margin-top:12px">
+            <span style="font-size:1.2rem;font-weight:700;font-family:'Orbitron',sans-serif;color:#44d62c">
+              {{ product.current_price|floatformat:0 }} so'm
+            </span>
+            {% if product.sale_price %}
+            <span style="font-size:0.85rem;color:#666;text-decoration:line-through">{{ product.base_price|floatformat:0 }}</span>
+            <span style="background:rgba(68,214,44,0.15);color:#44d62c;padding:2px 8px;border-radius:6px;font-size:0.75rem;font-weight:600">
+              -{{ product.discount_percent }}%
+            </span>
+            {% endif %}
+          </div>
+          {% if product.average_rating %}
+          <div style="margin-top:8px;color:#ffaa00;font-size:0.85rem">
+            ★ {{ product.average_rating }} / 5
+          </div>
+          {% endif %}
+        </div>
+      </a>
+      {% empty %}
+      <div style="grid-column:1/-1;text-align:center;padding:60px;color:#666">
+        <p style="font-size:1.2rem">Hozircha mahsulotlar yo'q</p>
+        <p>Manager paneldan mahsulot qo'shing</p>
+      </div>
+      {% endfor %}
+    </div>
+    {% if featured_products %}
+    <div style="text-align:center;margin-top:48px">
+      <a href="{% url 'catalog:product_list' %}" style="display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:#44d62c;color:#000;border-radius:12px;font-weight:600;text-decoration:none;transition:all 0.3s">
+        Barcha mahsulotlar →
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Brands -->
+{% if brands %}
+<section style="padding:60px 0;background:#0a0a0a">
+  <div class="container">
+    <h2 style="text-align:center;margin-bottom:40px;font-family:'Orbitron',sans-serif;font-size:1.5rem;color:#fff">Brendlar</h2>
+    <div style="display:flex;justify-content:center;gap:40px;flex-wrap:wrap;opacity:0.6">
+      {% for brand in brands %}
+      <div style="font-size:1.2rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#888">{{ brand.brand_name }}</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

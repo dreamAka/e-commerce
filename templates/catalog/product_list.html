@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Mahsulotlar{% endblock %}
+
+{% block content %}
+<section style="padding:100px 0 60px;min-height:100vh">
+  <div class="container" style="max-width:1300px;margin:0 auto;padding:0 20px">
+    <h1 style="font-family:'Orbitron',sans-serif;font-size:2rem;margin-bottom:32px">Mahsulotlar</h1>
+
+    <div style="display:flex;gap:24px">
+      <!-- Sidebar Filters -->
+      <aside style="width:260px;flex-shrink:0">
+        <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;padding:24px;position:sticky;top:100px">
+          <h3 style="font-size:0.9rem;margin-bottom:16px;color:#44d62c">Filtrlar</h3>
+          <div style="margin-bottom:20px">
+            <label style="font-size:0.8rem;color:#888;display:block;margin-bottom:6px">Qidirish</label>
+            <input type="text" id="searchInput" value="{{ current_q }}" placeholder="Mahsulot nomi..."
+              style="width:100%;background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:0.88rem">
+          </div>
+          <div style="margin-bottom:20px">
+            <label style="font-size:0.8rem;color:#888;display:block;margin-bottom:6px">Kategoriya</label>
+            <select id="catFilter" style="width:100%;background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff">
+              <option value="">Barchasi</option>
+              {% for cat in categories %}<option value="{{ cat.slug }}">{{ cat.category_name }}</option>{% endfor %}
+            </select>
+          </div>
+          <div style="margin-bottom:20px">
+            <label style="font-size:0.8rem;color:#888;display:block;margin-bottom:6px">Brend</label>
+            <select id="brandFilter" style="width:100%;background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff">
+              <option value="">Barchasi</option>
+              {% for b in brands %}<option value="{{ b.pk }}">{{ b.brand_name }}</option>{% endfor %}
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.8rem;color:#888;display:block;margin-bottom:6px">Tartiblash</label>
+            <select id="sortFilter" style="width:100%;background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff">
+              <option value="newest">Eng yangi</option>
+              <option value="price_asc">Narx: arzon → qimmat</option>
+              <option value="price_desc">Narx: qimmat → arzon</option>
+              <option value="popular">Mashhur</option>
+              <option value="rating">Reyting</option>
+            </select>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Products Grid -->
+      <div style="flex:1">
+        <div id="productCount" style="color:#888;font-size:0.88rem;margin-bottom:16px">{{ products.count }} ta mahsulot</div>
+        <div id="productsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px">
+          {% include "catalog/partials/product_cards.html" %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let timer;
+function fetchProducts() {
+  const q = document.getElementById('searchInput').value;
+  const cat = document.getElementById('catFilter').value;
+  const brand = document.getElementById('brandFilter').value;
+  const sort = document.getElementById('sortFilter').value;
+  fetch(`?q=${encodeURIComponent(q)}&category=${cat}&brand=${brand}&sort=${sort}`,
+    {headers:{'X-Requested-With':'XMLHttpRequest'}})
+    .then(r=>r.json()).then(d=>{
+      document.getElementById('productsGrid').innerHTML=d.html;
+      document.getElementById('productCount').textContent=d.count+' ta mahsulot';
+    });
+}
+['searchInput'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(fetchProducts,400);});
+});
+['catFilter','brandFilter','sortFilter'].forEach(id=>{
+  document.getElementById(id).addEventListener('change',fetchProducts);
+});
+</script>
+{% endblock %}
