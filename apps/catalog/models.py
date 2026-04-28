@@ -197,6 +197,7 @@ class HeroSection(models.Model):
     title = models.CharField(max_length=200)
     subtitle = models.CharField(max_length=300, blank=True)
     image = models.ImageField(upload_to='hero/')
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True, related_name='hero_sections', verbose_name='Mahsulot')
     button_text = models.CharField(max_length=50, default='Sotib Olish')
     button_url = models.CharField(max_length=200, default='#products')
     accent_color = models.CharField(max_length=7, default='#44d62c')

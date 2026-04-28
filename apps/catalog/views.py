@@ -10,7 +10,7 @@ from .models import Product, Category, Brand, HeroSection, Wishlist
 
 
 def home(request):
-    heroes = HeroSection.objects.filter(is_active=True).order_by('order')
+    heroes = HeroSection.objects.filter(is_active=True).select_related('product').order_by('order')
     featured = Product.objects.filter(is_featured=True, product_status='active').select_related('category', 'brand')[:8]
     categories = Category.objects.filter(is_active=True, parent__isnull=True)[:6]
     brands = Brand.objects.filter(is_active=True)[:8]

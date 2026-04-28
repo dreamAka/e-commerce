@@ -45,8 +45,9 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(HeroSection)
 class HeroSectionAdmin(admin.ModelAdmin):
-    list_display = ('title', 'is_active', 'order')
+    list_display = ('title', 'product', 'is_active', 'order')
     list_filter = ('is_active',)
+    raw_id_fields = ('product',)
 
 
 @admin.register(ProductQuestion)

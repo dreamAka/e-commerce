@@ -1,8 +1,9 @@
+{% load price_filters %}
 {% for order in orders %}
 <tr>
   <td><a href="{% url 'manager:order_detail' order.pk %}" style="font-weight:600">{{ order.order_number }}</a></td>
   <td>{{ order.user.username }}</td>
-  <td style="font-weight:600">{{ order.total_amount|floatformat:0 }} so'm</td>
+  <td style="font-weight:600">{{ order.total_amount|price_format }} so'm</td>
   <td><span class="badge badge-{{ order.order_status }}">{{ order.get_order_status_display }}</span></td>
   <td><span class="badge badge-{{ order.payment_status }}">{{ order.get_payment_status_display }}</span></td>
   <td style="color:var(--text-muted);font-size:0.85rem">{{ order.created_at|date:"d.m.Y H:i" }}</td>

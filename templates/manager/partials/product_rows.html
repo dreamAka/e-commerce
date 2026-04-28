@@ -1,3 +1,4 @@
+{% load price_filters %}
 {% for p in products %}
 <tr>
   <td>
@@ -11,8 +12,8 @@
   </td>
   <td>{{ p.category.category_name|default:"-" }}</td>
   <td>{{ p.brand.brand_name|default:"-" }}</td>
-  <td style="font-weight:600">{{ p.base_price|floatformat:0 }} so'm</td>
-  <td>{% if p.sale_price %}<span style="color:var(--accent)">{{ p.sale_price|floatformat:0 }} so'm</span>{% else %}-{% endif %}</td>
+  <td style="font-weight:600">{{ p.base_price|price_format }} so'm</td>
+  <td>{% if p.sale_price %}<span style="color:var(--accent)">{{ p.sale_price|price_format }} so'm</span>{% else %}-{% endif %}</td>
   <td><span class="badge badge-{{ p.product_status }}">{{ p.get_product_status_display }}</span></td>
   <td>
     <a href="{% url 'manager:product_edit' p.pk %}" class="btn btn-outline btn-sm">✏️</a>

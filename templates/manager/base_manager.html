@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Manager{% endblock %} — NexGear</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <style>
     :root {
@@ -218,43 +219,43 @@
   <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-logo">
-      ⚡ <span>NEX</span>GEAR
+      <i class="fa-solid fa-bolt" style="color:var(--accent);margin-right:8px;"></i> <span>NEX</span>GEAR
     </div>
     <nav class="sidebar-nav">
       <div class="sidebar-section">Asosiy</div>
       <a href="{% url 'manager:dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-        <span class="icon">📊</span> Dashboard
+        <span class="icon"><i class="fa-solid fa-chart-pie"></i></span> Dashboard
       </a>
 
       <div class="sidebar-section">Sotuvlar</div>
       <a href="{% url 'manager:order_list' %}" class="sidebar-link {% if 'order' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">📦</span> Buyurtmalar
+        <span class="icon"><i class="fa-solid fa-box-open"></i></span> Buyurtmalar
       </a>
 
       <div class="sidebar-section">Katalog</div>
       <a href="{% url 'manager:product_list' %}" class="sidebar-link {% if 'product' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">🎮</span> Mahsulotlar
+        <span class="icon"><i class="fa-solid fa-gamepad"></i></span> Mahsulotlar
       </a>
       <a href="{% url 'manager:category_list' %}" class="sidebar-link {% if 'category' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">📂</span> Kategoriyalar
+        <span class="icon"><i class="fa-solid fa-folder-open"></i></span> Kategoriyalar
       </a>
 
       <div class="sidebar-section">Ombor</div>
       <a href="{% url 'manager:inventory_list' %}" class="sidebar-link {% if 'inventory' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">📋</span> Zaxira
+        <span class="icon"><i class="fa-solid fa-clipboard-list"></i></span> Zaxira
       </a>
 
       <div class="sidebar-section">Foydalanuvchilar</div>
       <a href="{% url 'manager:user_list' %}" class="sidebar-link {% if 'user' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">👥</span> Foydalanuvchilar
+        <span class="icon"><i class="fa-solid fa-users"></i></span> Foydalanuvchilar
       </a>
 
       <div class="sidebar-section">Sozlamalar</div>
       <a href="{% url 'manager:storefront' %}" class="sidebar-link {% if 'storefront' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">🏠</span> Bosh sahifa
+        <span class="icon"><i class="fa-solid fa-store"></i></span> Bosh sahifa
       </a>
       <a href="/" class="sidebar-link">
-        <span class="icon">🌐</span> Saytga o'tish
+        <span class="icon"><i class="fa-solid fa-globe"></i></span> Saytga o'tish
       </a>
     </nav>
   </aside>

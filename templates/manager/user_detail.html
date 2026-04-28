@@ -1,4 +1,5 @@
 {% extends "manager/base_manager.html" %}
+{% load price_filters %}
 {% block title %}{{ profile_user.username }}{% endblock %}
 {% block page_title %}👤 {{ profile_user.username }}{% endblock %}
 
@@ -13,7 +14,7 @@
     <p style="margin-top:8px"><span class="badge badge-{{ profile_user.account_status }}">{{ profile_user.get_account_status_display }}</span></p>
     <div style="margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center">
       <div><div style="font-size:1.3rem;font-weight:700;color:var(--accent)">{{ profile_user.loyalty_points }}</div><div style="font-size:0.8rem;color:var(--text-muted)">Ball</div></div>
-      <div><div style="font-size:1.3rem;font-weight:700">{{ profile_user.lifetime_value|floatformat:0 }}</div><div style="font-size:0.8rem;color:var(--text-muted)">Lifetime</div></div>
+      <div><div style="font-size:1.3rem;font-weight:700">{{ profile_user.lifetime_value|price_format }}</div><div style="font-size:0.8rem;color:var(--text-muted)">Lifetime</div></div>
     </div>
     <div style="margin-top:24px">
       <a href="{% url 'manager:user_toggle' profile_user.pk %}" class="btn {% if profile_user.account_status == 'active' %}btn-danger{% else %}btn-primary{% endif %}" style="width:100%">
@@ -40,7 +41,7 @@
           {% for order in orders %}
           <tr>
             <td><a href="{% url 'manager:order_detail' order.pk %}">{{ order.order_number }}</a></td>
-            <td>{{ order.total_amount|floatformat:0 }} so'm</td>
+            <td>{{ order.total_amount|price_format }} so'm</td>
             <td><span class="badge badge-{{ order.order_status }}">{{ order.get_order_status_display }}</span></td>
             <td style="color:var(--text-muted)">{{ order.created_at|date:"d.m.Y" }}</td>
           </tr>

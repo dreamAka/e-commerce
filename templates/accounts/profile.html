@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Profil{% endblock %}
+{% load price_filters %}
 
 {% block content %}
 <section style="padding:100px 0 60px;min-height:100vh">
@@ -73,7 +74,7 @@
               <span style="color:#888;font-size:0.82rem;margin-left:8px">{{ order.created_at|date:"d.m.Y" }}</span>
             </div>
             <div style="display:flex;align-items:center;gap:12px">
-              <span style="font-weight:600">{{ order.total_amount|floatformat:0 }} so'm</span>
+              <span style="font-weight:600;font-family:'Orbitron',sans-serif">{{ order.total_amount|price_format }} so'm</span>
               <span style="padding:4px 10px;border-radius:8px;font-size:0.75rem;font-weight:600;
                 {% if order.order_status == 'delivered' %}background:rgba(68,214,44,0.15);color:#44d62c{% elif order.order_status == 'pending' %}background:rgba(255,170,0,0.15);color:#ffaa00{% else %}background:rgba(59,130,246,0.15);color:#3b82f6{% endif %}">
                 {{ order.get_order_status_display }}

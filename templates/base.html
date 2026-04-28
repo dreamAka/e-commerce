@@ -9,6 +9,7 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23000'/><text x='50%25' y='55%25' font-size='20' text-anchor='middle' dominant-baseline='middle' fill='%2344d62c'>⚡</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   {% block extra_css %}{% endblock %}
@@ -27,7 +28,7 @@
 
     <!-- Logo -->
     <a href="{% url 'catalog:home' %}" class="logo" id="navLogo">
-      <span class="logo-icon">⚡</span>
+      <span class="logo-icon"><i class="fa-solid fa-bolt"></i></span>
       <span class="logo-text">NEX<span class="logo-accent">GEAR</span></span>
     </a>
 
@@ -47,13 +48,13 @@
             {% if nav_categories %}
               {% for cat in nav_categories %}
               <a href="{% url 'catalog:product_list' %}?category={{ cat.slug }}" class="nav-dropdown-item">
-                <span class="nav-dropdown-icon">🎮</span>
+                <span class="nav-dropdown-icon"><i class="fa-solid fa-gamepad"></i></span>
                 <span>{{ cat.category_name }}</span>
               </a>
               {% endfor %}
             {% else %}
               <a href="{% url 'catalog:product_list' %}" class="nav-dropdown-item">
-                <span class="nav-dropdown-icon">📦</span>
+                <span class="nav-dropdown-icon"><i class="fa-solid fa-boxes-stacked"></i></span>
                 <span>Barcha mahsulotlar</span>
               </a>
             {% endif %}
@@ -100,13 +101,13 @@
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="nav-user-dropdown" id="userDropdown">
-          <a href="{% url 'accounts:profile' %}" class="nav-user-item">👤 Profil</a>
-          <a href="{% url 'orders:order_list' %}" class="nav-user-item">📦 Buyurtmalarim</a>
+          <a href="{% url 'accounts:profile' %}" class="nav-user-item"><i class="fa-solid fa-user"></i> Profil</a>
+          <a href="{% url 'orders:order_list' %}" class="nav-user-item"><i class="fa-solid fa-box-open"></i> Buyurtmalarim</a>
           {% if user.is_staff %}
-          <a href="{% url 'manager:dashboard' %}" class="nav-user-item nav-user-item--accent">⚙️ Manager Panel</a>
+          <a href="{% url 'manager:dashboard' %}" class="nav-user-item nav-user-item--accent"><i class="fa-solid fa-gear"></i> Manager Panel</a>
           {% endif %}
           <div class="nav-user-divider"></div>
-          <a href="{% url 'accounts:logout' %}" class="nav-user-item nav-user-item--danger">🚪 Chiqish</a>
+          <a href="{% url 'accounts:logout' %}" class="nav-user-item nav-user-item--danger"><i class="fa-solid fa-right-from-bracket"></i> Chiqish</a>
         </div>
       </div>
 
@@ -119,8 +120,8 @@
       <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Tema" title="Tungi / Kunduzgi">
         <span class="theme-toggle-track">
           <span class="theme-toggle-thumb">
-            <span class="theme-icon-moon">🌙</span>
-            <span class="theme-icon-sun">☀️</span>
+            <span class="theme-icon-moon"><i class="fa-solid fa-moon"></i></span>
+            <span class="theme-icon-sun"><i class="fa-solid fa-sun"></i></span>
           </span>
         </span>
       </button>

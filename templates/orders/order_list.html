@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Buyurtmalar{% endblock %}
+{% load price_filters %}
 
 {% block content %}
 <section style="padding:100px 0 60px;min-height:100vh">
   <div class="container" style="max-width:900px;margin:0 auto;padding:0 20px">
-    <h1 style="font-family:'Orbitron',sans-serif;font-size:1.8rem;margin-bottom:32px">📦 Buyurtmalarim</h1>
+    <h1 style="font-family:'Orbitron',sans-serif;font-size:1.8rem;margin-bottom:32px"><i class="fa-solid fa-box-open"></i> Buyurtmalarim</h1>
 
     {% for order in orders %}
     <a href="{% url 'orders:order_detail' order.pk %}" style="display:block;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;padding:20px 24px;margin-bottom:12px;text-decoration:none;color:#fff;transition:border 0.2s"
@@ -15,7 +16,7 @@
           <span style="color:#888;font-size:0.82rem;margin-left:12px">{{ order.created_at|date:"d.m.Y H:i" }}</span>
         </div>
         <div style="display:flex;align-items:center;gap:12px">
-          <span style="font-weight:700">{{ order.total_amount|floatformat:0 }} so'm</span>
+          <span style="font-weight:700;font-family:'Orbitron',sans-serif">{{ order.total_amount|price_format }} so'm</span>
           <span style="padding:4px 12px;border-radius:8px;font-size:0.78rem;font-weight:600;
             {% if order.order_status == 'delivered' %}background:rgba(68,214,44,0.15);color:#44d62c
             {% elif order.order_status == 'pending' %}background:rgba(255,170,0,0.15);color:#ffaa00
@@ -28,7 +29,7 @@
     </a>
     {% empty %}
     <div style="text-align:center;padding:80px;color:#666">
-      <div style="font-size:4rem;margin-bottom:16px">📦</div>
+      <div style="font-size:4rem;margin-bottom:16px"><i class="fa-solid fa-box-open"></i></div>
       <h2 style="color:#999">Buyurtmalar yo'q</h2>
       <a href="{% url 'catalog:product_list' %}" style="display:inline-block;margin-top:16px;padding:12px 28px;background:#44d62c;color:#000;border-radius:10px;text-decoration:none;font-weight:600">Xarid qilish →</a>
     </div>

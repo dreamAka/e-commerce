@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load price_filters %}
 
 {% block title %}Bosh Sahifa{% endblock %}
 
@@ -20,6 +21,11 @@
               <a href="{{ hero.button_url }}" class="hs-btn hs-btn-primary" style="background:{{ hero.accent_color }}">
                 {{ hero.button_text }}
               </a>
+              {% if hero.product %}
+              <a href="{% url 'catalog:product_detail' hero.product.slug %}" class="hs-btn hs-btn-secondary">
+                Подробная информация
+              </a>
+              {% endif %}
             </div>
           </div>
           <div class="hs-visual hs-visual--fullbleed">
@@ -34,7 +40,7 @@
         <div class="hs-bg-layer" style="background:linear-gradient(135deg,#0a0a0a 40%,#44d62c22 100%)"></div>
         <div class="hs-inner hs-inner--fullbleed">
           <div class="hs-content">
-            <span class="hs-badge">🎮 Gaming Aksessuarlar</span>
+            <span class="hs-badge"><i class="fa-solid fa-gamepad"></i> Gaming Aksessuarlar</span>
             <h1 class="hs-title">NexGear<br><span class="hs-accent">Gaming Store</span></h1>
             <p class="hs-subtitle">O'zbekistondagi eng yaxshi gaming aksessuarlar do'koni</p>
             <div class="hs-actions">
@@ -67,7 +73,7 @@
     <div class="home-cats-grid">
       {% for cat in categories %}
       <a href="{% url 'catalog:product_list' %}?category={{ cat.slug }}" class="home-cat-card">
-        <div class="home-cat-icon">🎮</div>
+        <div class="home-cat-icon"><i class="fa-solid fa-gamepad"></i></div>
         <div class="home-cat-name">{{ cat.category_name }}</div>
         <div class="home-cat-count">{{ cat.products.count }} mahsulot</div>
       </a>
@@ -80,7 +86,7 @@
 <!-- ═══════════════ MASHHUR MAHSULOTLAR ═══════════════ -->
 <section class="home-section" id="products">
   <div class="container">
-    <h2 class="home-section-title">⭐ Mashhur Mahsulotlar</h2>
+    <h2 class="home-section-title"><i class="fa-solid fa-star" style="color: #ffaa00;"></i> Mashhur Mahsulotlar</h2>
     <div class="home-products-grid">
       {% for product in featured_products %}
       <a href="{% url 'catalog:product_detail' product.slug %}" class="home-product-card">
@@ -88,7 +94,7 @@
           {% if product.primary_image %}
           <img src="{{ product.primary_image.image_url.url }}" alt="{{ product.product_name }}">
           {% else %}
-          <span class="home-product-placeholder">🎮</span>
+          <span class="home-product-placeholder"><i class="fa-solid fa-image"></i></span>
           {% endif %}
         </div>
         <div class="home-product-info">
@@ -97,14 +103,14 @@
           {% endif %}
           <h3 class="home-product-name">{{ product.product_name }}</h3>
           <div class="home-product-price-row">
-            <span class="home-product-price">{{ product.current_price|floatformat:0 }} so'm</span>
+            <span class="home-product-price">{{ product.current_price|price_format }} so'm</span>
             {% if product.sale_price %}
-            <span class="home-product-old">{{ product.base_price|floatformat:0 }}</span>
+            <span class="home-product-old">{{ product.base_price|price_format }}</span>
             <span class="home-product-badge">-{{ product.discount_percent }}%</span>
             {% endif %}
           </div>
           {% if product.average_rating %}
-          <div class="home-product-rating">★ {{ product.average_rating }} / 5</div>
+          <div class="home-product-rating"><i class="fa-solid fa-star"></i> {{ product.average_rating }} / 5</div>
           {% endif %}
         </div>
       </a>

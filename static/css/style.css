@@ -3139,6 +3139,19 @@ html.light-mode .hs-badge    { color: var(--green) !important; }
   box-shadow: 0 0 20px rgba(68,214,44,.2);
 }
 
+.hs-btn-secondary {
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.2);
+  backdrop-filter: blur(6px);
+}
+.hs-btn-secondary:hover {
+  background: rgba(255,255,255,.15);
+  border-color: rgba(255,255,255,.4);
+  box-shadow: 0 0 20px rgba(255,255,255,.1);
+  transform: translateY(-2px);
+}
+
 /* Mini stats row */
 .hs-stats {
   display: flex;

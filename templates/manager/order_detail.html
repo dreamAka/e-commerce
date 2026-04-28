@@ -1,4 +1,5 @@
 {% extends "manager/base_manager.html" %}
+{% load price_filters %}
 {% block title %}Buyurtma {{ order.order_number }}{% endblock %}
 {% block page_title %}📦 Buyurtma #{{ order.order_number }}{% endblock %}
 
@@ -16,14 +17,14 @@
           {% for item in items %}
           <tr>
             <td style="font-weight:600">{{ item.product.product_name }}{% if item.variant %} ({{ item.variant.variant_name }}){% endif %}</td>
-            <td>{{ item.unit_price|floatformat:0 }} so'm</td>
+            <td>{{ item.unit_price|price_format }} so'm</td>
             <td>{{ item.quantity }}</td>
-            <td style="font-weight:600">{{ item.subtotal|floatformat:0 }} so'm</td>
+            <td style="font-weight:600">{{ item.subtotal|price_format }} so'm</td>
           </tr>
           {% endfor %}
         </tbody>
         <tfoot>
-          <tr><td colspan="3" style="text-align:right;font-weight:700">JAMI:</td><td style="font-weight:700;font-size:1.1rem;color:var(--accent)">{{ order.total_amount|floatformat:0 }} so'm</td></tr>
+          <tr><td colspan="3" style="text-align:right;font-weight:700">JAMI:</td><td style="font-weight:700;font-size:1.1rem;color:var(--accent)">{{ order.total_amount|price_format }} so'm</td></tr>
         </tfoot>
       </table>
     </div>

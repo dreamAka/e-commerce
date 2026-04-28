@@ -1,4 +1,5 @@
 {% extends "manager/base_manager.html" %}
+{% load price_filters %}
 
 {% block title %}Dashboard{% endblock %}
 {% block page_title %}📊 Dashboard{% endblock %}
@@ -13,7 +14,7 @@
   </div>
   <div class="stat-card">
     <div class="stat-icon">💰</div>
-    <div class="stat-value">{{ total_revenue|floatformat:0 }}</div>
+    <div class="stat-value">{{ total_revenue|price_format }}</div>
     <div class="stat-label">Jami daromad (so'm)</div>
   </div>
   <div class="stat-card">
@@ -35,7 +36,7 @@
     <div class="stat-label">Bugungi buyurtmalar</div>
   </div>
   <div class="stat-card" style="border-left:3px solid var(--warning)">
-    <div class="stat-value" style="font-size:1.4rem">{{ today_revenue|floatformat:0 }}</div>
+    <div class="stat-value" style="font-size:1.4rem">{{ today_revenue|price_format }}</div>
     <div class="stat-label">Bugungi daromad</div>
   </div>
   <div class="stat-card" style="border-left:3px solid var(--danger)">
@@ -74,7 +75,7 @@
         <tr>
           <td><a href="{% url 'manager:order_detail' order.pk %}">{{ order.order_number }}</a></td>
           <td>{{ order.user.username }}</td>
-          <td>{{ order.total_amount|floatformat:0 }} so'm</td>
+          <td>{{ order.total_amount|price_format }} so'm</td>
           <td><span class="badge badge-{{ order.order_status }}">{{ order.get_order_status_display }}</span></td>
         </tr>
         {% empty %}
