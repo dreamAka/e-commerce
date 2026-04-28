@@ -15,6 +15,21 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me')
 DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,0.0.0.0').split(',')
 
+# Railway deploy uchun domain qo'shish
+RAILWAY_DOMAIN = config('RAILWAY_PUBLIC_DOMAIN', default='')
+if RAILWAY_DOMAIN:
+    ALLOWED_HOSTS.append(RAILWAY_DOMAIN)
+# Wildcard — barcha railway subdomenlar uchun
+if '.railway.app' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('.railway.app')
+
+# HTTPS orqali Railway proxy ishlashi uchun
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='https://*.railway.app'
+).split(',')
+
 # ── Installed Apps ──
 INSTALLED_APPS = [
     # Django core
@@ -126,6 +141,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://localhost:8000',
     'http://127.0.0.1:8000',
+    'https://e-commerce-production-a0d5.up.railway.app',
 ]
 CORS_ALLOW_CREDENTIALS = True
 
