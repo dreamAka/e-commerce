@@ -956,12 +956,15 @@ html.light-mode .nav-overlay        { background: rgba(0,0,0,.3); }
   flex-wrap: wrap;
 }
 .home-brand-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   font-size: 1.1rem;
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--text-muted);
-  transition: color .25s;
+  transition: color .25s, transform .25s;
   cursor: default;
 }
 .home-brand-item:hover { color: var(--text); }

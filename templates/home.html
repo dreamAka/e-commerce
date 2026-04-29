@@ -136,7 +136,12 @@
     <h2 class="home-brands-title">Brendlar</h2>
     <div class="home-brands-list">
       {% for brand in brands %}
-      <div class="home-brand-item">{{ brand.brand_name }}</div>
+      <div class="home-brand-item">
+        {% if brand.logo_url %}
+        <img src="{{ brand.logo_url.url }}" alt="{{ brand.brand_name }}" class="brand-logo" style="height:24px;width:auto;object-fit:contain;">
+        {% endif %}
+        {{ brand.brand_name }}
+      </div>
       {% endfor %}
     </div>
   </div>
