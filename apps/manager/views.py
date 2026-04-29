@@ -65,10 +65,25 @@ def dashboard(request):
         chart_data.append(cnt)
 
     # ── Oylik kalendar ma'lumotlari ──
-    year = today.year
-    month = today.month
+    try:
+        year = int(request.GET.get('year', today.year))
+        month = int(request.GET.get('month', today.month))
+        # Validate month
+        if not (1 <= month <= 12):
+            month = today.month
+            year = today.year
+    except ValueError:
+        year = today.year
+        month = today.month
+
     days_in_month = cal_module.monthrange(year, month)[1]
     first_weekday = cal_module.monthrange(year, month)[0]  # 0=Mon
+
+    # Keyingi va oldingi oylarni hisoblash
+    prev_month = month - 1 if month > 1 else 12
+    prev_year = year if month > 1 else year - 1
+    next_month = month + 1 if month < 12 else 1
+    next_year = year if month < 12 else year + 1
 
     # Har bir kun uchun buyurtmalar soni
     monthly_orders = {}
@@ -108,7 +123,13 @@ def dashboard(request):
         'cal_days_in_month': days_in_month,
         'cal_first_weekday': first_weekday,
         'cal_monthly_orders': json.dumps(monthly_orders),
-        'cal_today_day': today.day,
+        'cal_today_day': today.day if (year == today.year and month == today.month) else 0,
+        
+        # Navigatsiya uchun
+        'prev_year': prev_year,
+        'prev_month': prev_month,
+        'next_year': next_year,
+        'next_month': next_month,
     }
     return render(request, 'manager/dashboard.html', context)
 

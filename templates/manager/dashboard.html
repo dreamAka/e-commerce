@@ -58,6 +58,10 @@
       <h3 style="font-size:1rem;font-weight:600;font-family:'Orbitron',sans-serif">
         📅 {{ cal_month_name }} {{ cal_year }}
       </h3>
+      <div style="display:flex;gap:4px">
+        <a href="?year={{ prev_year }}&month={{ prev_month }}" class="btn btn-sm" style="padding:4px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);text-decoration:none">◀</a>
+        <a href="?year={{ next_year }}&month={{ next_month }}" class="btn btn-sm" style="padding:4px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);text-decoration:none">▶</a>
+      </div>
     </div>
 
     <!-- Hafta kunlari -->
