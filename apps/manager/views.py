@@ -3,6 +3,8 @@ Manager Panel Views — Dashboard, Orders, Products, Inventory, Users, Categorie
 """
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
+import calendar as cal_module
+import json
 from django.template.loader import render_to_string
 from django.db.models import Sum, Count, Q, F, Avg
 from django.db.models.functions import TruncDate
@@ -62,6 +64,30 @@ def dashboard(request):
         cnt = Order.objects.filter(created_at__date=d).count()
         chart_data.append(cnt)
 
+    # ── Oylik kalendar ma'lumotlari ──
+    year = today.year
+    month = today.month
+    days_in_month = cal_module.monthrange(year, month)[1]
+    first_weekday = cal_module.monthrange(year, month)[0]  # 0=Mon
+
+    # Har bir kun uchun buyurtmalar soni
+    monthly_orders = {}
+    from django.db.models.functions import TruncDate as _TD
+    daily_counts = (
+        Order.objects
+        .filter(created_at__year=year, created_at__month=month)
+        .annotate(day=_TD('created_at'))
+        .values('day')
+        .annotate(cnt=Count('id'))
+    )
+    for entry in daily_counts:
+        monthly_orders[entry['day'].day] = entry['cnt']
+
+    month_names_uz = [
+        '', 'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun',
+        'Iyul', 'Avgust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'
+    ]
+
     context = {
         'total_orders': total_orders,
         'total_revenue': total_revenue,
@@ -75,8 +101,62 @@ def dashboard(request):
         'pending_returns': pending_returns,
         'chart_labels': chart_labels,
         'chart_data': chart_data,
+        # Kalendar uchun
+        'cal_year': year,
+        'cal_month': month,
+        'cal_month_name': month_names_uz[month],
+        'cal_days_in_month': days_in_month,
+        'cal_first_weekday': first_weekday,
+        'cal_monthly_orders': json.dumps(monthly_orders),
+        'cal_today_day': today.day,
     }
     return render(request, 'manager/dashboard.html', context)
+
+
+@admin_required
+def dashboard_day_stats(request):
+    """AJAX: Tanlangan kun uchun soatlik buyurtmalar va statistika."""
+    date_str = request.GET.get('date', '')
+    try:
+        from datetime import datetime
+        selected_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+    except (ValueError, TypeError):
+        return JsonResponse({'error': 'Noto\'g\'ri sana'}, status=400)
+
+    orders_qs = Order.objects.filter(created_at__date=selected_date)
+    day_orders = orders_qs.count()
+    day_revenue = orders_qs.filter(payment_status='paid').aggregate(s=Sum('total_amount'))['s'] or 0
+
+    # Soatlik taqsimot (0-23)
+    hourly = [0] * 24
+    hourly_data = (
+        orders_qs
+        .extra(select={'hour': "strftime('%%H', created_at)"})
+        .values('hour')
+        .annotate(cnt=Count('id'))
+    )
+    for h in hourly_data:
+        try:
+            hourly[int(h['hour'])] = h['cnt']
+        except (ValueError, TypeError):
+            pass
+
+    # Top mahsulotlar shu kunga
+    top_products = list(
+        OrderItem.objects
+        .filter(order__created_at__date=selected_date)
+        .values('product__product_name')
+        .annotate(total=Sum('quantity'))
+        .order_by('-total')[:5]
+    )
+
+    return JsonResponse({
+        'date': date_str,
+        'orders': day_orders,
+        'revenue': float(day_revenue),
+        'hourly': hourly,
+        'top_products': top_products,
+    })
 
 
 # ══════════════════════════════════════════════════════════════

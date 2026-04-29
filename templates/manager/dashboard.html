@@ -49,17 +49,73 @@
   </div>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
-  <!-- Chart -->
-  <div class="card">
-    <div class="card-header">
-      <h3 class="card-title">📈 Oxirgi 7 kun — Buyurtmalar</h3>
+<!-- ═══════════════ KALENDAR + GRAFIK ═══════════════ -->
+<div style="display:grid;grid-template-columns:340px 1fr;gap:24px;margin-bottom:24px">
+
+  <!-- Kalendar -->
+  <div class="card" style="padding:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="font-size:1rem;font-weight:600;font-family:'Orbitron',sans-serif">
+        📅 {{ cal_month_name }} {{ cal_year }}
+      </h3>
     </div>
-    <div class="chart-container">
-      <canvas id="ordersChart"></canvas>
+
+    <!-- Hafta kunlari -->
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;margin-bottom:8px">
+      <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;padding:6px 0">Du</div>
+      <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;padding:6px 0">Se</div>
+      <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;padding:6px 0">Cho</div>
+      <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;padding:6px 0">Pa</div>
+      <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;padding:6px 0">Ju</div>
+      <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;padding:6px 0">Sha</div>
+      <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;padding:6px 0">Ya</div>
+    </div>
+
+    <!-- Kun kataklari -->
+    <div id="calendarGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">
+    </div>
+
+    <!-- Tanlangan kun info -->
+    <div id="calDayInfo" style="margin-top:16px;padding:14px;background:var(--bg-primary);border-radius:10px;border:1px solid var(--border);display:none">
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:6px" id="calDayLabel">—</div>
+      <div style="display:flex;gap:16px">
+        <div>
+          <div style="font-size:1.3rem;font-weight:700;color:var(--accent);font-family:'Orbitron',sans-serif" id="calDayOrders">0</div>
+          <div style="font-size:0.72rem;color:var(--text-muted)">Buyurtma</div>
+        </div>
+        <div>
+          <div style="font-size:1.3rem;font-weight:700;font-family:'Orbitron',sans-serif" id="calDayRevenue">0</div>
+          <div style="font-size:0.72rem;color:var(--text-muted)">Daromad</div>
+        </div>
+      </div>
+      <!-- Top mahsulotlar -->
+      <div id="calTopProducts" style="margin-top:10px;display:none">
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px">🏆 Top mahsulotlar:</div>
+        <div id="calTopList" style="font-size:0.78rem"></div>
+      </div>
     </div>
   </div>
 
+  <!-- Soatlik grafik (tanlangan kun uchun) -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title" id="chartTitle">📈 Oxirgi 7 kun — Buyurtmalar</h3>
+      <div id="chartMode" style="display:flex;gap:6px">
+        <button type="button" class="btn btn-sm" id="btnWeekly"
+          style="background:var(--accent);color:#000;border:none;font-size:0.75rem;padding:5px 12px;border-radius:6px;cursor:pointer"
+          onclick="showWeeklyChart()">7 kun</button>
+        <button type="button" class="btn btn-sm" id="btnHourly"
+          style="background:transparent;color:var(--text-secondary);border:1px solid var(--border);font-size:0.75rem;padding:5px 12px;border-radius:6px;cursor:pointer"
+          onclick="if(selectedDate) loadDayStats(selectedDate)">Soatlik</button>
+      </div>
+    </div>
+    <div class="chart-container" style="height:280px">
+      <canvas id="ordersChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
   <!-- Recent Orders -->
   <div class="card">
     <div class="card-header">
@@ -84,55 +140,331 @@
       </tbody>
     </table>
   </div>
-</div>
 
-{% if low_stock %}
-<div class="card" style="margin-top:24px">
-  <div class="card-header">
-    <h3 class="card-title">⚠️ Kam zaxira (≤5 dona)</h3>
+  <!-- Kam zaxira yoki bo'sh joy -->
+  {% if low_stock %}
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">⚠️ Kam zaxira (≤5 dona)</h3>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Mahsulot</th><th>Ombor</th><th>Qoldiq</th></tr></thead>
+      <tbody>
+        {% for inv in low_stock %}
+        <tr>
+          <td>{{ inv.product.product_name }}</td>
+          <td>{{ inv.warehouse.warehouse_name }}</td>
+          <td><span class="badge badge-cancelled">{{ inv.quantity_available }} dona</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
-  <table class="data-table">
-    <thead><tr><th>Mahsulot</th><th>Ombor</th><th>Qoldiq</th></tr></thead>
-    <tbody>
-      {% for inv in low_stock %}
-      <tr>
-        <td>{{ inv.product.product_name }}</td>
-        <td>{{ inv.warehouse.warehouse_name }}</td>
-        <td><span class="badge badge-cancelled">{{ inv.quantity_available }} dona</span></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  {% endif %}
 </div>
-{% endif %}
 
 {% endblock %}
 
 {% block extra_js %}
-<script>
-const ctx = document.getElementById('ordersChart').getContext('2d');
-new Chart(ctx, {
-  type: 'bar',
-  data: {
-    labels: {{ chart_labels|safe }},
-    datasets: [{
-      label: 'Buyurtmalar',
-      data: {{ chart_data|safe }},
-      backgroundColor: 'rgba(68, 214, 44, 0.3)',
-      borderColor: '#44d62c',
-      borderWidth: 2,
-      borderRadius: 6,
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: '#222' } },
-      x: { ticks: { color: '#666' }, grid: { display: false } }
-    }
+<style>
+  .cal-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    background: var(--bg-primary);
+    border: 1px solid transparent;
+    min-height: 38px;
   }
+  .cal-day:hover {
+    border-color: var(--accent);
+    background: rgba(68,214,44,0.06);
+  }
+  .cal-day.cal-today {
+    border-color: var(--accent);
+    box-shadow: 0 0 10px rgba(68,214,44,0.2);
+  }
+  .cal-day.cal-selected {
+    background: rgba(68,214,44,0.15);
+    border-color: var(--accent);
+  }
+  .cal-day .cal-num {
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .cal-day .cal-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    margin-top: 3px;
+  }
+  .cal-day .cal-badge {
+    position: absolute;
+    top: 2px;
+    right: 3px;
+    font-size: 0.55rem;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: 'Orbitron', sans-serif;
+  }
+  .cal-day.cal-empty {
+    background: transparent;
+    cursor: default;
+    border: none;
+  }
+  .cal-day.cal-empty:hover {
+    background: transparent;
+    border: none;
+  }
+</style>
+
+<script>
+// ── Ma'lumotlar ──
+const calYear = {{ cal_year }};
+const calMonth = {{ cal_month }};
+const daysInMonth = {{ cal_days_in_month }};
+const firstWeekday = {{ cal_first_weekday }};
+const todayDay = {{ cal_today_day }};
+const monthlyOrders = {{ cal_monthly_orders|safe }};
+let selectedDate = null;
+let mainChart = null;
+
+// ── Kalendar yaratish ──
+function buildCalendar() {
+  const grid = document.getElementById('calendarGrid');
+  grid.innerHTML = '';
+
+  // Bo'sh kunlar (oy boshi)
+  for (let i = 0; i < firstWeekday; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'cal-day cal-empty';
+    grid.appendChild(empty);
+  }
+
+  // Kunlar
+  for (let d = 1; d <= daysInMonth; d++) {
+    const cell = document.createElement('div');
+    cell.className = 'cal-day';
+    if (d === todayDay) cell.classList.add('cal-today');
+
+    const orders = monthlyOrders[d] || 0;
+
+    cell.innerHTML = `
+      <span class="cal-num">${d}</span>
+      ${orders > 0
+        ? `<span class="cal-dot" style="background:var(--accent)"></span>
+           <span class="cal-badge">${orders}</span>`
+        : `<span class="cal-dot" style="background:var(--border)"></span>`
+      }
+    `;
+
+    cell.addEventListener('click', () => selectDay(d, cell));
+    grid.appendChild(cell);
+  }
+}
+
+// ── Kun tanlash ──
+function selectDay(day, cell) {
+  // Oldingi tanlangan belgini o'chirish
+  document.querySelectorAll('.cal-day.cal-selected').forEach(el => el.classList.remove('cal-selected'));
+  cell.classList.add('cal-selected');
+
+  const mm = String(calMonth).padStart(2, '0');
+  const dd = String(day).padStart(2, '0');
+  selectedDate = `${calYear}-${mm}-${dd}`;
+
+  loadDayStats(selectedDate);
+}
+
+// ── AJAX: Kun statistikasi ──
+function loadDayStats(dateStr) {
+  const infoBox = document.getElementById('calDayInfo');
+  infoBox.style.display = 'block';
+  document.getElementById('calDayLabel').textContent = '⏳ Yuklanmoqda...';
+
+  fetch(`{% url 'manager:day_stats' %}?date=${dateStr}`)
+    .then(r => r.json())
+    .then(data => {
+      // Info box
+      const parts = dateStr.split('-');
+      document.getElementById('calDayLabel').textContent =
+        `📅 ${parts[2]}.${parts[1]}.${parts[0]} — kunlik statistika`;
+      document.getElementById('calDayOrders').textContent = data.orders;
+      document.getElementById('calDayRevenue').textContent =
+        formatPrice(data.revenue) + " so'm";
+
+      // Top mahsulotlar
+      const topDiv = document.getElementById('calTopProducts');
+      const topList = document.getElementById('calTopList');
+      if (data.top_products && data.top_products.length > 0) {
+        topDiv.style.display = 'block';
+        topList.innerHTML = data.top_products.map((p, i) =>
+          `<div style="display:flex;justify-content:space-between;padding:3px 0;${i > 0 ? 'border-top:1px solid var(--border)' : ''}">
+            <span style="color:var(--text-secondary)">${p.product__product_name}</span>
+            <span style="font-weight:600;color:var(--accent)">${p.total} dona</span>
+          </div>`
+        ).join('');
+      } else {
+        topDiv.style.display = 'none';
+      }
+
+      // Soatlik grafik
+      showHourlyChart(data.hourly, dateStr);
+
+      // Knopka stilini yangilash
+      document.getElementById('btnHourly').style.background = 'var(--accent)';
+      document.getElementById('btnHourly').style.color = '#000';
+      document.getElementById('btnHourly').style.border = 'none';
+      document.getElementById('btnWeekly').style.background = 'transparent';
+      document.getElementById('btnWeekly').style.color = 'var(--text-secondary)';
+      document.getElementById('btnWeekly').style.border = '1px solid var(--border)';
+    })
+    .catch(() => {
+      document.getElementById('calDayLabel').textContent = '❌ Xatolik yuz berdi';
+    });
+}
+
+// ── Narx formatlash ──
+function formatPrice(num) {
+  return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+// ── Soatlik grafik ──
+function showHourlyChart(hourly, dateStr) {
+  const parts = dateStr.split('-');
+  document.getElementById('chartTitle').textContent = `📈 ${parts[2]}.${parts[1]}.${parts[0]} — Soatlik buyurtmalar`;
+
+  if (mainChart) mainChart.destroy();
+
+  const labels = [];
+  for (let i = 0; i < 24; i++) labels.push(`${String(i).padStart(2,'0')}:00`);
+
+  const ctx = document.getElementById('ordersChart').getContext('2d');
+  mainChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Buyurtmalar',
+        data: hourly,
+        backgroundColor: function(context) {
+          const chart = context.chart;
+          const {ctx: c, chartArea} = chart;
+          if (!chartArea) return 'rgba(68, 214, 44, 0.4)';
+          const gradient = c.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+          gradient.addColorStop(0, 'rgba(68, 214, 44, 0.1)');
+          gradient.addColorStop(1, 'rgba(68, 214, 44, 0.6)');
+          return gradient;
+        },
+        borderColor: '#44d62c',
+        borderWidth: 2,
+        borderRadius: 4,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1a1a1a',
+          borderColor: '#44d62c',
+          borderWidth: 1,
+          titleColor: '#44d62c',
+          bodyColor: '#fff',
+          cornerRadius: 8,
+          padding: 10,
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#666', stepSize: 1 },
+          grid: { color: 'rgba(255,255,255,0.05)' }
+        },
+        x: {
+          ticks: {
+            color: '#666',
+            maxRotation: 45,
+            font: { size: 9 }
+          },
+          grid: { display: false }
+        }
+      },
+      animation: {
+        duration: 600,
+        easing: 'easeOutQuart'
+      }
+    }
+  });
+}
+
+// ── Haftalik grafik (default) ──
+function showWeeklyChart() {
+  document.getElementById('chartTitle').textContent = '📈 Oxirgi 7 kun — Buyurtmalar';
+
+  // Knopka stilini
+  document.getElementById('btnWeekly').style.background = 'var(--accent)';
+  document.getElementById('btnWeekly').style.color = '#000';
+  document.getElementById('btnWeekly').style.border = 'none';
+  document.getElementById('btnHourly').style.background = 'transparent';
+  document.getElementById('btnHourly').style.color = 'var(--text-secondary)';
+  document.getElementById('btnHourly').style.border = '1px solid var(--border)';
+
+  if (mainChart) mainChart.destroy();
+
+  const ctx = document.getElementById('ordersChart').getContext('2d');
+  mainChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: {{ chart_labels|safe }},
+      datasets: [{
+        label: 'Buyurtmalar',
+        data: {{ chart_data|safe }},
+        backgroundColor: 'rgba(68, 214, 44, 0.3)',
+        borderColor: '#44d62c',
+        borderWidth: 2,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1a1a1a',
+          borderColor: '#44d62c',
+          borderWidth: 1,
+          titleColor: '#44d62c',
+          bodyColor: '#fff',
+          cornerRadius: 8,
+          padding: 10,
+        }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        x: { ticks: { color: '#666' }, grid: { display: false } }
+      },
+      animation: {
+        duration: 600,
+        easing: 'easeOutQuart'
+      }
+    }
+  });
+}
+
+// ── Sahifa yuklanganda ──
+document.addEventListener('DOMContentLoaded', () => {
+  buildCalendar();
+  showWeeklyChart();
 });
 </script>
 {% endblock %}
