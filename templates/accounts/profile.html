@@ -9,7 +9,7 @@
 
     <div style="display:grid;grid-template-columns:300px 1fr;gap:32px">
       <!-- Profile Card -->
-      <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:20px;padding:32px;text-align:center">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:32px;text-align:center">
         <div style="width:80px;height:80px;border-radius:50%;background:#44d62c;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;margin:0 auto 16px">
           {{ user.username|first|upper }}
         </div>
@@ -18,11 +18,11 @@
         <p style="color:#888;font-size:0.85rem;margin-top:4px">{{ user.phone|default:"" }}</p>
 
         <div style="margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <div style="background:#111;border-radius:10px;padding:14px">
+          <div style="background:var(--bg-void);border-radius:10px;padding:14px">
             <div style="font-size:1.3rem;font-weight:700;color:#44d62c;font-family:'Orbitron',sans-serif">{{ user.loyalty_points }}</div>
             <div style="font-size:0.78rem;color:#888">Ball</div>
           </div>
-          <div style="background:#111;border-radius:10px;padding:14px">
+          <div style="background:var(--bg-void);border-radius:10px;padding:14px">
             <div style="font-size:1.3rem;font-weight:700;font-family:'Orbitron',sans-serif">{{ orders.count }}</div>
             <div style="font-size:0.78rem;color:#888">Buyurtma</div>
           </div>
@@ -39,7 +39,7 @@
       <!-- Right Column -->
       <div>
         <!-- Edit Profile -->
-        <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;padding:24px;margin-bottom:24px">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:24px">
           <h3 style="font-size:1rem;font-weight:600;margin-bottom:16px">Profilni tahrirlash</h3>
           <form method="post">
             {% csrf_token %}
@@ -47,25 +47,25 @@
               <div>
                 <label style="font-size:0.82rem;color:#888;display:block;margin-bottom:4px">Ism</label>
                 <input type="text" name="first_name" value="{{ user.first_name }}"
-                  style="width:100%;background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:0.9rem">
+                  style="width:100%;background:var(--bg-void);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:0.9rem">
               </div>
               <div>
                 <label style="font-size:0.82rem;color:#888;display:block;margin-bottom:4px">Familiya</label>
                 <input type="text" name="last_name" value="{{ user.last_name }}"
-                  style="width:100%;background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:0.9rem">
+                  style="width:100%;background:var(--bg-void);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:0.9rem">
               </div>
             </div>
             <div style="margin-bottom:16px">
               <label style="font-size:0.82rem;color:#888;display:block;margin-bottom:4px">Telefon</label>
               <input type="text" name="phone" value="{{ user.phone }}"
-                style="width:100%;background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:0.9rem">
+                style="width:100%;background:var(--bg-void);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:0.9rem">
             </div>
             <button type="submit" style="padding:10px 24px;background:#44d62c;color:#000;border:none;border-radius:8px;font-weight:600;cursor:pointer">Saqlash</button>
           </form>
         </div>
 
         <!-- Orders -->
-        <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;padding:24px">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:24px">
           <h3 style="font-size:1rem;font-weight:600;margin-bottom:16px">Oxirgi buyurtmalar</h3>
           {% for order in orders %}
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #2a2a2a">

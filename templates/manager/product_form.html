@@ -105,7 +105,7 @@
       <div id="existingImages" style="display:flex;flex-wrap:wrap;gap:16px">
         {% for img in existing_images %}
         <div class="img-card" id="imgCard{{ img.pk }}" style="position:relative;width:120px">
-          <div style="width:120px;height:120px;border-radius:12px;overflow:hidden;border:2px solid {% if img.is_primary %}var(--accent){% else %}var(--border){% endif %};background:#111;display:flex;align-items:center;justify-content:center">
+          <div style="width:120px;height:120px;border-radius:12px;overflow:hidden;border:2px solid {% if img.is_primary %}var(--accent){% else %}var(--border){% endif %};background:var(--bg-void);display:flex;align-items:center;justify-content:center">
             <img src="{{ img.image_url.url }}" style="max-width:100%;max-height:100%;object-fit:contain">
           </div>
 
@@ -127,7 +127,7 @@
                  title="O'chirish">
             <input type="checkbox" name="delete_image" value="{{ img.pk }}"
               style="display:none" onchange="toggleDelete(this, {{ img.pk }})">
-            <span id="delBtn{{ img.pk }}" style="width:22px;height:22px;border-radius:50%;background:rgba(255,68,68,0.85);color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;transition:all 0.2s">✕</span>
+            <span id="delBtn{{ img.pk }}" style="width:22px;height:22px;border-radius:50%;background:rgba(255,68,68,0.85);color:var(--text);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;transition:all 0.2s">✕</span>
           </label>
         </div>
         {% endfor %}
@@ -236,12 +236,12 @@ function renderPreviews() {
       const div = document.createElement('div');
       div.style.cssText = 'position:relative;width:100px';
       div.innerHTML = `
-        <div style="width:100px;height:100px;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:#111;display:flex;align-items:center;justify-content:center">
+        <div style="width:100px;height:100px;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:var(--bg-void);display:flex;align-items:center;justify-content:center">
           <img src="${e.target.result}" style="max-width:100%;max-height:100%;object-fit:contain">
         </div>
         <p style="font-size:0.68rem;color:var(--text-muted);margin-top:4px;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${file.name}</p>
         <button type="button" onclick="removeFile(${index})"
-          style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:rgba(255,68,68,0.85);color:#fff;border:none;cursor:pointer;font-size:0.7rem;font-weight:700;display:flex;align-items:center;justify-content:center">✕</button>
+          style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:rgba(255,68,68,0.85);color:var(--text);border:none;cursor:pointer;font-size:0.7rem;font-weight:700;display:flex;align-items:center;justify-content:center">✕</button>
       `;
       container.appendChild(div);
     };

@@ -56,7 +56,7 @@
       color: var(--accent);
       display: flex; align-items: center; gap: 10px;
     }
-    .sidebar-logo span { color: #fff; }
+    .sidebar-logo span { color:var(--text); }
     .sidebar-nav { padding: 16px 0; flex: 1; overflow-y: auto; }
     .sidebar-section { padding: 8px 24px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-top: 12px; }
     .sidebar-link {
@@ -64,11 +64,11 @@
       padding: 10px 24px; font-size: 0.88rem; color: var(--text-secondary);
       transition: all 0.2s; border-left: 3px solid transparent;
     }
-    .sidebar-link:hover { background: var(--bg-hover); color: #fff; }
+    .sidebar-link:hover { background: var(--bg-hover); color:var(--text); }
     .sidebar-link.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-glow); }
     .sidebar-link .icon { width: 20px; text-align: center; font-size: 1.1rem; }
     .sidebar-link .badge {
-      margin-left: auto; background: var(--danger); color: #fff;
+      margin-left: auto; background: var(--danger); color:var(--text);
       font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; font-weight: 600;
     }
 
@@ -84,7 +84,7 @@
     .topbar-title { font-size: 1.1rem; font-weight: 600; }
     .topbar-search {
       background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 8px; padding: 8px 16px; color: #fff;
+      border-radius: 8px; padding: 8px 16px; color:var(--text);
       font-size: 0.88rem; width: 300px; outline: none;
       transition: border 0.2s;
     }
@@ -161,7 +161,7 @@
     .btn-primary:hover { background: var(--accent-hover); box-shadow: 0 0 20px var(--accent-glow); }
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-primary); }
     .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
-    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-danger { background: var(--danger); color:var(--text); }
     .btn-sm { padding: 6px 14px; font-size: 0.8rem; }
 
     /* ── Filter bar ── */
@@ -170,7 +170,7 @@
     }
     .filter-bar select, .filter-bar input {
       background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 8px; padding: 8px 14px; color: #fff; font-size: 0.88rem;
+      border-radius: 8px; padding: 8px 14px; color:var(--text); font-size: 0.88rem;
     }
     .filter-bar select:focus, .filter-bar input:focus { border-color: var(--accent); outline: none; }
 
@@ -179,7 +179,7 @@
     .form-group label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
     .form-control {
       width: 100%; background: var(--bg-primary); border: 1px solid var(--border);
-      border-radius: 8px; padding: 10px 14px; color: #fff; font-size: 0.9rem;
+      border-radius: 8px; padding: 10px 14px; color:var(--text); font-size: 0.9rem;
     }
     .form-control:focus { border-color: var(--accent); outline: none; }
     textarea.form-control { min-height: 120px; resize: vertical; }

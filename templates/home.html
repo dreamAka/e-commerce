@@ -12,7 +12,7 @@
     <div class="swiper-wrapper">
       {% for hero in heroes %}
       <div class="swiper-slide hs-slide hs-slide--fullbleed">
-        <div class="hs-bg-layer" style="background:linear-gradient(135deg,#0a0a0a 40%,{{ hero.accent_color }}22 100%)"></div>
+        <div class="hs-bg-layer" style="background:linear-gradient(135deg,var(--bg-deep) 40%,{{ hero.accent_color }}22 100%)"></div>
         <div class="hs-inner hs-inner--fullbleed">
           <div class="hs-content">
             <h1 class="hs-title">{{ hero.title }}</h1>

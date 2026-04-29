@@ -8,7 +8,7 @@
     <h1 style="font-family:'Orbitron',sans-serif;font-size:1.8rem;margin-bottom:32px"><i class="fa-solid fa-box-open"></i> Buyurtmalarim</h1>
 
     {% for order in orders %}
-    <a href="{% url 'orders:order_detail' order.pk %}" style="display:block;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;padding:20px 24px;margin-bottom:12px;text-decoration:none;color:#fff;transition:border 0.2s"
+    <a href="{% url 'orders:order_detail' order.pk %}" style="display:block;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:20px 24px;margin-bottom:12px;text-decoration:none;color:var(--text);transition:border 0.2s"
       onmouseover="this.style.borderColor='#44d62c'" onmouseout="this.style.borderColor='#2a2a2a'">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div>

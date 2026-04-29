@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="tab-filters" id="statusTabs">
-  <button class="tab-filter active" data-status="">Barchasi <span class="badge" style="background:var(--border);color:#fff;margin-left:4px">{{ counts.all }}</span></button>
+  <button class="tab-filter active" data-status="">Barchasi <span class="badge" style="background:var(--border);color:var(--text);margin-left:4px">{{ counts.all }}</span></button>
   <button class="tab-filter" data-status="pending">Kutilmoqda <span class="badge badge-pending" style="margin-left:4px">{{ counts.pending }}</span></button>
   <button class="tab-filter" data-status="processing">Tayyorlanmoqda <span class="badge badge-processing" style="margin-left:4px">{{ counts.processing }}</span></button>
   <button class="tab-filter" data-status="shipped">Jo'natildi <span class="badge badge-shipped" style="margin-left:4px">{{ counts.shipped }}</span></button>

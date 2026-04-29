@@ -10,13 +10,13 @@
     <div style="margin-bottom:24px;font-size:0.85rem;color:#888">
       <a href="{% url 'catalog:home' %}" style="color:#888;text-decoration:none">Bosh sahifa</a> /
       {% if product.category %}<a href="{% url 'catalog:product_list' %}?category={{ product.category.slug }}" style="color:#888;text-decoration:none">{{ product.category.category_name }}</a> /{% endif %}
-      <span style="color:#fff">{{ product.product_name }}</span>
+      <span style="color:var(--text)">{{ product.product_name }}</span>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start">
       <!-- Images -->
       <div>
-        <div style="background:#111;border:1px solid #2a2a2a;border-radius:20px;height:450px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:16px" id="mainImage">
+        <div style="background:var(--bg-void);border:1px solid var(--border);border-radius:20px;height:450px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:16px" id="mainImage">
           {% if images %}
           <img src="{{ images.0.image_url.url }}" alt="{{ product.product_name }}" style="max-height:400px;max-width:90%;object-fit:contain" id="currentImg">
           {% else %}
@@ -26,7 +26,7 @@
         {% if images.count > 1 %}
         <div style="display:flex;gap:10px;overflow-x:auto">
           {% for img in images %}
-          <div onclick="document.getElementById('currentImg').src='{{ img.image_url.url }}'" style="width:80px;height:80px;border:1px solid #2a2a2a;border-radius:12px;cursor:pointer;background:#111;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:border 0.2s"
+          <div onclick="document.getElementById('currentImg').src='{{ img.image_url.url }}'" style="width:80px;height:80px;border:1px solid var(--border);border-radius:12px;cursor:pointer;background:var(--bg-void);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:border 0.2s"
             onmouseover="this.style.borderColor='#44d62c'" onmouseout="this.style.borderColor='#2a2a2a'">
             <img src="{{ img.image_url.url }}" style="max-height:60px;max-width:60px;object-fit:contain">
           </div>
@@ -66,7 +66,7 @@
           <label style="font-size:0.85rem;color:#888;display:block;margin-bottom:8px">Variant</label>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             {% for v in variants %}
-            <button type="button" style="padding:10px 20px;border:1px solid #2a2a2a;border-radius:10px;background:#1a1a1a;color:#fff;cursor:pointer;font-size:0.88rem;transition:all 0.2s"
+            <button type="button" style="padding:10px 20px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card);color:var(--text);cursor:pointer;font-size:0.88rem;transition:all 0.2s"
               onmouseover="this.style.borderColor='#44d62c'" onmouseout="this.style.borderColor='#2a2a2a'">
               {{ v.variant_name }}
               {% if v.price_adjustment > 0 %}(+{{ v.price_adjustment|price_format }}){% endif %}
@@ -77,20 +77,20 @@
         {% endif %}
 
         <!-- Description -->
-        <div style="margin-bottom:24px;padding:20px;background:#1a1a1a;border-radius:12px;border:1px solid #2a2a2a">
+        <div style="margin-bottom:24px;padding:20px;background:var(--bg-card);border-radius:12px;border:1px solid var(--border)">
           <h3 style="font-size:0.9rem;color:#44d62c;margin-bottom:10px">Tavsif</h3>
-          <p style="color:#ccc;font-size:0.9rem;line-height:1.7">{{ product.description|linebreaksbr }}</p>
+          <p style="color:var(--text);font-size:0.9rem;line-height:1.7">{{ product.description|linebreaksbr }}</p>
         </div>
 
         <!-- Add to Cart -->
         <form method="post" action="{% url 'orders:add_to_cart' product.pk %}" style="margin-bottom:24px">
           {% csrf_token %}
           <div style="display:flex;gap:12px">
-            <div style="display:flex;align-items:center;border:1px solid #2a2a2a;border-radius:10px;overflow:hidden">
-              <button type="button" onclick="changeQty(-1)" style="width:44px;height:44px;background:#1a1a1a;color:#fff;border:none;cursor:pointer;font-size:1.2rem">−</button>
+            <div style="display:flex;align-items:center;border:1px solid var(--border);border-radius:10px;overflow:hidden">
+              <button type="button" onclick="changeQty(-1)" style="width:44px;height:44px;background:var(--bg-card);color:var(--text);border:none;cursor:pointer;font-size:1.2rem">−</button>
               <input type="number" id="qty" name="quantity" value="1" min="1"
-                style="width:50px;text-align:center;background:#111;border:none;color:#fff;font-size:1rem">
-              <button type="button" onclick="changeQty(1)" style="width:44px;height:44px;background:#1a1a1a;color:#fff;border:none;cursor:pointer;font-size:1.2rem">+</button>
+                style="width:50px;text-align:center;background:var(--bg-void);border:none;color:var(--text);font-size:1rem">
+              <button type="button" onclick="changeQty(1)" style="width:44px;height:44px;background:var(--bg-card);color:var(--text);border:none;cursor:pointer;font-size:1.2rem">+</button>
             </div>
             <button type="submit" id="addToCartBtn"
               style="flex:1;padding:14px;background:#44d62c;color:#000;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.3s"
@@ -114,7 +114,7 @@
       <h2 style="font-family:'Orbitron',sans-serif;font-size:1.3rem;margin-bottom:24px">Sharhlar ({{ reviews.count }})</h2>
       <div style="display:grid;gap:16px">
         {% for review in reviews %}
-        <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:14px;padding:20px">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
             <div style="display:flex;align-items:center;gap:10px">
               <div style="width:36px;height:36px;border-radius:50%;background:#44d62c;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem">{{ review.user.username|first|upper }}</div>
@@ -122,7 +122,7 @@
             </div>
             <span style="color:#ffaa00">{% for i in "12345" %}{% if forloop.counter <= review.rating %}<i class="fa-solid fa-star"></i>{% else %}<i class="fa-regular fa-star"></i>{% endif %}{% endfor %}</span>
           </div>
-          <p style="color:#ccc;font-size:0.9rem;line-height:1.6">{{ review.comment }}</p>
+          <p style="color:var(--text);font-size:0.9rem;line-height:1.6">{{ review.comment }}</p>
         </div>
         {% endfor %}
       </div>
@@ -135,8 +135,8 @@
       <h2 style="font-family:'Orbitron',sans-serif;font-size:1.3rem;margin-bottom:24px">O'xshash mahsulotlar</h2>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px">
         {% for p in related %}
-        <a href="{% url 'catalog:product_detail' p.slug %}" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;overflow:hidden;text-decoration:none;color:#fff;transition:all 0.3s">
-          <div style="height:180px;background:#111;display:flex;align-items:center;justify-content:center">
+        <a href="{% url 'catalog:product_detail' p.slug %}" style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;text-decoration:none;color:var(--text);transition:all 0.3s">
+          <div style="height:180px;background:var(--bg-void);display:flex;align-items:center;justify-content:center">
             {% if p.primary_image %}<img src="{{ p.primary_image.image_url.url }}" style="max-height:160px;object-fit:contain">{% else %}<span style="font-size:3rem"><i class="fa-solid fa-image"></i></span>{% endif %}
           </div>
           <div style="padding:16px">

@@ -11,8 +11,8 @@
     <div style="display:grid;grid-template-columns:1fr 320px;gap:32px">
       <div>
         {% for item in cart_items %}
-        <div style="display:flex;gap:20px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;padding:20px;margin-bottom:12px;align-items:center">
-          <div style="width:80px;height:80px;background:#111;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <div style="display:flex;gap:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:12px;align-items:center">
+          <div style="width:80px;height:80px;background:var(--bg-void);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
             {% if item.product.primary_image %}
             <img src="{{ item.product.primary_image.image_url.url }}" style="max-height:60px;max-width:60px;object-fit:contain">
             {% else %}<span style="font-size:2rem"><i class="fa-solid fa-image"></i></span>{% endif %}
@@ -31,7 +31,7 @@
         {% endfor %}
       </div>
 
-      <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;padding:24px;height:fit-content;position:sticky;top:100px">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:24px;height:fit-content;position:sticky;top:100px">
         <h3 style="font-size:1rem;margin-bottom:20px">Buyurtma xulosasi</h3>
         <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:0.9rem;color:#888">
           <span>Mahsulotlar ({{ cart_items.count }})</span>
