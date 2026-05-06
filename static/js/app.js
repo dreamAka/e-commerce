@@ -925,7 +925,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderProducts();
   initFilter();
   initNavbar();
-  initSearch();
+  // initSearch(); // Conflicting with base.html JS
   initMobileMenu();
   animateCounters();
   createParticles();
@@ -1179,5 +1179,37 @@ document.addEventListener('DOMContentLoaded', () => {
       closeProductDetail();
     }
   });
+});
 
+// Theme Color Picker
+document.addEventListener('DOMContentLoaded', () => {
+  const colorMenuBtn = document.getElementById('colorMenuBtn');
+  const colorDropdown = document.getElementById('colorDropdown');
+  
+  if(colorMenuBtn && colorDropdown) {
+    colorMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      colorDropdown.style.display = colorDropdown.style.display === 'flex' ? 'none' : 'flex';
+    });
+    
+    document.addEventListener('click', (e) => {
+      if(!colorMenuBtn.contains(e.target) && !colorDropdown.contains(e.target)) {
+        colorDropdown.style.display = 'none';
+      }
+    });
+    
+    const swatches = document.querySelectorAll('.color-swatch');
+    swatches.forEach(swatch => {
+      swatch.addEventListener('click', () => {
+        const color = swatch.getAttribute('data-color');
+        if (color === 'green') {
+          document.documentElement.removeAttribute('data-color');
+        } else {
+          document.documentElement.setAttribute('data-color', color);
+        }
+        localStorage.setItem('nexgear_color', color);
+        colorDropdown.style.display = 'none';
+      });
+    });
+  }
 });

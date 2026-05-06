@@ -7,9 +7,9 @@
   <div class="container" style="max-width:1300px;margin:0 auto;padding:0 20px">
     <h1 style="font-family:'Orbitron',sans-serif;font-size:2rem;margin-bottom:32px">Mahsulotlar</h1>
 
-    <div style="display:flex;gap:24px">
+    <div class="catalog-layout" style="display:flex;gap:24px">
       <!-- Sidebar Filters -->
-      <aside style="width:260px;flex-shrink:0">
+      <aside class="catalog-sidebar" style="width:260px;flex-shrink:0">
         <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:24px;position:sticky;top:100px">
           <h3 style="font-size:0.9rem;margin-bottom:16px;color:#44d62c">Filtrlar</h3>
           <div style="margin-bottom:20px">
@@ -19,21 +19,21 @@
           </div>
           <div style="margin-bottom:20px">
             <label style="font-size:0.8rem;color:#888;display:block;margin-bottom:6px">Kategoriya</label>
-            <select id="catFilter" style="width:100%;background:var(--bg-void);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text)">
+            <select id="catFilter" class="custom-dropdown">
               <option value="">Barchasi</option>
-              {% for cat in categories %}<option value="{{ cat.slug }}">{{ cat.category_name }}</option>{% endfor %}
+              {% for cat in categories %}<option value="{{ cat.slug }}" {% if cat.slug == current_cat %}selected{% endif %}>{{ cat.category_name }}</option>{% endfor %}
             </select>
           </div>
           <div style="margin-bottom:20px">
             <label style="font-size:0.8rem;color:#888;display:block;margin-bottom:6px">Brend</label>
-            <select id="brandFilter" style="width:100%;background:var(--bg-void);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text)">
+            <select id="brandFilter" class="custom-dropdown">
               <option value="">Barchasi</option>
-              {% for b in brands %}<option value="{{ b.pk }}">{{ b.brand_name }}</option>{% endfor %}
+              {% for b in brands %}<option value="{{ b.pk }}" {% if b.pk|stringformat:"d" == current_brand %}selected{% endif %}>{{ b.brand_name }}</option>{% endfor %}
             </select>
           </div>
           <div>
             <label style="font-size:0.8rem;color:#888;display:block;margin-bottom:6px">Tartiblash</label>
-            <select id="sortFilter" style="width:100%;background:var(--bg-void);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text)">
+            <select id="sortFilter" class="custom-dropdown">
               <option value="newest">Eng yangi</option>
               <option value="price_asc">Narx: arzon → qimmat</option>
               <option value="price_desc">Narx: qimmat → arzon</option>
@@ -45,15 +45,34 @@
       </aside>
 
       <!-- Products Grid -->
-      <div style="flex:1">
+      <div class="catalog-content" style="flex:1">
         <div id="productCount" style="color:#888;font-size:0.88rem;margin-bottom:16px">{{ products.count }} ta mahsulot</div>
-        <div id="productsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px">
+        <div id="djangoProductsGrid" class="catalog-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px">
           {% include "catalog/partials/product_cards.html" %}
         </div>
       </div>
     </div>
   </div>
 </section>
+{% endblock %}
+{% block extra_css %}
+<style>
+/* Custom Select (Products Sidebar) */
+.custom-select-wrapper { position: relative; user-select: none; width: 100%; }
+.custom-select-trigger { display: flex; justify-content: space-between; align-items: center; width: 100%; background: var(--bg-void); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 0.9rem; cursor: pointer; transition: border-color 0.3s; }
+.custom-select-trigger:hover, .custom-select-wrapper.open .custom-select-trigger { border-color: #44d62c; }
+.custom-select-trigger::after { content: ''; display: inline-block; width: 8px; height: 8px; border-right: 2px solid var(--text); border-bottom: 2px solid var(--text); transform: rotate(45deg); transition: transform 0.3s; margin-bottom: 4px; }
+.custom-select-wrapper.open .custom-select-trigger::after { transform: rotate(-135deg); margin-bottom: -4px; }
+.custom-select-options { position: absolute; top: calc(100% + 4px); left: 0; width: 100%; background: var(--bg-void); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; max-height: 0; opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.custom-select-wrapper.open .custom-select-options { max-height: 300px; opacity: 1; visibility: visible; overflow-y: auto; }
+.custom-option { padding: 10px 14px; color: var(--text-muted); cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+.custom-option:hover, .custom-option.selected { background: rgba(68,214,44,0.1); color: #44d62c; }
+
+html.light-mode .custom-select-trigger, html.light-mode .custom-select-options { background: #fff; border-color: #ddd; }
+html.light-mode .custom-select-trigger::after { border-color: #333; }
+html.light-mode .custom-option { color: #555; }
+html.light-mode .custom-option:hover, html.light-mode .custom-option.selected { background: rgba(68,214,44,0.1); color: #44d62c; }
+</style>
 {% endblock %}
 
 {% block extra_js %}
@@ -64,10 +83,10 @@ function fetchProducts() {
   const cat = document.getElementById('catFilter').value;
   const brand = document.getElementById('brandFilter').value;
   const sort = document.getElementById('sortFilter').value;
-  fetch(`?q=${encodeURIComponent(q)}&category=${cat}&brand=${brand}&sort=${sort}`,
+  fetch(`/products/?q=${encodeURIComponent(q)}&category=${cat}&brand=${brand}&sort=${sort}`,
     {headers:{'X-Requested-With':'XMLHttpRequest'}})
     .then(r=>r.json()).then(d=>{
-      document.getElementById('productsGrid').innerHTML=d.html;
+      document.getElementById('djangoProductsGrid').innerHTML=d.html;
       document.getElementById('productCount').textContent=d.count+' ta mahsulot';
     });
 }
@@ -77,5 +96,82 @@ function fetchProducts() {
 ['catFilter','brandFilter','sortFilter'].forEach(id=>{
   document.getElementById(id).addEventListener('change',fetchProducts);
 });
+
+// Custom select initialization function
+function initCustomSelects() {
+  const selects = document.querySelectorAll('.custom-dropdown');
+  selects.forEach(select => {
+    select.style.display = 'none'; // Hide original
+    
+    const wrapper = document.createElement('div');
+    wrapper.className = 'custom-select-wrapper';
+    select.parentNode.insertBefore(wrapper, select);
+    wrapper.appendChild(select);
+    
+    const trigger = document.createElement('div');
+    trigger.className = 'custom-select-trigger';
+    const selectedOption = select.options[select.selectedIndex];
+    trigger.textContent = selectedOption ? selectedOption.textContent : 'Tanlang';
+    wrapper.appendChild(trigger);
+    
+    const optionsContainer = document.createElement('div');
+    optionsContainer.className = 'custom-select-options';
+    wrapper.appendChild(optionsContainer);
+    
+    Array.from(select.options).forEach(option => {
+      const optionEl = document.createElement('div');
+      optionEl.className = 'custom-option' + (option.selected ? ' selected' : '');
+      optionEl.textContent = option.textContent;
+      optionEl.dataset.value = option.value;
+      
+      optionEl.addEventListener('click', function() {
+        select.value = this.dataset.value;
+        
+        const event = new Event('change');
+        select.dispatchEvent(event); // Triggers fetchProducts
+        
+        trigger.textContent = this.textContent;
+        wrapper.querySelectorAll('.custom-option').forEach(el => el.classList.remove('selected'));
+        this.classList.add('selected');
+        wrapper.classList.remove('open');
+      });
+      optionsContainer.appendChild(optionEl);
+    });
+    
+    trigger.addEventListener('click', function(e) {
+      e.stopPropagation();
+      document.querySelectorAll('.custom-select-wrapper').forEach(w => {
+        if (w !== wrapper) w.classList.remove('open');
+      });
+      wrapper.classList.toggle('open');
+    });
+  });
+  
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.custom-select-wrapper')) {
+      document.querySelectorAll('.custom-select-wrapper').forEach(w => w.classList.remove('open'));
+    }
+  });
+}
+
+// On page load — sync URL params to filters and fetch fresh data
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const cat = params.get('category') || '';
+  const brand = params.get('brand') || '';
+  const q = params.get('q') || '';
+  const sort = params.get('sort') || 'newest';
+  
+  if (cat) document.getElementById('catFilter').value = cat;
+  if (brand) document.getElementById('brandFilter').value = brand;
+  if (q) document.getElementById('sidebarSearch').value = q;
+  if (sort) document.getElementById('sortFilter').value = sort;
+  
+  // Initialize custom selects AFTER values are synced
+  initCustomSelects();
+  
+  // Always fetch fresh data from server
+  fetchProducts();
+})();
 </script>
 {% endblock %}

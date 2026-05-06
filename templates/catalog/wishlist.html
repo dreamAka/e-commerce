@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Sevimlilar{% endblock %}
+
+{% block extra_css %}
+<style>
+.wishlist-header {
+  text-align: center; margin-bottom: 40px;
+  position: relative;
+}
+.wishlist-header h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2.5rem; font-weight: 900;
+  color: #fff; display: flex; align-items: center; justify-content: center; gap: 16px;
+}
+.wishlist-header h1 i { color: #ef4444; filter: drop-shadow(0 0 10px rgba(239,68,68,0.5)); }
+.wishlist-header p {
+  color: rgba(255,255,255,0.5); font-size: 0.95rem; margin-top: 10px;
+}
+
+/* Empty state */
+.wishlist-empty {
+  text-align: center; padding: 60px 20px;
+  background: rgba(255,255,255,.02);
+  border: 1px dashed rgba(255,255,255,.1);
+  border-radius: 20px; max-width: 600px; margin: 0 auto;
+}
+.wishlist-empty-icon {
+  font-size: 4rem; color: rgba(255,255,255,.1);
+  margin-bottom: 20px;
+}
+.wishlist-empty h2 {
+  font-family: 'Orbitron', sans-serif; font-size: 1.5rem;
+  margin-bottom: 12px; color: #fff;
+}
+.wishlist-empty p {
+  color: rgba(255,255,255,.4); font-size: 0.95rem; margin-bottom: 30px;
+}
+.wishlist-empty-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 32px; border-radius: 14px;
+  background: linear-gradient(135deg, #44d62c, #3ab825);
+  color: #000; font-weight: 700; text-decoration: none;
+  transition: all 0.3s;
+  box-shadow: 0 4px 20px rgba(68,214,44,0.25);
+}
+.wishlist-empty-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(68,214,44,0.35);
+}
+
+@media (max-width: 768px) {
+  .wishlist-header h1 { font-size: 1.8rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section style="padding:100px 0 60px;min-height:100vh">
+  <div class="container" style="max-width:1300px;margin:0 auto;padding:0 20px">
+    
+    <div class="wishlist-header">
+      <h1><i class="fa-solid fa-heart"></i> Sevimlilar</h1>
+      <p>Siz yoqtirgan va saqlab qo'ygan mahsulotlar to'plami</p>
+    </div>
+
+    {% if products %}
+    <div id="djangoProductsGrid" class="catalog-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px">
+      {% include "catalog/partials/product_cards.html" %}
+    </div>
+    {% else %}
+    <div class="wishlist-empty">
+      <div class="wishlist-empty-icon"><i class="fa-solid fa-heart-crack"></i></div>
+      <h2>Hali hech narsa yo'q</h2>
+      <p>Siz hozircha hech qanday mahsulotni sevimlilarga qo'shmadingiz. O'zingizga yoqqan mahsulotlarni toping va ularni saqlab qo'ying!</p>
+      <a href="{% url 'catalog:product_list' %}" class="wishlist-empty-btn">
+        <i class="fa-solid fa-gamepad"></i> Mahsulotlarni ko'rish
+      </a>
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+{% endblock %}

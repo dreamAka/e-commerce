@@ -67,6 +67,55 @@ def checkout_view(request):
     )
 
     if request.method == 'POST':
+        # Handle shipping address
+        shipping_addr = None
+        use_new = request.POST.get('use_new_address') == '1'
+
+        if use_new:
+            # Create new address from form
+            from apps.accounts.models import Address
+            new_name = request.POST.get('new_full_name', '').strip()
+            new_phone = request.POST.get('new_phone', '').strip()
+            new_region = request.POST.get('new_region', '').strip()
+            new_city = request.POST.get('new_city', '').strip()
+            new_district = request.POST.get('new_district', '').strip()
+            new_street = request.POST.get('new_street', '').strip()
+            new_postal = request.POST.get('new_postal_code', '').strip()
+
+            if new_name and new_phone and new_region and new_city and new_street:
+                shipping_addr = Address.objects.create(
+                    user=request.user,
+                    full_name=new_name,
+                    phone=new_phone,
+                    region=new_region,
+                    city=new_city,
+                    district=new_district,
+                    street_address=new_street,
+                    postal_code=new_postal,
+                    is_default=not request.user.addresses.exists(),
+                )
+            else:
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'error': "Iltimos, barcha majburiy manzil maydonlarini to'ldiring."})
+                messages.error(request, "Iltimos, barcha majburiy manzil maydonlarini to'ldiring.")
+                addresses = request.user.addresses.all()
+                return render(request, 'orders/checkout.html', {
+                    'cart_items': cart_items, 'total': total, 'addresses': addresses,
+                })
+        else:
+            addr_id = request.POST.get('shipping_address')
+            if addr_id:
+                shipping_addr = request.user.addresses.filter(pk=addr_id).first()
+
+            if not shipping_addr:
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'error': "Iltimos, yetkazish manzilini tanlang yoki yangi manzil kiriting."})
+                messages.error(request, "Iltimos, yetkazish manzilini tanlang yoki yangi manzil kiriting.")
+                addresses = request.user.addresses.all()
+                return render(request, 'orders/checkout.html', {
+                    'cart_items': cart_items, 'total': total, 'addresses': addresses,
+                })
+
         # Create order
         order = Order.objects.create(
             user=request.user,
@@ -74,6 +123,7 @@ def checkout_view(request):
             total_amount=total,
             payment_method=request.POST.get('payment_method', 'naqd'),
             notes=request.POST.get('notes', ''),
+            shipping_address=shipping_addr,
         )
 
         # Create order items
@@ -95,6 +145,14 @@ def checkout_view(request):
         for oi in order.items.all():
             oi.product.total_sales += oi.quantity
             oi.product.save()
+
+        # AJAX request — return JSON
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'order_number': order.order_number,
+                'order_id': order.pk,
+            })
 
         messages.success(request, f"Buyurtma #{order.order_number} yaratildi!")
         return redirect('orders:order_detail', order_id=order.pk)

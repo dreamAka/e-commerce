@@ -2,62 +2,162 @@
 {% block title %}Savatcha{% endblock %}
 {% load price_filters %}
 
+{% block extra_css %}
+<style>
+.cart-section { padding: 100px 0 60px; min-height: 100vh; }
+.cart-title {
+  font-family: 'Orbitron', sans-serif; font-size: 1.8rem; margin-bottom: 32px;
+  display: flex; align-items: center; gap: 14px; color: #fff;
+}
+.cart-title::before {
+  content: ''; width: 4px; height: 32px; background: #44d62c; border-radius: 2px;
+}
+.cart-grid { display: grid; grid-template-columns: 1fr 340px; gap: 32px; }
+
+/* Item Card */
+.cart-item {
+  display: flex; gap: 20px; align-items: center;
+  background: rgba(10,10,10,0.8); border: 1px solid rgba(68,214,44,0.1);
+  border-radius: 16px; padding: 20px; margin-bottom: 16px;
+  backdrop-filter: blur(10px); transition: all 0.3s;
+}
+.cart-item:hover {
+  border-color: rgba(68,214,44,0.3); box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+  transform: translateY(-2px);
+}
+.cart-img-wrap {
+  width: 90px; height: 90px; background: rgba(255,255,255,0.02);
+  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+}
+.cart-img-wrap img { max-height: 70px; max-width: 70px; object-fit: contain; }
+.cart-item-info { flex: 1; }
+.cart-item-name { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.cart-item-var { font-size: 0.82rem; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
+.cart-item-price { font-family: 'Orbitron', sans-serif; font-weight: 700; color: #44d62c; }
+
+.cart-qty { text-align: center; margin-right: 15px; }
+.cart-qty span { font-size: 0.75rem; color: rgba(255,255,255,0.4); text-transform: uppercase; }
+.cart-qty-val { font-size: 1.2rem; font-weight: 700; color: #fff; margin-top: 4px; }
+
+.cart-rm-btn {
+  color: #ef4444; font-size: 1.2rem; text-decoration: none;
+  padding: 8px; transition: 0.3s; opacity: 0.6;
+}
+.cart-rm-btn:hover { opacity: 1; transform: scale(1.1); }
+
+/* Summary */
+.cart-summary {
+  background: rgba(10,10,10,0.8); border: 1px solid rgba(68,214,44,0.2);
+  border-radius: 16px; padding: 24px; position: sticky; top: 100px;
+  box-shadow: inset 0 0 20px rgba(68,214,44,0.02); backdrop-filter: blur(10px);
+}
+.cart-summary::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, #44d62c, transparent);
+}
+.cart-sum-title { font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 24px; }
+.cart-sum-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem; color: rgba(255,255,255,0.6); }
+.cart-sum-total {
+  display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.1);
+  margin-top: 20px; padding-top: 20px;
+}
+.cart-sum-total span:first-child { font-weight: 700; font-size: 1.1rem; color: #fff; }
+.cart-sum-total span:last-child {
+  font-weight: 900; font-size: 1.3rem; color: #44d62c; font-family: 'Orbitron', sans-serif;
+}
+.cart-btn {
+  display: block; width: 100%; text-align: center; padding: 16px; margin-top: 24px;
+  background: linear-gradient(135deg, #44d62c, #3ab825); color: #000;
+  border-radius: 12px; font-weight: 800; text-decoration: none;
+  transition: all 0.3s; font-size: 1.05rem;
+}
+.cart-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(68,214,44,0.3); }
+
+/* Empty Cart */
+.cart-empty { text-align: center; padding: 100px 20px; }
+.cart-empty-icon { font-size: 4rem; color: rgba(255,255,255,0.1); margin-bottom: 20px; }
+.cart-empty h2 { color: #fff; font-size: 1.5rem; margin-bottom: 8px; }
+.cart-empty p { color: rgba(255,255,255,0.4); margin-bottom: 30px; }
+.cart-empty-btn {
+  display: inline-block; padding: 14px 32px; background: #44d62c; color: #000;
+  border-radius: 10px; font-weight: 700; text-decoration: none; transition: 0.3s;
+}
+.cart-empty-btn:hover { box-shadow: 0 5px 15px rgba(68,214,44,0.3); }
+
+@media (max-width: 900px) { .cart-grid { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
 {% block content %}
-<section style="padding:100px 0 60px;min-height:100vh">
-  <div class="container" style="max-width:1000px;margin:0 auto;padding:0 20px">
-    <h1 style="font-family:'Orbitron',sans-serif;font-size:1.8rem;margin-bottom:32px">🛒 Savatcha</h1>
+<section class="cart-section">
+  <div class="container" style="max-width:1100px;margin:0 auto;padding:0 20px">
+    
+    <h1 class="cart-title"><i class="fa-solid fa-cart-shopping"></i> Savatcha</h1>
 
     {% if cart_items %}
-    <div style="display:grid;grid-template-columns:1fr 320px;gap:32px">
+    <div class="cart-grid">
+      <!-- Items -->
       <div>
         {% for item in cart_items %}
-        <div style="display:flex;gap:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:12px;align-items:center">
-          <div style="width:80px;height:80px;background:var(--bg-void);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <div class="cart-item">
+          <div class="cart-img-wrap">
             {% if item.product.primary_image %}
-            <img src="{{ item.product.primary_image.image_url.url }}" style="max-height:60px;max-width:60px;object-fit:contain">
-            {% else %}<span style="font-size:2rem"><i class="fa-solid fa-image"></i></span>{% endif %}
+            <img src="{{ item.product.primary_image.image_url.url }}" alt="{{ item.product.product_name }}">
+            {% else %}<span style="font-size:2rem;color:rgba(255,255,255,0.2)"><i class="fa-solid fa-image"></i></span>{% endif %}
           </div>
-          <div style="flex:1">
-            <h3 style="font-size:0.95rem;font-weight:600">{{ item.product.product_name }}</h3>
-            {% if item.variant %}<p style="font-size:0.82rem;color:#888">{{ item.variant.variant_name }}</p>{% endif %}
-            <p style="color:#44d62c;font-weight:700;margin-top:6px;font-family:'Orbitron',sans-serif">{{ item.product.current_price|price_format }} so'm</p>
+          <div class="cart-item-info">
+            <div class="cart-item-name">{{ item.product.product_name }}</div>
+            {% if item.variant %}<div class="cart-item-var">{{ item.variant.variant_name }}</div>{% endif %}
+            <div class="cart-item-price">{{ item.product.current_price|price_format }} so'm</div>
           </div>
-          <div style="text-align:center">
-            <span style="color:#888;font-size:0.82rem">Miqdor</span>
-            <div style="font-size:1.1rem;font-weight:700;margin-top:4px">{{ item.quantity }}</div>
+          <div class="cart-qty">
+            <span>Miqdor</span>
+            <div class="cart-qty-val">{{ item.quantity }}</div>
           </div>
-          <a href="{% url 'orders:remove_from_cart' item.pk %}" style="color:#ff4444;font-size:1.2rem;text-decoration:none;padding:8px" title="O'chirish">✕</a>
+          <a href="{% url 'orders:remove_from_cart' item.pk %}" class="cart-rm-btn" title="O'chirish">
+            <i class="fa-solid fa-trash"></i>
+          </a>
         </div>
         {% endfor %}
       </div>
 
-      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:24px;height:fit-content;position:sticky;top:100px">
-        <h3 style="font-size:1rem;margin-bottom:20px">Buyurtma xulosasi</h3>
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:0.9rem;color:#888">
-          <span>Mahsulotlar ({{ cart_items.count }})</span>
-          <span>{{ total|price_format }} so'm</span>
+      <!-- Summary -->
+      <div>
+        <div class="cart-summary">
+          <h3 class="cart-sum-title">Buyurtma xulosasi</h3>
+          
+          <div class="cart-sum-row">
+            <span>Mahsulotlar ({{ cart_items.count }})</span>
+            <span>{{ total|price_format }} so'm</span>
+          </div>
+          <div class="cart-sum-row">
+            <span>Yetkazib berish</span>
+            <span style="color:#44d62c;font-weight:600">Bepul</span>
+          </div>
+          
+          <div class="cart-sum-total">
+            <span>Jami summa</span>
+            <span>{{ total|price_format }} so'm</span>
+          </div>
+          
+          <a href="{% url 'orders:checkout' %}" class="cart-btn">
+            Buyurtmani rasmiylashtirish <i class="fa-solid fa-arrow-right"></i>
+          </a>
         </div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:0.9rem;color:#888">
-          <span>Yetkazish</span>
-          <span style="color:#44d62c">Bepul</span>
-        </div>
-        <div style="border-top:1px solid #2a2a2a;margin:16px 0;padding-top:16px;display:flex;justify-content:space-between">
-          <span style="font-weight:700;font-size:1.1rem">Jami</span>
-          <span style="font-weight:900;font-size:1.2rem;color:#44d62c;font-family:'Orbitron',sans-serif">{{ total|price_format }} so'm</span>
-        </div>
-        <a href="{% url 'orders:checkout' %}" style="display:block;text-align:center;padding:14px;background:#44d62c;color:#000;border-radius:10px;font-weight:700;text-decoration:none;transition:all 0.3s;margin-top:16px">
-          Buyurtma berish →
-        </a>
       </div>
     </div>
+    
     {% else %}
-    <div style="text-align:center;padding:80px;color:#666">
-      <div style="font-size:4rem;margin-bottom:16px">🛒</div>
-      <h2 style="font-size:1.3rem;margin-bottom:8px;color:#999">Savatingiz bo'sh</h2>
-      <p style="margin-bottom:24px">Mahsulotlar qo'shing!</p>
-      <a href="{% url 'catalog:product_list' %}" style="padding:12px 28px;background:#44d62c;color:#000;border-radius:10px;text-decoration:none;font-weight:600">Mahsulotlar →</a>
+    <div class="cart-empty">
+      <div class="cart-empty-icon"><i class="fa-solid fa-cart-shopping"></i></div>
+      <h2>Savatingiz bo'm-bo'sh</h2>
+      <p>Savatga mahsulotlar qo'shing va Razer uslubidagi xaridlarni his eting!</p>
+      <a href="{% url 'catalog:product_list' %}" class="cart-empty-btn">
+        <i class="fa-solid fa-gamepad"></i> Katalogga qaytish
+      </a>
     </div>
     {% endif %}
+
   </div>
 </section>
 {% endblock %}

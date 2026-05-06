@@ -65,6 +65,7 @@ class Product(models.Model):
     product_status = models.CharField(max_length=15, choices=Status.choices, default=Status.DRAFT, db_index=True)
     is_featured = models.BooleanField(default=False)
     total_sales = models.IntegerField(default=0)
+    stock_quantity = models.IntegerField(default=10, verbose_name="Ombordagi soni")
     total_revenue = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     average_rating = models.DecimalField(max_digits=3, decimal_places=2, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

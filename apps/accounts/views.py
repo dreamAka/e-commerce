@@ -65,12 +65,42 @@ def logout_view(request):
 @login_required
 def profile_view(request):
     if request.method == 'POST':
+        action = request.POST.get('action', 'update_profile')
         user = request.user
-        user.first_name = request.POST.get('first_name', '')
-        user.last_name = request.POST.get('last_name', '')
-        user.phone = request.POST.get('phone', '')
-        user.save()
-        messages.success(request, "Profil yangilandi.")
+
+        if action == 'update_profile':
+            user.first_name = request.POST.get('first_name', '')
+            user.last_name = request.POST.get('last_name', '')
+            user.phone = request.POST.get('phone', '')
+            user.save()
+            messages.success(request, "Profil ma'lumotlari yangilandi.")
+        
+        elif action == 'add_address':
+            full_name = request.POST.get('full_name', '').strip()
+            phone = request.POST.get('phone', '').strip()
+            region = request.POST.get('region', '').strip()
+            city = request.POST.get('city', '').strip()
+            street = request.POST.get('street_address', '').strip()
+            
+            if full_name and phone and region and city and street:
+                Address.objects.create(
+                    user=user,
+                    full_name=full_name,
+                    phone=phone,
+                    region=region,
+                    city=city,
+                    street_address=street
+                )
+                messages.success(request, "Yangi manzil muvaffaqiyatli qo'shildi.")
+            else:
+                messages.error(request, "Barcha maydonlarni to'ldiring.")
+                
+        elif action == 'delete_address':
+            address_id = request.POST.get('address_id')
+            if address_id:
+                Address.objects.filter(id=address_id, user=user).delete()
+                messages.success(request, "Manzil o'chirildi.")
+
         return redirect('accounts:profile')
 
     orders = request.user.orders.order_by('-created_at')[:5]

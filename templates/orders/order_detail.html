@@ -2,57 +2,325 @@
 {% block title %}Buyurtma {{ order.order_number }}{% endblock %}
 {% load price_filters %}
 
+{% block extra_css %}
+<style>
+.od-section { padding: 90px 0 60px; min-height: 100vh; }
+.od-container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+/* Header */
+.od-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 32px; flex-wrap: wrap; gap: 16px;
+}
+.od-title {
+  font-family: 'Orbitron', sans-serif; font-size: 1.4rem;
+  display: flex; align-items: center; gap: 12px;
+}
+.od-title::before {
+  content: ''; width: 4px; height: 28px;
+  background: var(--green); border-radius: 2px;
+}
+.od-badge {
+  padding: 6px 18px; border-radius: 20px;
+  font-weight: 700; font-size: 0.82rem;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.od-badge-pending   { background: rgba(255,170,0,0.12); color: #ffaa00; }
+.od-badge-confirmed { background: rgba(59,130,246,0.12); color: #3b82f6; }
+.od-badge-processing{ background: rgba(168,85,247,0.12); color: #a855f7; }
+.od-badge-shipped   { background: rgba(14,165,233,0.12); color: #0ea5e9; }
+.od-badge-delivered  { background: rgba(68,214,44,0.12); color: #44d62c; }
+.od-badge-cancelled  { background: rgba(239,68,68,0.12); color: #ef4444; }
+
+/* ══ TIMELINE ══ */
+.od-timeline {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 36px; padding: 28px 16px;
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 20px; position: relative;
+}
+.od-timeline::before {
+  content: ''; position: absolute;
+  top: 52px; left: 60px; right: 60px; height: 3px;
+  background: rgba(255,255,255,.06); border-radius: 2px;
+}
+.od-tl-progress {
+  position: absolute; top: 52px; left: 60px; height: 3px;
+  background: linear-gradient(90deg, #44d62c, #3ab825);
+  border-radius: 2px; transition: width 0.8s ease;
+  box-shadow: 0 0 10px rgba(68,214,44,0.3);
+}
+.od-tl-step {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px; z-index: 2; flex: 1; text-align: center;
+}
+.od-tl-icon {
+  width: 42px; height: 42px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.95rem; transition: all 0.3s;
+  background: rgba(255,255,255,.04);
+  border: 2px solid rgba(255,255,255,.08);
+  color: rgba(255,255,255,.25);
+}
+.od-tl-step.done .od-tl-icon {
+  background: var(--green); border-color: var(--green);
+  color: #000; box-shadow: 0 0 16px rgba(68,214,44,0.3);
+}
+.od-tl-step.active .od-tl-icon {
+  background: rgba(68,214,44,0.15); border-color: var(--green);
+  color: var(--green); animation: tlPulse 2s infinite;
+}
+@keyframes tlPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(68,214,44,0.3); }
+  50% { box-shadow: 0 0 0 8px rgba(68,214,44,0); }
+}
+.od-tl-label {
+  font-size: 0.72rem; font-weight: 600;
+  color: rgba(255,255,255,.25); text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.od-tl-step.done .od-tl-label { color: var(--green); }
+.od-tl-step.active .od-tl-label { color: rgba(255,255,255,.8); }
+.od-tl-date {
+  font-size: 0.65rem; color: rgba(255,255,255,.2);
+  margin-top: -4px;
+}
+.od-tl-step.done .od-tl-date { color: rgba(255,255,255,.35); }
+
+/* ══ ITEMS ══ */
+.od-card {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 18px; padding: 24px;
+  margin-bottom: 20px;
+}
+.od-card-title {
+  font-size: 0.92rem; font-weight: 700; margin-bottom: 18px;
+  display: flex; align-items: center; gap: 10px;
+}
+.od-card-title i { color: var(--green); font-size: 0.85rem; }
+
+.od-item {
+  display: flex; gap: 16px; padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  align-items: center;
+}
+.od-item:last-child { border-bottom: none; }
+.od-item-img {
+  width: 64px; height: 64px; flex-shrink: 0;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.od-item-img img { max-height: 52px; max-width: 52px; object-fit: contain; }
+.od-item-info { flex: 1; min-width: 0; }
+.od-item-name { font-size: 0.92rem; font-weight: 600; margin-bottom: 4px; }
+.od-item-meta { color: rgba(255,255,255,.35); font-size: 0.8rem; }
+.od-item-price {
+  font-weight: 800; font-family: 'Orbitron', sans-serif;
+  font-size: 0.88rem; white-space: nowrap;
+}
+
+.od-total-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 18px; margin-top: 14px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.od-total-label { font-weight: 700; font-size: 1.05rem; }
+.od-total-value {
+  font-weight: 900; font-size: 1.35rem; color: var(--green);
+  font-family: 'Orbitron', sans-serif;
+}
+
+/* Info grid */
+.od-info-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px; margin-bottom: 24px;
+}
+.od-info-card {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 14px; padding: 18px;
+}
+.od-info-label {
+  font-size: 0.72rem; color: rgba(255,255,255,.3);
+  text-transform: uppercase; letter-spacing: 1px;
+  margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+}
+.od-info-label i { color: var(--green); font-size: 0.7rem; }
+.od-info-value { font-size: 0.88rem; font-weight: 600; }
+.od-info-sub { font-size: 0.78rem; color: rgba(255,255,255,.35); margin-top: 4px; }
+
+/* Back link */
+.od-back {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: var(--green); font-size: 0.88rem; text-decoration: none;
+  padding: 10px 20px; border: 1px solid rgba(68,214,44,0.2);
+  border-radius: 12px; transition: all 0.2s;
+}
+.od-back:hover { background: rgba(68,214,44,0.06); }
+
+/* Light mode */
+html.light-mode .od-timeline { background: #f8f8f8; border-color: #e5e5e5; }
+html.light-mode .od-timeline::before { background: #e5e5e5; }
+html.light-mode .od-tl-icon { background: #f0f0f0; border-color: #ddd; color: #bbb; }
+html.light-mode .od-tl-label { color: #bbb; }
+html.light-mode .od-tl-step.active .od-tl-label { color: #333; }
+html.light-mode .od-card { background: #f8f8f8; border-color: #e5e5e5; }
+html.light-mode .od-info-card { background: #f8f8f8; border-color: #e5e5e5; }
+html.light-mode .od-item-meta { color: #999; }
+
+@media (max-width: 768px) {
+  .od-info-grid { grid-template-columns: 1fr; }
+  .od-timeline { flex-wrap: wrap; gap: 8px; padding: 20px 12px; }
+  .od-timeline::before, .od-tl-progress { display: none; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<section style="padding:100px 0 60px;min-height:100vh">
-  <div class="container" style="max-width:900px;margin:0 auto;padding:0 20px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px">
-      <h1 style="font-family:'Orbitron',sans-serif;font-size:1.5rem">{{ order.order_number }}</h1>
-      <span style="padding:6px 16px;border-radius:10px;font-weight:600;
-        {% if order.order_status == 'delivered' %}background:rgba(68,214,44,0.15);color:#44d62c
-        {% elif order.order_status == 'pending' %}background:rgba(255,170,0,0.15);color:#ffaa00
-        {% else %}background:rgba(59,130,246,0.15);color:#3b82f6{% endif %}">
+<section class="od-section">
+  <div class="od-container">
+
+    <!-- Header -->
+    <div class="od-header">
+      <h1 class="od-title">Buyurtma {{ order.order_number }}</h1>
+      <span class="od-badge
+        {% if order.order_status == 'pending' %}od-badge-pending
+        {% elif order.order_status == 'confirmed' %}od-badge-confirmed
+        {% elif order.order_status == 'processing' %}od-badge-processing
+        {% elif order.order_status == 'shipped' %}od-badge-shipped
+        {% elif order.order_status == 'delivered' %}od-badge-delivered
+        {% elif order.order_status == 'cancelled' %}od-badge-cancelled
+        {% else %}od-badge-confirmed{% endif %}">
         {{ order.get_order_status_display }}
       </span>
     </div>
 
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:24px">
+    <!-- ══ TIMELINE ══ -->
+    {% with status=order.order_status %}
+    {% if status != 'cancelled' and status != 'refunded' %}
+    <div class="od-timeline">
+      {% comment %} Progress bar width: pending=0%, confirmed=25%, processing=50%, shipped=75%, delivered=100% {% endcomment %}
+      <div class="od-tl-progress" style="width:
+        {% if status == 'pending' %}0%
+        {% elif status == 'confirmed' %}25%
+        {% elif status == 'processing' %}50%
+        {% elif status == 'shipped' %}75%
+        {% elif status == 'delivered' %}100%
+        {% else %}0%{% endif %}"></div>
+
+      <div class="od-tl-step {% if status == 'pending' %}active{% elif status != 'pending' %}done{% endif %}">
+        <div class="od-tl-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+        <div class="od-tl-label">Qabul qilindi</div>
+        <div class="od-tl-date">{{ order.created_at|date:"d.m.Y" }}</div>
+      </div>
+
+      <div class="od-tl-step {% if status == 'confirmed' %}active{% elif status == 'processing' or status == 'shipped' or status == 'delivered' %}done{% endif %}">
+        <div class="od-tl-icon"><i class="fa-solid fa-circle-check"></i></div>
+        <div class="od-tl-label">Tasdiqlandi</div>
+        <div class="od-tl-date">&nbsp;</div>
+      </div>
+
+      <div class="od-tl-step {% if status == 'processing' %}active{% elif status == 'shipped' or status == 'delivered' %}done{% endif %}">
+        <div class="od-tl-icon"><i class="fa-solid fa-box"></i></div>
+        <div class="od-tl-label">Tayyorlanmoqda</div>
+        <div class="od-tl-date">&nbsp;</div>
+      </div>
+
+      <div class="od-tl-step {% if status == 'shipped' %}active{% elif status == 'delivered' %}done{% endif %}">
+        <div class="od-tl-icon"><i class="fa-solid fa-truck-fast"></i></div>
+        <div class="od-tl-label">Jo'natildi</div>
+        <div class="od-tl-date">&nbsp;</div>
+      </div>
+
+      <div class="od-tl-step {% if status == 'delivered' %}done{% endif %}">
+        <div class="od-tl-icon"><i class="fa-solid fa-house-circle-check"></i></div>
+        <div class="od-tl-label">Yetkazildi</div>
+        <div class="od-tl-date">&nbsp;</div>
+      </div>
+    </div>
+    {% else %}
+    <!-- Cancelled / Refunded banner -->
+    <div style="padding:20px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.15);border-radius:16px;margin-bottom:28px;display:flex;align-items:center;gap:14px">
+      <i class="fa-solid fa-circle-xmark" style="font-size:1.5rem;color:#ef4444"></i>
+      <div>
+        <div style="font-weight:700;margin-bottom:2px">Buyurtma {{ order.get_order_status_display|lower }}</div>
+        <div style="font-size:0.82rem;color:rgba(255,255,255,.4)">{{ order.updated_at|date:"d.m.Y H:i" }}</div>
+      </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- ══ ITEMS ══ -->
+    <div class="od-card">
+      <div class="od-card-title"><i class="fa-solid fa-bag-shopping"></i> Mahsulotlar</div>
       {% for item in items %}
-      <div style="display:flex;gap:16px;padding:16px 0;border-bottom:1px solid #222;align-items:center">
-        <div style="width:60px;height:60px;background:var(--bg-void);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <div class="od-item">
+        <div class="od-item-img">
           {% if item.product.primary_image %}
-          <img src="{{ item.product.primary_image.image_url.url }}" style="max-height:50px;object-fit:contain">
-          {% else %}<span style="font-size:1.5rem"><i class="fa-solid fa-image"></i></span>{% endif %}
+          <img src="{{ item.product.primary_image.image_url.url }}" alt="{{ item.product.product_name }}">
+          {% else %}
+          <span style="font-size:1.3rem;color:rgba(255,255,255,.1)"><i class="fa-solid fa-image"></i></span>
+          {% endif %}
         </div>
-        <div style="flex:1">
-          <h3 style="font-size:0.95rem;font-weight:600">{{ item.product.product_name }}</h3>
-          <span style="color:#888;font-size:0.82rem">{{ item.unit_price|price_format }} so'm × {{ item.quantity }}</span>
+        <div class="od-item-info">
+          <div class="od-item-name">{{ item.product.product_name }}</div>
+          <div class="od-item-meta">{{ item.unit_price|price_format }} so'm × {{ item.quantity }} dona</div>
         </div>
-        <span style="font-weight:700;font-family:'Orbitron',sans-serif">{{ item.subtotal|price_format }} so'm</span>
+        <div class="od-item-price">{{ item.subtotal|price_format }} so'm</div>
       </div>
       {% endfor %}
 
-      <div style="display:flex;justify-content:space-between;margin-top:20px;padding-top:16px;border-top:1px solid #2a2a2a">
-        <span style="font-weight:700;font-size:1.1rem">Jami</span>
-        <span style="font-weight:900;font-size:1.3rem;color:#44d62c;font-family:'Orbitron',sans-serif">{{ order.total_amount|price_format }} so'm</span>
+      <div class="od-total-row">
+        <span class="od-total-label">Jami summa</span>
+        <span class="od-total-value">{{ order.total_amount|price_format }} so'm</span>
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px">
-        <h3 style="font-size:0.9rem;color:#44d62c;margin-bottom:10px">To'lov</h3>
-        <p style="color:var(--text)">Usul: {{ order.payment_method|default:"—" }}</p>
-        <p style="color:var(--text)">Holat: {{ order.get_payment_status_display }}</p>
+    <!-- ══ INFO GRID ══ -->
+    <div class="od-info-grid">
+      <div class="od-info-card">
+        <div class="od-info-label"><i class="fa-solid fa-credit-card"></i> To'lov</div>
+        <div class="od-info-value">
+          {% if order.payment_method == 'naqd' %}💵 Naqd pul
+          {% elif order.payment_method == 'karta' %}💳 Plastik karta
+          {% elif order.payment_method == 'click' %}📱 Click / Payme
+          {% else %}{{ order.payment_method|default:"—" }}{% endif %}
+        </div>
+        <div class="od-info-sub">{{ order.get_payment_status_display }}</div>
       </div>
-      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px">
-        <h3 style="font-size:0.9rem;color:#44d62c;margin-bottom:10px">Sana</h3>
-        <p style="color:var(--text)">Yaratilgan: {{ order.created_at|date:"d.m.Y H:i" }}</p>
-        <p style="color:var(--text)">Yangilangan: {{ order.updated_at|date:"d.m.Y H:i" }}</p>
+
+      <div class="od-info-card">
+        <div class="od-info-label"><i class="fa-solid fa-location-dot"></i> Manzil</div>
+        {% if order.shipping_address %}
+        <div class="od-info-value">{{ order.shipping_address.city }}</div>
+        <div class="od-info-sub">{{ order.shipping_address.street_address|truncatewords:8 }}</div>
+        {% else %}
+        <div class="od-info-value" style="color:rgba(255,255,255,.3)">Ko'rsatilmagan</div>
+        {% endif %}
+      </div>
+
+      <div class="od-info-card">
+        <div class="od-info-label"><i class="fa-solid fa-calendar"></i> Sana</div>
+        <div class="od-info-value">{{ order.created_at|date:"d.m.Y" }}</div>
+        <div class="od-info-sub">{{ order.created_at|date:"H:i" }} da yaratilgan</div>
       </div>
     </div>
 
-    <div style="margin-top:24px">
-      <a href="{% url 'orders:order_list' %}" style="color:#44d62c;font-size:0.9rem">← Barcha buyurtmalar</a>
+    {% if order.notes %}
+    <div class="od-card" style="margin-bottom:24px">
+      <div class="od-card-title"><i class="fa-solid fa-message"></i> Izoh</div>
+      <p style="color:rgba(255,255,255,.6);font-size:0.88rem;line-height:1.7">{{ order.notes }}</p>
     </div>
+    {% endif %}
+
+    <a href="{% url 'orders:order_list' %}" class="od-back">
+      <i class="fa-solid fa-arrow-left"></i> Barcha buyurtmalar
+    </a>
   </div>
 </section>
 {% endblock %}

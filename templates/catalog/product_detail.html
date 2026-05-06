@@ -1,73 +1,435 @@
 {% extends "base.html" %}
 {% load static %}
 {% load price_filters %}
-{% block title %}{{ product.product_name }}{% endblock %}
+{% block title %}{{ product.product_name }} — Gaming Aksessuar{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Product Detail Page ── */
+.pd-section { padding: 90px 0 60px; min-height: 100vh; }
+.pd-container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+/* Breadcrumb */
+.pd-breadcrumb {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 32px; font-size: 0.82rem;
+}
+.pd-breadcrumb a {
+  color: rgba(255,255,255,.45); text-decoration: none; transition: color .2s;
+}
+.pd-breadcrumb a:hover { color: var(--green); }
+.pd-breadcrumb .sep { color: rgba(255,255,255,.2); }
+.pd-breadcrumb .current { color: rgba(255,255,255,.8); font-weight: 500; }
+
+/* Main Grid */
+.pd-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start;
+}
+
+/* ── IMAGE GALLERY ── */
+.pd-gallery { position: sticky; top: 100px; }
+
+.pd-main-img-wrap {
+  position: relative;
+  background: linear-gradient(145deg, rgba(20,20,20,1), rgba(30,30,30,0.8));
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 24px;
+  aspect-ratio: 1 / 1;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  margin-bottom: 16px;
+  cursor: zoom-in;
+}
+.pd-main-img-wrap::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 30% 40%, rgba(68,214,44,0.04), transparent 60%);
+  pointer-events: none;
+}
+.pd-main-img-wrap img {
+  max-height: 85%; max-width: 85%;
+  object-fit: contain;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative; z-index: 1;
+  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.3));
+}
+.pd-main-img-wrap:hover img { transform: scale(1.08); }
+.pd-main-img-wrap .no-img {
+  font-size: 5rem; color: rgba(255,255,255,.1);
+}
+
+/* Thumbnail strip */
+.pd-thumbs {
+  display: flex; gap: 10px; overflow-x: auto;
+  padding-bottom: 4px; scrollbar-width: thin;
+}
+.pd-thumb {
+  width: 72px; height: 72px; flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,.06);
+  border-radius: 14px; cursor: pointer;
+  background: rgba(20,20,20,.8);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.25s ease; overflow: hidden;
+}
+.pd-thumb:hover, .pd-thumb.active {
+  border-color: var(--green);
+  box-shadow: 0 0 12px rgba(68,214,44,.15);
+}
+.pd-thumb img { max-height: 56px; max-width: 56px; object-fit: contain; }
+
+/* ── PRODUCT INFO ── */
+.pd-info { display: flex; flex-direction: column; gap: 0; }
+
+.pd-brand {
+  font-size: 0.75rem; color: rgba(255,255,255,.4);
+  text-transform: uppercase; letter-spacing: 3px; font-weight: 600;
+  margin-bottom: 6px;
+}
+.pd-name {
+  font-size: 1.7rem; font-weight: 800;
+  font-family: 'Orbitron', sans-serif;
+  margin: 0 0 16px; line-height: 1.3;
+}
+
+/* Rating */
+.pd-rating {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 20px;
+}
+.pd-stars { color: #ffaa00; font-size: 0.9rem; }
+.pd-review-count { color: rgba(255,255,255,.4); font-size: 0.82rem; }
+
+/* Price */
+.pd-price-block {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  margin-bottom: 28px;
+  padding: 18px 22px;
+  background: rgba(68,214,44,0.04);
+  border: 1px solid rgba(68,214,44,0.1);
+  border-radius: 16px;
+}
+.pd-price {
+  font-size: 2rem; font-weight: 900; color: var(--green);
+  font-family: 'Orbitron', sans-serif;
+}
+.pd-price .unit { font-size: 0.9rem; font-weight: 400; opacity: 0.7; }
+.pd-old-price {
+  font-size: 1rem; color: rgba(255,255,255,.35);
+  text-decoration: line-through; font-family: 'Orbitron', sans-serif;
+}
+.pd-discount-badge {
+  background: rgba(68,214,44,0.15); color: var(--green);
+  padding: 4px 12px; border-radius: 8px;
+  font-size: 0.82rem; font-weight: 700;
+}
+
+/* ── DESCRIPTION ── */
+.pd-desc-card {
+  margin-bottom: 28px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 18px;
+  overflow: hidden;
+}
+.pd-desc-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 22px;
+  background: rgba(68,214,44,0.04);
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  cursor: pointer; user-select: none;
+}
+.pd-desc-header i {
+  color: var(--green); font-size: 0.9rem;
+}
+.pd-desc-header h3 {
+  font-size: 0.88rem; font-weight: 700; margin: 0;
+  color: rgba(255,255,255,.85);
+  font-family: 'Orbitron', sans-serif; letter-spacing: 1px;
+}
+.pd-desc-header .toggle-arrow {
+  margin-left: auto; color: rgba(255,255,255,.3);
+  transition: transform 0.3s; font-size: 0.8rem;
+}
+.pd-desc-card.open .toggle-arrow { transform: rotate(180deg); }
+.pd-desc-body {
+  padding: 20px 22px;
+  color: rgba(255,255,255,.65);
+  font-size: 0.88rem; line-height: 1.85;
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.3s ease;
+}
+.pd-desc-card.open .pd-desc-body {
+  max-height: 500px; padding: 20px 22px;
+}
+
+/* Variants */
+.pd-variants {
+  margin-bottom: 24px;
+}
+.pd-variants label {
+  font-size: 0.8rem; color: rgba(255,255,255,.4);
+  display: block; margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase;
+}
+.pd-variant-list { display: flex; gap: 8px; flex-wrap: wrap; }
+.pd-variant-btn {
+  padding: 10px 20px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  background: rgba(255,255,255,.03);
+  color: rgba(255,255,255,.7);
+  cursor: pointer; font-size: 0.85rem;
+  transition: all 0.2s;
+}
+.pd-variant-btn:hover {
+  border-color: var(--green); color: var(--green);
+  background: rgba(68,214,44,0.06);
+}
+
+/* Add to Cart */
+.pd-cart-row {
+  display: flex; gap: 12px; margin-bottom: 20px;
+}
+.pd-qty-wrap {
+  display: flex; align-items: center;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px; overflow: hidden;
+  background: rgba(255,255,255,.02);
+}
+.pd-qty-btn {
+  width: 46px; height: 48px; border: none; cursor: pointer;
+  background: transparent; color: rgba(255,255,255,.6);
+  font-size: 1.2rem; transition: all 0.2s;
+}
+.pd-qty-btn:hover { background: rgba(68,214,44,0.08); color: var(--green); }
+.pd-qty-input {
+  width: 48px; text-align: center; border: none;
+  background: transparent; color: #fff;
+  font-size: 1rem; font-weight: 600;
+  font-family: 'Orbitron', sans-serif;
+}
+.pd-add-btn {
+  flex: 1; padding: 14px 24px;
+  background: linear-gradient(135deg, #44d62c, #3ab825);
+  color: #000; border: none; border-radius: 14px;
+  font-size: 1rem; font-weight: 800; cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 20px rgba(68,214,44,0.25);
+  font-family: 'Inter', sans-serif;
+}
+.pd-add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(68,214,44,0.35);
+}
+.pd-wishlist-btn {
+  width: 52px; height: 52px; flex-shrink: 0;
+  border-radius: 14px; border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.04);
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; cursor: pointer; transition: all 0.3s;
+}
+.pd-wishlist-btn:hover {
+  background: rgba(255,255,255,.08);
+}
+.pd-wishlist-btn.active {
+  color: #ef4444; border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.1);
+}
+.pd-wishlist-btn.active i { filter: drop-shadow(0 0 8px rgba(239,68,68,0.5)); }
+
+/* SKU Meta */
+.pd-meta {
+  display: flex; gap: 20px; flex-wrap: wrap;
+  font-size: 0.78rem; color: rgba(255,255,255,.3);
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,.04);
+}
+.pd-meta span i { margin-right: 6px; color: rgba(68,214,44,0.4); }
+
+/* ── REVIEWS ── */
+.pd-reviews-section { margin-top: 60px; }
+.pd-section-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.2rem; margin-bottom: 24px;
+  display: flex; align-items: center; gap: 12px;
+}
+.pd-section-title::before {
+  content: ''; width: 4px; height: 24px;
+  background: var(--green); border-radius: 2px;
+}
+.pd-review-card {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 16px; padding: 20px;
+  margin-bottom: 12px;
+}
+.pd-review-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 12px;
+}
+.pd-review-user {
+  display: flex; align-items: center; gap: 12px;
+}
+.pd-review-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: linear-gradient(135deg, #44d62c, #2d9e1c);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 0.85rem; color: #000;
+}
+.pd-review-name { font-weight: 600; font-size: 0.9rem; }
+.pd-review-date { font-size: 0.75rem; color: rgba(255,255,255,.3); }
+.pd-review-stars { color: #ffaa00; font-size: 0.85rem; }
+.pd-review-text { color: rgba(255,255,255,.6); font-size: 0.88rem; line-height: 1.7; }
+
+/* ── RELATED ── */
+.pd-related-section { margin-top: 50px; }
+.pd-related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+.pd-related-card {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 18px; overflow: hidden;
+  text-decoration: none; color: inherit;
+  transition: all 0.3s;
+}
+.pd-related-card:hover {
+  border-color: rgba(68,214,44,.2);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+}
+.pd-related-img {
+  height: 180px; background: rgba(15,15,15,.8);
+  display: flex; align-items: center; justify-content: center;
+}
+.pd-related-img img { max-height: 150px; object-fit: contain; }
+.pd-related-body { padding: 16px; }
+.pd-related-name { font-size: 0.88rem; font-weight: 600; margin-bottom: 8px; }
+.pd-related-price {
+  font-weight: 800; color: var(--green);
+  font-family: 'Orbitron', sans-serif; font-size: 0.9rem;
+}
+
+/* Light mode */
+html.light-mode .pd-main-img-wrap { background: linear-gradient(145deg, #f5f5f5, #eee); border-color: #ddd; }
+html.light-mode .pd-thumb { background: #f5f5f5; border-color: #ddd; }
+html.light-mode .pd-brand { color: #888; }
+html.light-mode .pd-name { color: #111; }
+html.light-mode .pd-price-block { background: rgba(68,214,44,0.05); border-color: rgba(68,214,44,0.15); }
+html.light-mode .pd-old-price { color: #999; }
+html.light-mode .pd-desc-card { background: #f8f8f8; border-color: #e5e5e5; }
+html.light-mode .pd-desc-header { background: #f0f0f0; }
+html.light-mode .pd-desc-header h3 { color: #333; }
+html.light-mode .pd-desc-body { color: #555; }
+html.light-mode .pd-variant-btn { background: #f5f5f5; border-color: #ddd; color: #333; }
+html.light-mode .pd-qty-wrap { border-color: #ddd; background: #f5f5f5; }
+html.light-mode .pd-qty-btn { color: #555; }
+html.light-mode .pd-qty-input { color: #111; }
+html.light-mode .pd-review-card { background: #f8f8f8; border-color: #e5e5e5; }
+html.light-mode .pd-related-card { background: #f8f8f8; border-color: #e5e5e5; }
+html.light-mode .pd-meta { color: #999; border-top-color: #e5e5e5; }
+html.light-mode .pd-breadcrumb a { color: #999; }
+html.light-mode .pd-breadcrumb .current { color: #333; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pd-grid { grid-template-columns: 1fr; gap: 28px; }
+  .pd-gallery { position: static; }
+  .pd-name { font-size: 1.3rem; }
+  .pd-price { font-size: 1.5rem; }
+  .pd-cart-row { flex-direction: column; }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<section style="padding:100px 0 60px;min-height:100vh">
-  <div class="container" style="max-width:1200px;margin:0 auto;padding:0 20px">
+<section class="pd-section">
+  <div class="pd-container">
+
     <!-- Breadcrumb -->
-    <div style="margin-bottom:24px;font-size:0.85rem;color:#888">
-      <a href="{% url 'catalog:home' %}" style="color:#888;text-decoration:none">Bosh sahifa</a> /
-      {% if product.category %}<a href="{% url 'catalog:product_list' %}?category={{ product.category.slug }}" style="color:#888;text-decoration:none">{{ product.category.category_name }}</a> /{% endif %}
-      <span style="color:var(--text)">{{ product.product_name }}</span>
+    <div class="pd-breadcrumb">
+      <a href="{% url 'catalog:home' %}"><i class="fa-solid fa-house" style="font-size:0.75rem"></i> Bosh sahifa</a>
+      <span class="sep">/</span>
+      {% if product.category %}
+      <a href="{% url 'catalog:product_list' %}?category={{ product.category.slug }}">{{ product.category.category_name }}</a>
+      <span class="sep">/</span>
+      {% endif %}
+      <span class="current">{{ product.product_name }}</span>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start">
-      <!-- Images -->
-      <div>
-        <div style="background:var(--bg-void);border:1px solid var(--border);border-radius:20px;height:450px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:16px" id="mainImage">
+    <div class="pd-grid">
+      <!-- ═══ IMAGE GALLERY ═══ -->
+      <div class="pd-gallery">
+        <div class="pd-main-img-wrap" id="mainImageWrap">
           {% if images %}
-          <img src="{{ images.0.image_url.url }}" alt="{{ product.product_name }}" style="max-height:400px;max-width:90%;object-fit:contain" id="currentImg">
+          <img src="{{ images.0.image_url.url }}" alt="{{ product.product_name }}" id="currentImg">
           {% else %}
-          <span style="font-size:6rem"><i class="fa-solid fa-image"></i></span>
+          <span class="no-img"><i class="fa-solid fa-image"></i></span>
           {% endif %}
         </div>
         {% if images.count > 1 %}
-        <div style="display:flex;gap:10px;overflow-x:auto">
+        <div class="pd-thumbs" id="thumbStrip">
           {% for img in images %}
-          <div onclick="document.getElementById('currentImg').src='{{ img.image_url.url }}'" style="width:80px;height:80px;border:1px solid var(--border);border-radius:12px;cursor:pointer;background:var(--bg-void);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:border 0.2s"
-            onmouseover="this.style.borderColor='#44d62c'" onmouseout="this.style.borderColor='#2a2a2a'">
-            <img src="{{ img.image_url.url }}" style="max-height:60px;max-width:60px;object-fit:contain">
+          <div class="pd-thumb {% if forloop.first %}active{% endif %}"
+               onclick="switchImage('{{ img.image_url.url }}', this)">
+            <img src="{{ img.image_url.url }}" alt="Thumbnail {{ forloop.counter }}">
           </div>
           {% endfor %}
         </div>
         {% endif %}
       </div>
 
-      <!-- Product Info -->
-      <div>
+      <!-- ═══ PRODUCT INFO ═══ -->
+      <div class="pd-info">
         {% if product.brand %}
-        <span style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:2px">{{ product.brand.brand_name }}</span>
+        <div class="pd-brand">{{ product.brand.brand_name }}</div>
         {% endif %}
-        <h1 style="font-size:1.8rem;font-weight:700;margin:8px 0 16px;font-family:'Orbitron',sans-serif">{{ product.product_name }}</h1>
+
+        <h1 class="pd-name">{{ product.product_name }}</h1>
 
         {% if product.average_rating %}
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
-          <span style="color:#ffaa00">{% for i in "12345" %}{% if forloop.counter <= product.average_rating %}<i class="fa-solid fa-star"></i>{% else %}<i class="fa-regular fa-star"></i>{% endif %}{% endfor %}</span>
-          <span style="color:#888;font-size:0.85rem">({{ reviews.count }} sharh)</span>
+        <div class="pd-rating">
+          <span class="pd-stars">
+            {% for i in "12345" %}{% if forloop.counter <= product.average_rating %}<i class="fa-solid fa-star"></i>{% else %}<i class="fa-regular fa-star"></i>{% endif %}{% endfor %}
+          </span>
+          <span class="pd-review-count">({{ reviews.count }} sharh)</span>
         </div>
         {% endif %}
 
         <!-- Price -->
-        <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:24px">
-          <span style="font-size:2rem;font-weight:900;color:#44d62c;font-family:'Orbitron',sans-serif">
-            {{ product.current_price|price_format }} <span style="font-size:1rem">so'm</span>
+        <div class="pd-price-block">
+          <span class="pd-price">
+            {{ product.current_price|price_format }} <span class="unit">so'm</span>
           </span>
           {% if product.sale_price %}
-          <span style="font-size:1.1rem;color:#666;text-decoration:line-through;font-family:'Orbitron',sans-serif">{{ product.base_price|price_format }} so'm</span>
-          <span style="background:rgba(68,214,44,0.15);color:#44d62c;padding:4px 12px;border-radius:8px;font-size:0.85rem;font-weight:600">-{{ product.discount_percent }}%</span>
+          <span class="pd-old-price">{{ product.base_price|price_format }} so'm</span>
+          <span class="pd-discount-badge">-{{ product.discount_percent }}%</span>
           {% endif %}
+        </div>
+
+        <!-- Description (Accordion) -->
+        <div class="pd-desc-card open" id="descCard">
+          <div class="pd-desc-header" onclick="document.getElementById('descCard').classList.toggle('open')">
+            <i class="fa-solid fa-align-left"></i>
+            <h3>TAVSIF</h3>
+            <span class="toggle-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+          </div>
+          <div class="pd-desc-body">
+            {% if product.description %}
+              {{ product.description|linebreaksbr }}
+            {% else %}
+              <span style="opacity:.5">Tavsif hali qo'shilmagan</span>
+            {% endif %}
+          </div>
         </div>
 
         <!-- Variants -->
         {% if variants %}
-        <div style="margin-bottom:24px">
-          <label style="font-size:0.85rem;color:#888;display:block;margin-bottom:8px">Variant</label>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div class="pd-variants">
+          <label>Variant tanlang</label>
+          <div class="pd-variant-list">
             {% for v in variants %}
-            <button type="button" style="padding:10px 20px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card);color:var(--text);cursor:pointer;font-size:0.88rem;transition:all 0.2s"
-              onmouseover="this.style.borderColor='#44d62c'" onmouseout="this.style.borderColor='#2a2a2a'">
+            <button type="button" class="pd-variant-btn">
               {{ v.variant_name }}
               {% if v.price_adjustment > 0 %}(+{{ v.price_adjustment|price_format }}){% endif %}
             </button>
@@ -76,78 +438,137 @@
         </div>
         {% endif %}
 
-        <!-- Description -->
-        <div style="margin-bottom:24px;padding:20px;background:var(--bg-card);border-radius:12px;border:1px solid var(--border)">
-          <h3 style="font-size:0.9rem;color:#44d62c;margin-bottom:10px">Tavsif</h3>
-          <p style="color:var(--text);font-size:0.9rem;line-height:1.7">{{ product.description|linebreaksbr }}</p>
-        </div>
-
         <!-- Add to Cart -->
-        <form method="post" action="{% url 'orders:add_to_cart' product.pk %}" style="margin-bottom:24px">
+        <form method="post" action="{% url 'orders:add_to_cart' product.pk %}">
           {% csrf_token %}
-          <div style="display:flex;gap:12px">
-            <div style="display:flex;align-items:center;border:1px solid var(--border);border-radius:10px;overflow:hidden">
-              <button type="button" onclick="changeQty(-1)" style="width:44px;height:44px;background:var(--bg-card);color:var(--text);border:none;cursor:pointer;font-size:1.2rem">−</button>
-              <input type="number" id="qty" name="quantity" value="1" min="1"
-                style="width:50px;text-align:center;background:var(--bg-void);border:none;color:var(--text);font-size:1rem">
-              <button type="button" onclick="changeQty(1)" style="width:44px;height:44px;background:var(--bg-card);color:var(--text);border:none;cursor:pointer;font-size:1.2rem">+</button>
+          <div class="pd-cart-row">
+            <div class="pd-qty-wrap">
+              <button type="button" class="pd-qty-btn" onclick="changeQty(-1)">−</button>
+              <input type="number" class="pd-qty-input" id="qty" name="quantity" value="1" min="1">
+              <button type="button" class="pd-qty-btn" onclick="changeQty(1)">+</button>
             </div>
-            <button type="submit" id="addToCartBtn"
-              style="flex:1;padding:14px;background:#44d62c;color:#000;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.3s"
-              onmouseover="this.style.background='#3bc425'" onmouseout="this.style.background='#44d62c'">
-              🛒 Savatga qo'shish
+            <button type="submit" class="pd-add-btn" id="addToCartBtn">
+              <i class="fa-solid fa-cart-shopping"></i>&nbsp; Savatga qo'shish
+            </button>
+            <button type="button" class="pd-wishlist-btn {% if is_wishlisted %}active{% endif %}" onclick="toggleWishlist(event, this, {{ product.pk }})" aria-label="Sevimlilar">
+              <i class="fa-{% if is_wishlisted %}solid{% else %}regular{% endif %} fa-heart"></i>
             </button>
           </div>
         </form>
 
         <!-- SKU & Meta -->
-        <div style="font-size:0.82rem;color:#666;display:flex;gap:20px">
-          <span>SKU: {{ product.sku }}</span>
-          {% if product.category %}<span>Kategoriya: {{ product.category.category_name }}</span>{% endif %}
+        <div class="pd-meta">
+          <span><i class="fa-solid fa-barcode"></i> SKU: {{ product.sku }}</span>
+          {% if product.category %}<span><i class="fa-solid fa-tag"></i> {{ product.category.category_name }}</span>{% endif %}
+          {% if product.brand %}<span><i class="fa-solid fa-building"></i> {{ product.brand.brand_name }}</span>{% endif %}
         </div>
       </div>
     </div>
 
-    <!-- Reviews -->
-    {% if reviews %}
-    <div style="margin-top:60px">
-      <h2 style="font-family:'Orbitron',sans-serif;font-size:1.3rem;margin-bottom:24px">Sharhlar ({{ reviews.count }})</h2>
-      <div style="display:grid;gap:16px">
-        {% for review in reviews %}
-        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-            <div style="display:flex;align-items:center;gap:10px">
-              <div style="width:36px;height:36px;border-radius:50%;background:#44d62c;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem">{{ review.user.username|first|upper }}</div>
-              <div><span style="font-weight:600">{{ review.user.username }}</span><br><span style="font-size:0.78rem;color:#666">{{ review.created_at|date:"d.m.Y" }}</span></div>
+    <!-- ═══ REVIEWS ═══ -->
+    <div class="pd-reviews-section">
+      <h2 class="pd-section-title">Sharhlar ({{ reviews.count }})</h2>
+      
+      <!-- Review Form -->
+      <div style="margin-bottom: 30px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 16px;">
+        {% if user.is_authenticated %}
+          {% if has_purchased %}
+            <h3 style="font-size:1.1rem; margin-bottom:12px; color:#fff;">Sharh qoldirish</h3>
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="add_review">
+              
+              <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:0.85rem; color:#888; margin-bottom:8px;">Reyting (1-5)</label>
+                <div style="display:flex; gap:12px;">
+                  <label style="cursor:pointer; display:flex; align-items:center; gap:4px; color:#ffaa00;">
+                    <input type="radio" name="rating" value="1" required> 1 <i class="fa-solid fa-star"></i>
+                  </label>
+                  <label style="cursor:pointer; display:flex; align-items:center; gap:4px; color:#ffaa00;">
+                    <input type="radio" name="rating" value="2"> 2 <i class="fa-solid fa-star"></i>
+                  </label>
+                  <label style="cursor:pointer; display:flex; align-items:center; gap:4px; color:#ffaa00;">
+                    <input type="radio" name="rating" value="3"> 3 <i class="fa-solid fa-star"></i>
+                  </label>
+                  <label style="cursor:pointer; display:flex; align-items:center; gap:4px; color:#ffaa00;">
+                    <input type="radio" name="rating" value="4"> 4 <i class="fa-solid fa-star"></i>
+                  </label>
+                  <label style="cursor:pointer; display:flex; align-items:center; gap:4px; color:#ffaa00;">
+                    <input type="radio" name="rating" value="5" checked> 5 <i class="fa-solid fa-star"></i>
+                  </label>
+                </div>
+              </div>
+              
+              <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:0.85rem; color:#888; margin-bottom:8px;">Fikr va mulohazangiz</label>
+                <textarea name="comment" rows="3" required style="width:100%; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:12px; color:#fff; font-family:inherit; outline:none;" onfocus="this.style.borderColor='#44d62c'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'" placeholder="Mahsulot haqidagi fikringizni yozing..."></textarea>
+              </div>
+              
+              <button type="submit" style="padding:10px 24px; background:#44d62c; color:#000; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
+                Yuborish
+              </button>
+            </form>
+          {% else %}
+            <div style="text-align:center; color:#888;">
+              <i class="fa-solid fa-lock" style="font-size:2rem; margin-bottom:12px; opacity:0.5;"></i>
+              <p>Siz bu mahsulotni hali xarid qilmagansiz.</p>
+              <p style="font-size:0.85rem;">Faqat sotib olgan mijozlargina sharh qoldira oladi (Verified Purchase).</p>
             </div>
-            <span style="color:#ffaa00">{% for i in "12345" %}{% if forloop.counter <= review.rating %}<i class="fa-solid fa-star"></i>{% else %}<i class="fa-regular fa-star"></i>{% endif %}{% endfor %}</span>
+          {% endif %}
+        {% else %}
+          <div style="text-align:center; color:#888;">
+            <p>Sharh qoldirish uchun <a href="{% url 'accounts:login' %}" style="color:#44d62c; font-weight:600;">tizimga kiring</a>.</p>
           </div>
-          <p style="color:var(--text);font-size:0.9rem;line-height:1.6">{{ review.comment }}</p>
+        {% endif %}
+      </div>
+
+      {% if reviews %}
+        {% for review in reviews %}
+        <div class="pd-review-card">
+          <div class="pd-review-header">
+            <div class="pd-review-user">
+              <div class="pd-review-avatar">{{ review.user.username|first|upper }}</div>
+              <div>
+                <div class="pd-review-name">{{ review.user.username }}</div>
+                <div class="pd-review-date">{{ review.created_at|date:"d.m.Y" }}</div>
+              </div>
+            </div>
+            <span class="pd-review-stars">
+              {% for i in "12345" %}{% if forloop.counter <= review.rating %}<i class="fa-solid fa-star"></i>{% else %}<i class="fa-regular fa-star"></i>{% endif %}{% endfor %}
+            </span>
+          </div>
+          <p class="pd-review-text">{{ review.comment }}</p>
         </div>
         {% endfor %}
-      </div>
+      {% else %}
+        <p style="color:rgba(255,255,255,0.4); font-size:0.9rem;">Hozircha sharhlar yo'q. Birinchi bo'lib sharh qoldiring!</p>
+      {% endif %}
     </div>
-    {% endif %}
 
-    <!-- Related Products -->
+    <!-- ═══ RELATED ═══ -->
     {% if related %}
-    <div style="margin-top:60px">
-      <h2 style="font-family:'Orbitron',sans-serif;font-size:1.3rem;margin-bottom:24px">O'xshash mahsulotlar</h2>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px">
+    <div class="pd-related-section">
+      <h2 class="pd-section-title">O'xshash mahsulotlar</h2>
+      <div class="pd-related-grid">
         {% for p in related %}
-        <a href="{% url 'catalog:product_detail' p.slug %}" style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;text-decoration:none;color:var(--text);transition:all 0.3s">
-          <div style="height:180px;background:var(--bg-void);display:flex;align-items:center;justify-content:center">
-            {% if p.primary_image %}<img src="{{ p.primary_image.image_url.url }}" style="max-height:160px;object-fit:contain">{% else %}<span style="font-size:3rem"><i class="fa-solid fa-image"></i></span>{% endif %}
+        <a href="{% url 'catalog:product_detail' p.slug %}" class="pd-related-card">
+          <div class="pd-related-img">
+            {% if p.primary_image %}
+            <img src="{{ p.primary_image.image_url.url }}" alt="{{ p.product_name }}">
+            {% else %}
+            <span style="font-size:2.5rem;color:rgba(255,255,255,.1)"><i class="fa-solid fa-image"></i></span>
+            {% endif %}
           </div>
-          <div style="padding:16px">
-            <h3 style="font-size:0.9rem;font-weight:600">{{ p.product_name }}</h3>
-            <span style="font-weight:700;color:#44d62c;font-family:'Orbitron',sans-serif">{{ p.current_price|price_format }} so'm</span>
+          <div class="pd-related-body">
+            <div class="pd-related-name">{{ p.product_name }}</div>
+            <div class="pd-related-price">{{ p.current_price|price_format }} so'm</div>
           </div>
         </a>
         {% endfor %}
       </div>
     </div>
     {% endif %}
+
   </div>
 </section>
 
@@ -158,5 +579,17 @@ function changeQty(d) {
   if (v < 1) v = 1;
   inp.value = v;
 }
+function switchImage(url, thumb) {
+  const img = document.getElementById('currentImg');
+  if (img) {
+    img.style.opacity = '0';
+    setTimeout(() => { img.src = url; img.style.opacity = '1'; }, 200);
+  }
+  document.querySelectorAll('.pd-thumb').forEach(t => t.classList.remove('active'));
+  thumb.classList.add('active');
+}
+// Smooth image transition
+const cImg = document.getElementById('currentImg');
+if (cImg) cImg.style.transition = 'opacity 0.3s ease, transform 0.5s cubic-bezier(0.4,0,0.2,1)';
 </script>
 {% endblock %}

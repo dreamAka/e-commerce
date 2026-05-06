@@ -1,68 +1,853 @@
 {% extends "base.html" %}
-{% block title %}Checkout{% endblock %}
+{% block title %}Buyurtma berish{% endblock %}
 {% load price_filters %}
 
-{% block content %}
-<section style="padding:100px 0 60px;min-height:100vh">
-  <div class="container" style="max-width:1000px;margin:0 auto;padding:0 20px">
-    <h1 style="font-family:'Orbitron',sans-serif;font-size:1.8rem;margin-bottom:32px">📋 Buyurtma berish</h1>
+{% block extra_css %}
+<style>
+/* ── Payment Result Modal ── */
+.payment-result-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(12px);
+  z-index: 10000;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; visibility: hidden;
+  transition: all 0.4s ease;
+}
+.payment-result-overlay.active { opacity: 1; visibility: visible; }
+.payment-result-box {
+  background: linear-gradient(145deg, rgba(22,22,22,0.98), rgba(10,10,10,0.98));
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 24px; padding: 48px 40px;
+  text-align: center; max-width: 420px; width: 90%;
+  transform: scale(0.8); transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1);
+}
+.payment-result-overlay.active .payment-result-box { transform: scale(1); }
+.pr-state { display: none; }
+.pr-state.active { display: block; }
 
-    <form method="post">
+/* Checkmark Animation */
+.pr-circle { width: 80px; height: 80px; margin: 0 auto 24px; }
+.pr-checkmark { width: 80px; height: 80px; border-radius: 50%; display: block; stroke-width: 2; stroke: #44d62c; stroke-miterlimit: 10; }
+.pr-checkmark-circle { stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 2; stroke-miterlimit: 10; stroke: #44d62c; fill: none; animation: prCircle 0.6s cubic-bezier(0.65,0,0.45,1) forwards; }
+.pr-checkmark-check { transform-origin: 50% 50%; stroke-dasharray: 48; stroke-dashoffset: 48; stroke-width: 3; animation: prCheck 0.3s cubic-bezier(0.65,0,0.45,1) 0.8s forwards; }
+@keyframes prCircle { 0% { stroke-dashoffset: 166; } 100% { stroke-dashoffset: 0; } }
+@keyframes prCheck { 0% { stroke-dashoffset: 48; } 100% { stroke-dashoffset: 0; } }
+
+/* X-mark Animation */
+.pr-xmark { width: 80px; height: 80px; border-radius: 50%; display: block; stroke-width: 2; stroke: #ef4444; stroke-miterlimit: 10; }
+.pr-xmark-circle { stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 2; stroke: #ef4444; fill: none; animation: prCircle 0.6s cubic-bezier(0.65,0,0.45,1) forwards; }
+.pr-xmark-x { transform-origin: 50% 50%; stroke-dasharray: 56; stroke-dashoffset: 56; stroke-width: 3; animation: prXDraw 0.3s cubic-bezier(0.65,0,0.45,1) 0.8s forwards; }
+@keyframes prXDraw { 0% { stroke-dashoffset: 56; } 100% { stroke-dashoffset: 0; } }
+
+.pr-title { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; margin-bottom: 8px; }
+.pr-title-success { color: #44d62c; }
+.pr-title-failure { color: #ef4444; }
+.pr-text { color: rgba(255,255,255,0.5); font-size: 0.88rem; margin-bottom: 20px; line-height: 1.5; }
+.pr-order-num { font-family: 'Orbitron', sans-serif; font-size: 0.85rem; color: var(--green); background: rgba(68,214,44,0.08); padding: 10px 20px; border-radius: 10px; border: 1px solid rgba(68,214,44,0.15); display: inline-block; margin-bottom: 24px; }
+.pr-loader { width: 100%; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; margin-bottom: 12px; }
+.pr-loader-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #44d62c, #3ab825); border-radius: 2px; animation: prLoad 2.5s ease-in-out forwards; }
+@keyframes prLoad { 0% { width: 0%; } 100% { width: 100%; } }
+.pr-redirect-text { font-size: 0.75rem; color: rgba(255,255,255,0.3); }
+.pr-retry-btn {
+  padding: 14px 36px; background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.3); color: #ef4444;
+  border-radius: 12px; font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; transition: all 0.3s;
+}
+.pr-retry-btn:hover { background: rgba(239,68,68,0.25); transform: translateY(-2px); }
+.co-section { padding: 90px 0 60px; min-height: 100vh; }
+.co-container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+.co-title {
+  font-family: 'Orbitron', sans-serif; font-size: 1.6rem;
+  margin-bottom: 8px; display: flex; align-items: center; gap: 14px;
+}
+.co-title::before {
+  content: ''; width: 4px; height: 28px;
+  background: var(--green); border-radius: 2px;
+}
+.co-subtitle { color: rgba(255,255,255,.4); font-size: 0.85rem; margin-bottom: 32px; }
+
+/* Steps indicator */
+.co-steps {
+  display: flex; align-items: center; gap: 0;
+  margin-bottom: 36px; padding: 0 20px;
+}
+.co-step {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.82rem; color: rgba(255,255,255,.3);
+}
+.co-step.active { color: var(--green); }
+.co-step.active .co-step-num {
+  background: var(--green); color: #000;
+  box-shadow: 0 0 12px rgba(68,214,44,0.3);
+}
+.co-step-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(255,255,255,.06); color: rgba(255,255,255,.3);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 0.75rem;
+}
+.co-step-line {
+  flex: 1; height: 1px;
+  background: rgba(255,255,255,.08); margin: 0 12px;
+}
+
+.co-grid { display: grid; grid-template-columns: 1fr 360px; gap: 28px; }
+
+/* Cards */
+.co-card {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 18px; padding: 24px;
+  margin-bottom: 20px;
+}
+.co-card-title {
+  font-size: 0.95rem; font-weight: 700; margin-bottom: 18px;
+  display: flex; align-items: center; gap: 10px;
+}
+.co-card-title i { color: var(--green); font-size: 0.9rem; }
+
+/* Address section */
+.co-addr-list { display: grid; gap: 10px; margin-bottom: 16px; }
+.co-addr-item {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 16px; border: 1px solid rgba(255,255,255,.06);
+  border-radius: 14px; cursor: pointer;
+  transition: all 0.25s;
+}
+.co-addr-item:hover, .co-addr-item.selected {
+  border-color: var(--green);
+  background: rgba(68,214,44,0.04);
+}
+.co-addr-item input[type="radio"] { accent-color: #44d62c; margin-top: 4px; }
+.co-addr-details { flex: 1; }
+.co-addr-name { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }
+.co-addr-phone { font-size: 0.8rem; color: rgba(255,255,255,.4); margin-bottom: 6px; }
+.co-addr-text { font-size: 0.82rem; color: rgba(255,255,255,.55); line-height: 1.5; }
+.co-addr-badge {
+  font-size: 0.65rem; padding: 2px 8px; border-radius: 4px;
+  background: rgba(68,214,44,0.12); color: var(--green);
+  font-weight: 700; text-transform: uppercase;
+}
+
+/* New address form */
+.co-new-addr-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 18px; border: 1px dashed rgba(255,255,255,.12);
+  border-radius: 12px; background: transparent;
+  color: rgba(255,255,255,.4); cursor: pointer;
+  font-size: 0.85rem; transition: all 0.2s;
+  width: 100%;
+}
+.co-new-addr-btn:hover {
+  border-color: var(--green); color: var(--green);
+  background: rgba(68,214,44,0.03);
+}
+.co-new-form { display: none; margin-top: 16px; }
+.co-new-form.show { display: block; }
+.co-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.co-form-row.full { grid-template-columns: 1fr; }
+.co-input-group { display: flex; flex-direction: column; gap: 4px; }
+.co-input-group label {
+  font-size: 0.75rem; color: rgba(255,255,255,.35);
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.co-input {
+  padding: 12px 14px; border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px; background: rgba(255,255,255,.03);
+  color: #fff; font-size: 0.88rem;
+  transition: border-color 0.2s;
+}
+.co-input:focus { outline: none; border-color: var(--green); }
+.co-textarea {
+  padding: 12px 14px; border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px; background: rgba(255,255,255,.03);
+  color: #fff; font-size: 0.88rem; resize: vertical;
+  transition: border-color 0.2s; width: 100%;
+}
+.co-textarea:focus { outline: none; border-color: var(--green); }
+
+/* Payment */
+.co-pay-list { display: grid; gap: 10px; }
+.co-pay-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px;
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 12px; cursor: pointer;
+  transition: all 0.2s;
+}
+.co-pay-item:hover { border-color: rgba(68,214,44,0.3); }
+.co-pay-item input[type="radio"] { accent-color: #44d62c; }
+.co-pay-icon { font-size: 1.3rem; }
+.co-pay-label { font-size: 0.9rem; }
+
+/* Notes */
+.co-notes-textarea {
+  width: 100%; padding: 14px; resize: vertical; min-height: 80px;
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px; color: #fff; font-size: 0.88rem;
+}
+.co-notes-textarea:focus { outline: none; border-color: var(--green); }
+
+/* Summary */
+.co-summary {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 18px; padding: 24px;
+  position: sticky; top: 90px;
+}
+.co-summary-title {
+  font-size: 0.95rem; font-weight: 700; margin-bottom: 18px;
+  display: flex; align-items: center; gap: 10px;
+}
+.co-summary-title i { color: var(--green); }
+.co-summary-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+  font-size: 0.85rem;
+}
+.co-summary-item:last-of-type { border-bottom: none; }
+.co-item-name { max-width: 180px; }
+.co-item-qty { color: rgba(255,255,255,.3); font-size: 0.8rem; }
+.co-item-price { font-weight: 600; font-family: 'Orbitron', sans-serif; font-size: 0.82rem; }
+.co-summary-total {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 18px; margin-top: 14px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.co-total-label { font-weight: 700; font-size: 1.05rem; }
+.co-total-value {
+  font-weight: 900; font-size: 1.3rem; color: var(--green);
+  font-family: 'Orbitron', sans-serif;
+}
+.co-submit-btn {
+  width: 100%; padding: 16px; margin-top: 20px;
+  background: linear-gradient(135deg, #44d62c, #3ab825);
+  color: #000; border: none; border-radius: 14px;
+  font-size: 1.05rem; font-weight: 800; cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 20px rgba(68,214,44,0.25);
+}
+.co-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(68,214,44,0.35);
+}
+
+/* Card Details Form */
+.co-card-form {
+  display: none; margin-top: 16px;
+  padding: 20px;
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  animation: cardSlide 0.3s ease;
+}
+.co-card-form.show { display: block; }
+@keyframes cardSlide {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.co-card-preview {
+  background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+  border-radius: 14px; padding: 24px;
+  margin-bottom: 20px; position: relative;
+  overflow: hidden; min-height: 170px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+.co-card-preview::before {
+  content: ''; position: absolute;
+  top: -50%; right: -30%; width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(68,214,44,0.08), transparent 70%);
+}
+.co-card-top-row {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 20px;
+}
+.co-card-chip {
+  width: 42px; height: 32px;
+  background: linear-gradient(135deg, #d4a574, #c49660);
+  border-radius: 6px; position: relative;
+}
+.co-card-chip::after {
+  content: ''; position: absolute; inset: 4px;
+  border: 1px solid rgba(0,0,0,0.15); border-radius: 3px;
+}
+.co-card-logo {
+  font-family: 'Orbitron', sans-serif; font-weight: 800; font-size: 1.2rem; font-style: italic;
+  color: #fff; opacity: 0.8;
+}
+.co-card-number-preview {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.2rem; letter-spacing: 3px;
+  color: rgba(255,255,255,.85); margin-bottom: 16px;
+}
+.co-card-bottom {
+  display: flex; justify-content: space-between;
+  font-size: 0.75rem; color: rgba(255,255,255,.5);
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.co-card-bottom span { color: rgba(255,255,255,.8); font-size: 0.82rem; letter-spacing: 0; }
+.co-card-inputs { display: grid; gap: 14px; }
+.co-card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.co-card-input-group { display: flex; flex-direction: column; gap: 5px; }
+.co-card-input-group label {
+  font-size: 0.72rem; color: rgba(255,255,255,.35);
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.co-card-input {
+  padding: 12px 14px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px;
+  background: rgba(255,255,255,.03);
+  color: #fff; font-size: 0.95rem;
+  font-family: 'Orbitron', monospace;
+  letter-spacing: 2px;
+  transition: border-color 0.2s;
+}
+.co-card-input:focus { outline: none; border-color: var(--green); }
+.co-card-input::placeholder { color: rgba(255,255,255,.15); letter-spacing: 1px; font-family: 'Inter', sans-serif; }
+html.light-mode .co-card-form { background: #f0f0f0; border-color: #ddd; }
+html.light-mode .co-card-input { background: #fff; border-color: #ddd; color: #111; }
+html.light-mode .co-card-input-group label { color: #888; }
+
+/* Light mode */
+html.light-mode .co-subtitle { color: #888; }
+html.light-mode .co-card { background: #f8f8f8; border-color: #e5e5e5; }
+html.light-mode .co-addr-item { border-color: #e5e5e5; }
+html.light-mode .co-addr-item:hover, html.light-mode .co-addr-item.selected { border-color: var(--green); background: rgba(68,214,44,0.04); }
+html.light-mode .co-addr-name { color: #111; }
+html.light-mode .co-addr-phone { color: #888; }
+html.light-mode .co-addr-text { color: #555; }
+html.light-mode .co-input, html.light-mode .co-textarea, html.light-mode .co-notes-textarea { background: #fff; border-color: #ddd; color: #111; }
+html.light-mode .co-pay-item { border-color: #e5e5e5; }
+html.light-mode .co-summary { background: #f8f8f8; border-color: #e5e5e5; }
+html.light-mode .co-new-addr-btn { border-color: #ccc; color: #888; }
+html.light-mode .co-input-group label { color: #888; }
+
+@media (max-width: 768px) {
+  .co-grid { grid-template-columns: 1fr; }
+  .co-form-row { grid-template-columns: 1fr; }
+  .co-steps { flex-wrap: wrap; gap: 8px; }
+}
+
+/* SMS Modal */
+.sms-modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; opacity: 0; visibility: hidden; transition: 0.3s;
+}
+.sms-modal-overlay.active { opacity: 1; visibility: visible; }
+.sms-modal {
+  background: rgba(15,15,15,0.95); border: 1px solid rgba(68,214,44,0.3);
+  border-radius: 16px; padding: 32px; width: 90%; max-width: 400px;
+  box-shadow: 0 10px 40px rgba(68,214,44,0.15);
+  transform: translateY(20px); transition: 0.3s;
+  text-align: center;
+}
+.sms-modal-overlay.active .sms-modal { transform: translateY(0); }
+.sms-icon { font-size: 3rem; color: #44d62c; margin-bottom: 16px; }
+.sms-title { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; margin-bottom: 8px; color: #fff; }
+.sms-text { font-size: 0.9rem; color: rgba(255,255,255,0.6); margin-bottom: 24px; line-height: 1.5; }
+.sms-input-group { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; }
+.sms-digit {
+  width: 45px; height: 55px; font-size: 1.5rem; text-align: center;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; color: #fff; font-family: 'Orbitron', sans-serif;
+  transition: all 0.2s;
+}
+.sms-digit:focus { outline: none; border-color: #44d62c; background: rgba(68,214,44,0.05); }
+.sms-error { color: #ef4444; font-size: 0.85rem; height: 20px; margin-bottom: 16px; font-weight: 600; opacity: 0; }
+.sms-error.show { opacity: 1; }
+.sms-verify-btn {
+  width: 100%; padding: 14px; background: #44d62c; color: #000;
+  border: none; border-radius: 10px; font-weight: 700; cursor: pointer;
+  transition: 0.3s; font-size: 1rem;
+}
+.sms-verify-btn:hover { box-shadow: 0 5px 15px rgba(68,214,44,0.3); }
+.sms-close {
+  margin-top: 16px; display: inline-block; color: rgba(255,255,255,0.4);
+  font-size: 0.85rem; cursor: pointer; border: none; background: transparent;
+}
+.sms-close:hover { color: #fff; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="co-section">
+  <div class="co-container">
+
+    <h1 class="co-title">Buyurtma berish</h1>
+    <p class="co-subtitle">Yetkazish manzili va to'lov usulini tanlang</p>
+
+    <!-- Steps -->
+    <div class="co-steps">
+      <div class="co-step active">
+        <span class="co-step-num">1</span> Manzil
+      </div>
+      <div class="co-step-line"></div>
+      <div class="co-step active">
+        <span class="co-step-num">2</span> To'lov
+      </div>
+      <div class="co-step-line"></div>
+      <div class="co-step active">
+        <span class="co-step-num">3</span> Tasdiqlash
+      </div>
+    </div>
+
+    <form method="post" id="checkoutForm">
       {% csrf_token %}
-      <div style="display:grid;grid-template-columns:1fr 360px;gap:32px">
+      <div class="co-grid">
+        <!-- ═══ LEFT COLUMN ═══ -->
         <div>
-          <!-- Payment Method -->
-          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px">
-            <h3 style="font-size:1rem;margin-bottom:16px">To'lov usuli</h3>
-            <div style="display:grid;gap:10px">
-              <label style="display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:border 0.2s"
-                onmouseover="this.style.borderColor='#44d62c'" onmouseout="this.style.borderColor='#2a2a2a'">
-                <input type="radio" name="payment_method" value="naqd" checked style="accent-color:#44d62c">
-                <span>💵 Naqd pul</span>
+
+          <!-- ── Delivery Address ── -->
+          <div class="co-card">
+            <div class="co-card-title"><i class="fa-solid fa-location-dot"></i> Yetkazish manzili</div>
+
+            {% if addresses %}
+            <div class="co-addr-list">
+              {% for addr in addresses %}
+              <label class="co-addr-item {% if addr.is_default %}selected{% endif %}" id="addr-{{ addr.pk }}">
+                <input type="radio" name="shipping_address" value="{{ addr.pk }}"
+                       {% if addr.is_default %}checked{% endif %}
+                       onchange="selectAddr({{ addr.pk }})">
+                <div class="co-addr-details">
+                  <div class="co-addr-name">
+                    {{ addr.full_name }}
+                    {% if addr.is_default %}<span class="co-addr-badge">Asosiy</span>{% endif %}
+                  </div>
+                  <div class="co-addr-phone"><i class="fa-solid fa-phone" style="font-size:.7rem"></i> {{ addr.phone }}</div>
+                  <div class="co-addr-text">{{ addr.region }}, {{ addr.city }}{% if addr.district %}, {{ addr.district }}{% endif %}<br>{{ addr.street_address }}</div>
+                </div>
               </label>
-              <label style="display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:border 0.2s"
-                onmouseover="this.style.borderColor='#44d62c'" onmouseout="this.style.borderColor='#2a2a2a'">
-                <input type="radio" name="payment_method" value="karta" style="accent-color:#44d62c">
-                <span>💳 Karta orqali</span>
-              </label>
-              <label style="display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:border 0.2s"
-                onmouseover="this.style.borderColor='#44d62c'" onmouseout="this.style.borderColor='#2a2a2a'">
-                <input type="radio" name="payment_method" value="click" style="accent-color:#44d62c">
-                <span>📱 Click / Payme</span>
-              </label>
+              {% endfor %}
+            </div>
+            {% else %}
+            <p style="color:rgba(255,255,255,.4);font-size:0.85rem;margin-bottom:16px">
+              <i class="fa-solid fa-circle-info" style="color:var(--green)"></i>
+              Hali manzil qo'shilmagan. Iltimos, yangi manzil kiriting.
+            </p>
+            {% endif %}
+
+            <!-- New Address toggle -->
+            <button type="button" class="co-new-addr-btn" onclick="toggleNewAddr()">
+              <i class="fa-solid fa-plus"></i> Yangi manzil qo'shish
+            </button>
+
+            <div class="co-new-form" id="newAddrForm">
+              <div class="co-form-row">
+                <div class="co-input-group">
+                  <label>To'liq ism *</label>
+                  <input type="text" name="new_full_name" class="co-input" placeholder="Ism Familiya">
+                </div>
+                <div class="co-input-group">
+                  <label>Telefon *</label>
+                  <input type="tel" name="new_phone" class="co-input" placeholder="+998 90 123 45 67">
+                </div>
+              </div>
+              <div class="co-form-row">
+                <div class="co-input-group">
+                  <label>Viloyat *</label>
+                  <input type="text" name="new_region" class="co-input" placeholder="Toshkent viloyati">
+                </div>
+                <div class="co-input-group">
+                  <label>Shahar *</label>
+                  <input type="text" name="new_city" class="co-input" placeholder="Toshkent">
+                </div>
+              </div>
+              <div class="co-form-row">
+                <div class="co-input-group">
+                  <label>Tuman</label>
+                  <input type="text" name="new_district" class="co-input" placeholder="Chilonzor tumani">
+                </div>
+                <div class="co-input-group">
+                  <label>Pochta indeksi</label>
+                  <input type="text" name="new_postal_code" class="co-input" placeholder="100000">
+                </div>
+              </div>
+              <div class="co-form-row full">
+                <div class="co-input-group">
+                  <label>To'liq manzil (ko'cha, uy) *</label>
+                  <textarea name="new_street" class="co-textarea" rows="2" placeholder="Ko'cha nomi, uy raqami, xonadon..."></textarea>
+                </div>
+              </div>
+              <input type="hidden" name="use_new_address" value="0" id="useNewAddr">
             </div>
           </div>
 
-          <!-- Notes -->
-          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:24px">
-            <h3 style="font-size:1rem;margin-bottom:12px">Izoh</h3>
-            <textarea name="notes" placeholder="Qo'shimcha izoh (ixtiyoriy)..." rows="3"
-              style="width:100%;background:var(--bg-void);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-size:0.9rem;resize:vertical"></textarea>
+          <!-- ── Payment Method ── -->
+          <div class="co-card">
+            <div class="co-card-title"><i class="fa-solid fa-credit-card"></i> To'lov usuli</div>
+            <div class="co-pay-list" style="grid-template-columns: 1fr 1fr; display: grid;">
+              <label class="co-pay-item" style="grid-column: span 2;">
+                <input type="radio" name="payment_method" value="naqd" checked>
+                <span class="co-pay-icon">💵</span>
+                <span class="co-pay-label">Naqd pul (yetkazib berishda)</span>
+              </label>
+              <label class="co-pay-item">
+                <input type="radio" name="payment_method" value="uzcard">
+                <span class="co-pay-icon" style="color:#0072bc"><i class="fa-regular fa-credit-card"></i></span>
+                <span class="co-pay-label">Uzcard</span>
+              </label>
+              <label class="co-pay-item">
+                <input type="radio" name="payment_method" value="humo">
+                <span class="co-pay-icon" style="color:#f2a900"><i class="fa-regular fa-credit-card"></i></span>
+                <span class="co-pay-label">Humo</span>
+              </label>
+              <label class="co-pay-item" style="grid-column: span 2;">
+                <input type="radio" name="payment_method" value="visa">
+                <span class="co-pay-icon" style="color:#142787"><i class="fa-brands fa-cc-visa"></i></span>
+                <span class="co-pay-label">Visa / Mastercard</span>
+              </label>
+            </div>
+
+            <!-- Card Details (shown when any card is selected) -->
+            <div class="co-card-form" id="cardForm">
+              <div class="co-card-preview">
+                <div class="co-card-top-row">
+                  <div class="co-card-chip"></div>
+                  <div class="co-card-logo" id="cardLogoPreview">KARTA</div>
+                </div>
+                <div class="co-card-number-preview" id="cardNumPreview">•••• •••• •••• ••••</div>
+                <div class="co-card-bottom">
+                  <div>Karta egasi<br><span id="cardNamePreview">XXXXXXXX</span></div>
+                  <div>Amal qilish<br><span id="cardExpPreview">MM/YY</span></div>
+
+                </div>
+              </div>
+              <div class="co-card-inputs">
+                <div class="co-card-input-group">
+                  <label>Karta raqami</label>
+                  <input type="text" name="card_number" class="co-card-input" id="cardNumInput"
+                    placeholder="0000 0000 0000 0000" maxlength="19"
+                    oninput="formatCardNum(this)">
+                </div>
+                <div class="co-card-input-group">
+                  <label>Karta egasining ismi</label>
+                  <input type="text" name="card_name" class="co-card-input" id="cardNameInput"
+                    placeholder="XXXXXX XXXXXXXXX" style="letter-spacing:1px;text-transform:uppercase"
+                    oninput="document.getElementById('cardNamePreview').textContent=this.value||'XXXXXXXX'">
+                </div>
+                <div class="co-card-row">
+                  <div class="co-card-input-group">
+                    <label>Amal qilish muddati</label>
+                    <input type="text" name="card_expiry" class="co-card-input" id="cardExpInput"
+                      placeholder="MM/YY" maxlength="5"
+                      oninput="formatCardExp(this)">
+                  </div>
+                  <div class="co-card-input-group" id="cvvGroup">
+                    <label>CVV</label>
+                    <input type="password" name="card_cvv" class="co-card-input"
+                      placeholder="•••" maxlength="4" style="letter-spacing:6px">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Notes ── -->
+          <div class="co-card">
+            <div class="co-card-title"><i class="fa-solid fa-message"></i> Qo'shimcha izoh</div>
+            <textarea name="notes" class="co-notes-textarea" placeholder="Masalan: eshik oldida qoldiring, 3-qavat..."></textarea>
           </div>
         </div>
 
-        <!-- Order Summary -->
-        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:24px;height:fit-content;position:sticky;top:100px">
-          <h3 style="font-size:1rem;margin-bottom:16px">Buyurtma</h3>
-          {% for item in cart_items %}
-          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #222;font-size:0.88rem">
-            <div>
-              <span>{{ item.product.product_name }}</span>
-              <span style="color:#666"> × {{ item.quantity }}</span>
+        <!-- ═══ RIGHT: ORDER SUMMARY ═══ -->
+        <div>
+          <div class="co-summary">
+            <div class="co-summary-title"><i class="fa-solid fa-bag-shopping"></i> Buyurtma</div>
+            {% for item in cart_items %}
+            <div class="co-summary-item">
+              <div class="co-item-name">
+                {{ item.product.product_name }}
+                <span class="co-item-qty">× {{ item.quantity }}</span>
+              </div>
+              <span class="co-item-price">{{ item.product.current_price|price_format }}</span>
             </div>
-            <span style="font-weight:600;font-family:'Orbitron',sans-serif">{{ item.product.current_price|price_format }}</span>
+            {% endfor %}
+            <div class="co-summary-total">
+              <span class="co-total-label">Jami</span>
+              <span class="co-total-value">{{ total|price_format }} so'm</span>
+            </div>
+            <button type="submit" class="co-submit-btn">
+              <i class="fa-solid fa-check-circle"></i> Buyurtmani tasdiqlash
+            </button>
           </div>
-          {% endfor %}
-          <div style="border-top:1px solid #2a2a2a;margin-top:16px;padding-top:16px;display:flex;justify-content:space-between">
-            <span style="font-weight:700;font-size:1.1rem">Jami</span>
-            <span style="font-weight:900;font-size:1.3rem;color:#44d62c;font-family:'Orbitron',sans-serif">{{ total|price_format }} so'm</span>
-          </div>
-          <button type="submit" style="width:100%;padding:16px;background:#44d62c;color:#000;border:none;border-radius:10px;font-size:1.05rem;font-weight:700;cursor:pointer;margin-top:20px;transition:all 0.3s">
-            ✅ Tasdiqlash
-          </button>
         </div>
       </div>
     </form>
   </div>
 </section>
+
+<!-- SMS Verification Modal -->
+<div class="sms-modal-overlay" id="smsModal">
+  <div class="sms-modal">
+    <div class="sms-icon"><i class="fa-solid fa-shield-halved"></i></div>
+    <h3 class="sms-title">Tasdiqlash kodi</h3>
+    <p class="sms-text">Telefon raqamingizga 6 xonali SMS kod yuborildi.<br><em>(Test uchun <strong>111111</strong> kiriting)</em></p>
+    
+    <div class="sms-input-group">
+      <input type="text" class="sms-digit" maxlength="1" data-index="0" autofocus>
+      <input type="text" class="sms-digit" maxlength="1" data-index="1">
+      <input type="text" class="sms-digit" maxlength="1" data-index="2">
+      <input type="text" class="sms-digit" maxlength="1" data-index="3">
+      <input type="text" class="sms-digit" maxlength="1" data-index="4">
+      <input type="text" class="sms-digit" maxlength="1" data-index="5">
+    </div>
+    
+    <div class="sms-error" id="smsError">Kiritilgan kod xato!</div>
+    
+    <button class="sms-verify-btn" onclick="verifySms()">Tasdiqlash</button>
+    <button class="sms-close" onclick="closeSmsModal()">Bekor qilish</button>
+  </div>
+</div>
+
+<!-- Payment Result Modal -->
+<div class="payment-result-overlay" id="paymentResultModal">
+  <div class="payment-result-box">
+    <!-- Success State -->
+    <div class="pr-state pr-success" id="prSuccess">
+      <div class="pr-circle pr-circle-success">
+        <svg class="pr-checkmark" viewBox="0 0 52 52">
+          <circle class="pr-checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+          <path class="pr-checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+        </svg>
+      </div>
+      <h3 class="pr-title pr-title-success">To'lov muvaffaqiyatli!</h3>
+      <p class="pr-text">Buyurtmangiz qabul qilindi va tez orada yetkaziladi.</p>
+      <div class="pr-order-num" id="prOrderNum"></div>
+      <div class="pr-loader"><div class="pr-loader-bar"></div></div>
+      <p class="pr-redirect-text">Buyurtma sahifasiga yo'naltirilmoqdasiz...</p>
+    </div>
+    <!-- Failure State -->
+    <div class="pr-state pr-failure" id="prFailure">
+      <div class="pr-circle pr-circle-failure">
+        <svg class="pr-xmark" viewBox="0 0 52 52">
+          <circle class="pr-xmark-circle" cx="26" cy="26" r="25" fill="none"/>
+          <path class="pr-xmark-x" fill="none" d="M16 16 36 36 M36 16 16 36"/>
+        </svg>
+      </div>
+      <h3 class="pr-title pr-title-failure">To'lov amalga oshmadi</h3>
+      <p class="pr-text" id="prErrorMsg">Xatolik yuz berdi. Iltimos, qayta urinib ko'ring.</p>
+      <button class="pr-retry-btn" onclick="closePaymentResult()">Qayta urinish</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function selectAddr(id) {
+  document.querySelectorAll('.co-addr-item').forEach(el => el.classList.remove('selected'));
+  document.getElementById('addr-' + id)?.classList.add('selected');
+  document.getElementById('useNewAddr').value = '0';
+}
+function toggleNewAddr() {
+  const form = document.getElementById('newAddrForm');
+  form.classList.toggle('show');
+  if (form.classList.contains('show')) {
+    document.getElementById('useNewAddr').value = '1';
+    document.querySelectorAll('input[name="shipping_address"]').forEach(r => r.checked = false);
+    document.querySelectorAll('.co-addr-item').forEach(el => el.classList.remove('selected'));
+  } else {
+    document.getElementById('useNewAddr').value = '0';
+  }
+}
+
+// Show Card Form for any card payment
+document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    const cardForm = document.getElementById('cardForm');
+    const cvvGroup = document.getElementById('cvvGroup');
+    const cardMethods = ['uzcard', 'humo', 'visa'];
+    if (cardMethods.includes(radio.value)) {
+      cardForm.classList.add('show');
+      
+      // Toggle CVV visibility
+      if(radio.value === 'visa') {
+        cvvGroup.style.display = 'flex';
+      } else {
+        cvvGroup.style.display = 'none';
+      }
+      
+      // Auto update card logo text based on selected radio
+      let logoText = "KARTA";
+      let input = document.getElementById('cardNumInput');
+      if(radio.value === 'uzcard') { logoText = "UZCARD"; if(!input.value) { input.value = "8600 "; formatCardNum(input); } }
+      if(radio.value === 'humo') { logoText = "HUMO"; if(!input.value) { input.value = "9860 "; formatCardNum(input); } }
+      if(radio.value === 'visa') { logoText = "VISA"; if(!input.value) { input.value = "4"; formatCardNum(input); } }
+      
+      document.getElementById('cardLogoPreview').textContent = logoText;
+      
+    } else {
+      cardForm.classList.remove('show');
+    }
+  });
+});
+
+function formatCardNum(input) {
+  let v = input.value.replace(/\D/g, '').substring(0, 16);
+  let formatted = v.replace(/(\d{4})(?=\d)/g, '$1 ');
+  input.value = formatted;
+  
+  // Auto-detect card type based on typed digits
+  const logoPreview = document.getElementById('cardLogoPreview');
+  const cvvGroup = document.getElementById('cvvGroup');
+  if(v.startsWith("8600")) { 
+    logoPreview.textContent = "UZCARD"; document.querySelector('input[value="uzcard"]').checked = true; 
+    cvvGroup.style.display = 'none';
+  }
+  else if(v.startsWith("9860")) { 
+    logoPreview.textContent = "HUMO"; document.querySelector('input[value="humo"]').checked = true; 
+    cvvGroup.style.display = 'none';
+  }
+  else if(v.startsWith("4")) { 
+    logoPreview.textContent = "VISA"; document.querySelector('input[value="visa"]').checked = true; 
+    cvvGroup.style.display = 'flex';
+  }
+  else if(v.startsWith("5")) { 
+    logoPreview.textContent = "MASTER"; document.querySelector('input[value="visa"]').checked = true; 
+    cvvGroup.style.display = 'flex';
+  }
+  
+  const preview = document.getElementById('cardNumPreview');
+  if (v.length === 0) {
+    preview.textContent = '•••• •••• •••• ••••';
+  } else {
+    let display = '';
+    for (let i = 0; i < 16; i++) {
+      if (i > 0 && i % 4 === 0) display += ' ';
+      display += i < v.length ? v[i] : '•';
+    }
+    preview.textContent = display;
+  }
+}
+
+function formatCardExp(input) {
+  let v = input.value.replace(/\D/g, '').substring(0, 4);
+  if (v.length >= 3) v = v.substring(0, 2) + '/' + v.substring(2);
+  input.value = v;
+  document.getElementById('cardExpPreview').textContent = v || 'MM/YY';
+}
+
+// ── SMS Modal Logic ──
+const checkoutForm = document.getElementById('checkoutForm');
+const smsModal = document.getElementById('smsModal');
+const smsError = document.getElementById('smsError');
+const digits = document.querySelectorAll('.sms-digit');
+
+checkoutForm.addEventListener('submit', function(e) {
+  e.preventDefault(); // Always intercept
+  
+  const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+  const cardMethods = ['uzcard', 'humo', 'visa'];
+  
+  // If payment method requires card, show SMS first
+  if (cardMethods.includes(paymentMethod)) {
+    // Check if card details are filled
+    const cardNum = document.getElementById('cardNumInput').value.replace(/\s/g, '');
+    if (cardNum.length < 16) {
+      alert("Iltimos, karta raqamini to'liq kiriting.");
+      return;
+    }
+    // Show SMS Modal
+    smsModal.classList.add('active');
+    digits[0].focus();
+  } else {
+    // Naqd pul — directly submit via AJAX
+    submitOrderAjax();
+  }
+});
+
+function closeSmsModal() {
+  smsModal.classList.remove('active');
+  smsError.classList.remove('show');
+  digits.forEach(d => d.value = '');
+}
+
+// Auto-focus next digit
+digits.forEach((digit, idx) => {
+  digit.addEventListener('input', (e) => {
+    if (e.target.value.length === 1 && idx < digits.length - 1) {
+      digits[idx + 1].focus();
+    }
+  });
+  digit.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace' && e.target.value === '' && idx > 0) {
+      digits[idx - 1].focus();
+    }
+  });
+});
+
+function verifySms() {
+  let code = '';
+  digits.forEach(d => code += d.value);
+  
+  if (code === '111111') {
+    smsError.classList.remove('show');
+    smsModal.classList.remove('active');
+    // Submit via AJAX after SMS verified
+    submitOrderAjax();
+  } else {
+    smsError.classList.add('show');
+    digits.forEach(d => {
+      d.value = '';
+      d.style.borderColor = '#ef4444';
+      setTimeout(() => d.style.borderColor = 'rgba(255,255,255,0.1)', 1000);
+    });
+    digits[0].focus();
+  }
+}
+
+function showPaymentResult(success, orderNum, errorMsg) {
+  const modal = document.getElementById('paymentResultModal');
+  const successEl = document.getElementById('prSuccess');
+  const failureEl = document.getElementById('prFailure');
+  
+  successEl.classList.remove('active');
+  failureEl.classList.remove('active');
+  
+  if (success) {
+    successEl.classList.add('active');
+    document.getElementById('prOrderNum').textContent = 'Buyurtma: #' + orderNum;
+    modal.classList.add('active');
+    // Auto redirect after 2.5s
+    setTimeout(() => {
+      window.location.href = '/orders/';
+    }, 2800);
+  } else {
+    failureEl.classList.add('active');
+    if (errorMsg) document.getElementById('prErrorMsg').textContent = errorMsg;
+    modal.classList.add('active');
+  }
+}
+
+function closePaymentResult() {
+  document.getElementById('paymentResultModal').classList.remove('active');
+}
+
+function submitOrderAjax() {
+  const formData = new FormData(checkoutForm);
+  
+  fetch(checkoutForm.action || window.location.href, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      showPaymentResult(true, data.order_number);
+    } else {
+      showPaymentResult(false, null, data.error || "Xatolik yuz berdi.");
+    }
+  })
+  .catch(err => {
+    showPaymentResult(false, null, "Server bilan aloqa uzildi. Qayta urinib ko'ring.");
+  });
+}
+</script>
 {% endblock %}
