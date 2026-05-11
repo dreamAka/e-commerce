@@ -1001,6 +1001,11 @@ html.light-mode .nav-overlay        { background: rgba(0,0,0,.3); }
   transform: translateY(-2px);
   box-shadow: 0 8px 30px rgba(68,214,44,.35);
 }
+.home-cta-btn:active {
+  transform: translateY(2px) scale(0.95);
+  box-shadow: 0 4px 15px rgba(68,214,44,.2);
+  background: var(--green);
+}
 
 /* ── Empty state ── */
 .home-empty {
@@ -1430,6 +1435,7 @@ html.light-mode .home-brand-item:hover .brand-logo { filter: none; }
   transition: var(--transition);
 }
 .filter-btn:hover { color: #fff; }
+.filter-btn:active { transform: scale(0.95); }
 .filter-btn.active {
   background: var(--green);
   color: #000;
@@ -1462,6 +1468,9 @@ html.light-mode .home-brand-item:hover .brand-logo { filter: none; }
   border-bottom-color: var(--green);
   z-index: 2;
   box-shadow: 0 8px 40px rgba(68,214,44,.12);
+}
+.product-card:active {
+  transform: scale(0.98);
 }
 
 .product-badge {
@@ -3246,6 +3255,10 @@ html.light-mode .hs-badge    { color: var(--green) !important; }
   background: #5bff3a;
   box-shadow: 0 0 48px rgba(68,214,44,.55);
   transform: translateY(-2px);
+}
+.hs-btn-primary:active {
+  transform: translateY(2px) scale(0.95);
+  box-shadow: 0 0 20px rgba(68,214,44,.4);
 }
 
 .hs-btn-outline {
