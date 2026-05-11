@@ -472,6 +472,45 @@ function animateCounters() {
 }
 
 // =====================
+// SCROLL REVEAL (FADE UP)
+// =====================
+function initScrollReveal() {
+  const targetSelectors = [
+    '.home-section-title', 
+    '.home-cat-card', 
+    '.home-product-card', 
+    '.home-brands-title',
+    '.home-brand-item',
+    '.product-detail-card',
+    '.review-card',
+    '.checkout-card',
+    '.cart-item'
+  ];
+  
+  targetSelectors.forEach(sel => {
+    document.querySelectorAll(sel).forEach((el, index) => {
+      el.classList.add('reveal-element');
+      // Adding a small stagger delay for items in a grid/list
+      if (sel.includes('card') || sel.includes('item')) {
+        const delayClass = 'reveal-delay-' + ((index % 5) + 1);
+        el.classList.add(delayClass);
+      }
+    });
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('active');
+        observer.unobserve(entry.target); // Only animate once
+      }
+    });
+  }, { rootMargin: "0px 0px -40px 0px", threshold: 0.1 });
+
+  document.querySelectorAll('.reveal-element').forEach(el => observer.observe(el));
+}
+
+// =====================
 // PARTICLES
 // =====================
 function createParticles() {
@@ -938,6 +977,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initAdminTabs();
   initHeroSwiper();
+  initScrollReveal();
 
   // Cart toggle
   document.getElementById('cartBtn')?.addEventListener('click', openCart);
