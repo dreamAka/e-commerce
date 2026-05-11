@@ -17,15 +17,19 @@
           <div class="hs-content">
             <h1 class="hs-title">{{ hero.title }}</h1>
             <p class="hs-subtitle">{{ hero.subtitle }}</p>
+            {% if hero.product %}
+            <div class="hs-price-row">
+              <span class="hs-price" style="color:{{ hero.accent_color }}">{{ hero.product.current_price|price_format }} so'm</span>
+              {% if hero.product.sale_price %}
+              <span class="hs-old-price">{{ hero.product.base_price|price_format }} so'm</span>
+              <span class="hs-discount" style="background:{{ hero.accent_color }}22;color:{{ hero.accent_color }}">−{{ hero.product.discount_percent }}%</span>
+              {% endif %}
+            </div>
+            {% endif %}
             <div class="hs-actions">
-              <a href="{{ hero.button_url }}" class="hs-btn hs-btn-primary" style="background:{{ hero.accent_color }}">
+              <a href="{% if hero.product %}{% url 'catalog:product_detail' hero.product.slug %}{% else %}{{ hero.button_url }}{% endif %}" class="hs-btn hs-btn-primary" style="background:{{ hero.accent_color }}">
                 {{ hero.button_text }}
               </a>
-              {% if hero.product %}
-              <a href="{% url 'catalog:product_detail' hero.product.slug %}" class="hs-btn hs-btn-secondary">
-                Подробная информация
-              </a>
-              {% endif %}
             </div>
           </div>
           <div class="hs-visual hs-visual--fullbleed">
@@ -35,6 +39,7 @@
           </div>
         </div>
       </div>
+
       {% empty %}
       <div class="swiper-slide hs-slide hs-slide--fullbleed">
         <div class="hs-bg-layer" style="background:linear-gradient(135deg,#0a0a0a 40%,#44d62c22 100%)"></div>

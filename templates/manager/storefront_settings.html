@@ -85,6 +85,11 @@
             <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:{{ hero.accent_color }};vertical-align:middle;margin:0 4px"></span>
             <code style="color:#888;font-size:0.75rem">{{ hero.accent_color }}</code>
           </span>
+          {% if hero.product %}
+          <span>
+            📦 Mahsulot: <strong style="color:var(--accent)">{{ hero.product.product_name }}</strong>
+          </span>
+          {% endif %}
         </div>
       </div>
 

@@ -1,0 +1,585 @@
+{% load price_filters %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chek #{{ order.order_number }} — NexGear</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    /* ═══════════════ RESET ═══════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --bg-card: #111;
+      --border: rgba(255,255,255,0.08);
+      --text: #e5e5e5;
+      --text-muted: #888;
+      --green: #44d62c;
+      --green-dim: rgba(68,214,44,0.15);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* ═══════════════ RECEIPT WRAPPER ═══════════════ */
+    .receipt-page {
+      max-width: 680px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    /* ═══════════════ TOOLBAR ═══════════════ */
+    .receipt-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      gap: 12px;
+    }
+    .receipt-toolbar-title {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .receipt-toolbar-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .toolbar-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .toolbar-btn-print {
+      background: var(--green);
+      color: #000;
+    }
+    .toolbar-btn-print:hover {
+      background: #3ab825;
+      box-shadow: 0 0 20px rgba(68,214,44,0.3);
+    }
+    .toolbar-btn-download {
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .toolbar-btn-download:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    .toolbar-btn-back {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .toolbar-btn-back:hover {
+      color: var(--text);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    /* ═══════════════ RECEIPT CARD ═══════════════ */
+    .receipt {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    /* ── Header ── */
+    .receipt-header {
+      padding: 36px 36px 28px;
+      border-bottom: 1px dashed rgba(255,255,255,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .receipt-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .receipt-logo-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--green);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: #000;
+      box-shadow: 0 0 20px rgba(68,214,44,0.25);
+    }
+    .receipt-logo-text {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+    }
+    .receipt-logo-accent { color: var(--green); }
+    .receipt-meta {
+      text-align: right;
+    }
+    .receipt-number {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--green);
+      margin-bottom: 4px;
+    }
+    .receipt-date {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Dashed divider ── */
+    .receipt-divider {
+      border: none;
+      border-top: 1px dashed rgba(255,255,255,0.08);
+      margin: 0;
+    }
+
+    /* ── Info section ── */
+    .receipt-info {
+      padding: 24px 36px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .receipt-info-block {}
+    .receipt-info-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .receipt-info-value {
+      font-size: 0.9rem;
+      font-weight: 600;
+      line-height: 1.6;
+    }
+    .receipt-info-sub {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Items ── */
+    .receipt-items {
+      padding: 0 36px;
+    }
+    .receipt-items-header {
+      display: grid;
+      grid-template-columns: 1fr 80px 60px 100px;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .receipt-item {
+      display: grid;
+      grid-template-columns: 1fr 80px 60px 100px;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      align-items: center;
+      font-size: 0.88rem;
+    }
+    .receipt-item:last-child { border-bottom: none; }
+    .receipt-item-name {
+      font-weight: 600;
+    }
+    .receipt-item-variant {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .receipt-item-price,
+    .receipt-item-qty {
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .receipt-item-total {
+      text-align: right;
+      font-weight: 700;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.82rem;
+    }
+
+    /* ── Totals ── */
+    .receipt-totals {
+      padding: 20px 36px 28px;
+      border-top: 1px dashed rgba(255,255,255,0.08);
+    }
+    .receipt-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      font-size: 0.88rem;
+    }
+    .receipt-total-label {
+      color: var(--text-muted);
+    }
+    .receipt-total-value {
+      font-weight: 600;
+    }
+    .receipt-grand-total {
+      margin-top: 12px;
+      padding-top: 14px;
+      border-top: 2px solid rgba(255,255,255,0.08);
+    }
+    .receipt-grand-total .receipt-total-label {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .receipt-grand-total .receipt-total-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--green);
+      text-shadow: 0 0 20px rgba(68,214,44,0.3);
+    }
+
+    /* ── Payment badge ── */
+    .receipt-payment-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+    .badge-paid {
+      background: rgba(68,214,44,0.1);
+      color: var(--green);
+      border: 1px solid rgba(68,214,44,0.2);
+    }
+    .badge-pending {
+      background: rgba(255,170,0,0.1);
+      color: #ffaa00;
+      border: 1px solid rgba(255,170,0,0.2);
+    }
+
+    /* ── Footer ── */
+    .receipt-footer {
+      padding: 24px 36px;
+      border-top: 1px dashed rgba(255,255,255,0.08);
+      text-align: center;
+    }
+    .receipt-footer-thanks {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--green);
+    }
+    .receipt-footer-text {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .receipt-footer-contacts {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 14px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Status badge ── */
+    .receipt-status {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .status-pending { background: rgba(255,170,0,0.1); color: #ffaa00; }
+    .status-confirmed { background: rgba(59,130,246,0.1); color: #3b82f6; }
+    .status-processing { background: rgba(168,85,247,0.1); color: #a855f7; }
+    .status-shipped { background: rgba(14,165,233,0.1); color: #0ea5e9; }
+    .status-delivered { background: rgba(68,214,44,0.1); color: #44d62c; }
+    .status-cancelled { background: rgba(239,68,68,0.1); color: #ef4444; }
+
+    /* ═══════════════ PRINT STYLES ═══════════════ */
+    @media print {
+      body {
+        background: #fff !important;
+        color: #111 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .receipt-toolbar { display: none !important; }
+      .receipt-page { margin: 0; padding: 0; max-width: 100%; }
+      .receipt {
+        border: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        background: #fff !important;
+      }
+      .receipt-header,
+      .receipt-info,
+      .receipt-items,
+      .receipt-totals,
+      .receipt-footer {
+        background: #fff !important;
+        color: #111 !important;
+      }
+      .receipt-divider { border-color: #ddd !important; }
+      .receipt-info-label,
+      .receipt-info-sub,
+      .receipt-total-label,
+      .receipt-item-price,
+      .receipt-item-qty,
+      .receipt-date,
+      .receipt-footer-text,
+      .receipt-footer-contacts { color: #666 !important; }
+      .receipt-number { color: #222 !important; }
+      .receipt-grand-total .receipt-total-value { color: #111 !important; text-shadow: none !important; }
+      .receipt-footer-thanks { color: #333 !important; }
+      .receipt-logo-icon { background: #333 !important; color: #fff !important; box-shadow: none !important; }
+      .receipt-logo-accent { color: #333 !important; }
+    }
+
+    @media (max-width: 600px) {
+      .receipt-page { margin: 20px auto; padding: 0 12px; }
+      .receipt-header { flex-direction: column; gap: 16px; padding: 24px 20px; }
+      .receipt-meta { text-align: left; }
+      .receipt-info { grid-template-columns: 1fr; padding: 20px; gap: 16px; }
+      .receipt-items { padding: 0 20px; }
+      .receipt-items-header,
+      .receipt-item { grid-template-columns: 1fr 70px 40px 80px; gap: 8px; font-size: 0.82rem; }
+      .receipt-totals { padding: 16px 20px 24px; }
+      .receipt-footer { padding: 20px; }
+      .toolbar-btn span.btn-text { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="receipt-page">
+
+  <!-- ═══ TOOLBAR ═══ -->
+  <div class="receipt-toolbar">
+    <div class="receipt-toolbar-title">
+      📄 Buyurtma cheki
+    </div>
+    <div class="receipt-toolbar-actions">
+      <a href="{% url 'orders:order_detail' order.pk %}" class="toolbar-btn toolbar-btn-back">
+        ← <span class="btn-text">Orqaga</span>
+      </a>
+      <button class="toolbar-btn toolbar-btn-download" onclick="downloadReceipt()">
+        ⬇ <span class="btn-text">Yuklab olish</span>
+      </button>
+      <button class="toolbar-btn toolbar-btn-print" onclick="window.print()">
+        🖨 <span class="btn-text">Chop etish</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ RECEIPT CARD ═══ -->
+  <div class="receipt" id="receiptCard">
+
+    <!-- Header -->
+    <div class="receipt-header">
+      <div class="receipt-brand">
+        <div class="receipt-logo-icon"><i class="fa-solid fa-bolt"></i></div>
+        <div>
+          <div class="receipt-logo-text">NEX<span class="receipt-logo-accent">GEAR</span></div>
+          <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px">Gaming Aksessuarlar Do'koni</div>
+        </div>
+      </div>
+      <div class="receipt-meta">
+        <div class="receipt-number">#{{ order.order_number }}</div>
+        <div class="receipt-date">{{ order.created_at|date:"d.m.Y — H:i" }}</div>
+        <div style="margin-top:6px">
+          <span class="receipt-status status-{{ order.order_status }}">
+            {{ order.get_order_status_display }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <hr class="receipt-divider">
+
+    <!-- Info -->
+    <div class="receipt-info">
+      <div class="receipt-info-block">
+        <div class="receipt-info-label">👤 Xaridor</div>
+        <div class="receipt-info-value">{{ order.user.get_full_name|default:order.user.username }}</div>
+        <div class="receipt-info-sub">📧 {{ order.user.email|default:"—" }}</div>
+        <div class="receipt-info-sub">📱 {{ order.user.phone|default:"—" }}</div>
+      </div>
+
+      <div class="receipt-info-block">
+        <div class="receipt-info-label">📍 Yetkazish manzili</div>
+        {% if order.shipping_address %}
+        <div class="receipt-info-value">{{ order.shipping_address.full_name }}</div>
+        <div class="receipt-info-sub">{{ order.shipping_address.region }}, {{ order.shipping_address.city }}</div>
+        <div class="receipt-info-sub">{{ order.shipping_address.street_address }}</div>
+        <div class="receipt-info-sub">📱 {{ order.shipping_address.phone }}</div>
+        {% else %}
+        <div class="receipt-info-value" style="color:var(--text-muted)">Ko'rsatilmagan</div>
+        {% endif %}
+      </div>
+
+      <div class="receipt-info-block">
+        <div class="receipt-info-label">💳 To'lov usuli</div>
+        <div class="receipt-info-value">
+          {% if order.payment_method == 'naqd' %}💵 Naqd pul
+          {% elif order.payment_method == 'karta' %}💳 Plastik karta
+          {% elif order.payment_method == 'click' %}📱 Click / Payme
+          {% else %}{{ order.payment_method|default:"—" }}{% endif %}
+        </div>
+        <div style="margin-top:6px">
+          <span class="receipt-payment-badge {% if order.payment_status == 'paid' %}badge-paid{% else %}badge-pending{% endif %}">
+            {% if order.payment_status == 'paid' %}✓ To'langan
+            {% elif order.payment_status == 'pending' %}⏳ Kutilmoqda
+            {% else %}{{ order.get_payment_status_display }}{% endif %}
+          </span>
+        </div>
+      </div>
+
+      <div class="receipt-info-block">
+        <div class="receipt-info-label">📅 Sana va vaqt</div>
+        <div class="receipt-info-value">{{ order.created_at|date:"d-F, Y" }}</div>
+        <div class="receipt-info-sub">Soat {{ order.created_at|date:"H:i" }} da yaratilgan</div>
+      </div>
+    </div>
+
+    <hr class="receipt-divider">
+
+    <!-- Items -->
+    <div class="receipt-items">
+      <div class="receipt-items-header">
+        <div>Mahsulot</div>
+        <div style="text-align:center">Narxi</div>
+        <div style="text-align:center">Soni</div>
+        <div style="text-align:right">Jami</div>
+      </div>
+
+      {% for item in items %}
+      <div class="receipt-item">
+        <div>
+          <div class="receipt-item-name">{{ item.product.product_name }}</div>
+          {% if item.variant %}
+          <div class="receipt-item-variant">{{ item.variant.variant_name }}</div>
+          {% endif %}
+        </div>
+        <div class="receipt-item-price">{{ item.unit_price|price_format }}</div>
+        <div class="receipt-item-qty">{{ item.quantity }}</div>
+        <div class="receipt-item-total">{{ item.subtotal|price_format }}</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Totals -->
+    <div class="receipt-totals">
+      <div class="receipt-total-row">
+        <span class="receipt-total-label">Mahsulotlar ({{ items.count }} ta)</span>
+        <span class="receipt-total-value">{{ order.subtotal|price_format }} so'm</span>
+      </div>
+      <div class="receipt-total-row">
+        <span class="receipt-total-label">Yetkazib berish</span>
+        <span class="receipt-total-value" style="color:var(--green)">Bepul</span>
+      </div>
+      <div class="receipt-total-row receipt-grand-total">
+        <span class="receipt-total-label">JAMI TO'LOV</span>
+        <span class="receipt-total-value">{{ order.total_amount|price_format }} so'm</span>
+      </div>
+    </div>
+
+    <hr class="receipt-divider">
+
+    <!-- Footer -->
+    <div class="receipt-footer">
+      <div class="receipt-footer-thanks">Xaridingiz uchun rahmat! 🎮</div>
+      <div class="receipt-footer-text">
+        Bu chek NexGear onlayn do'konidan sotib olish tasdig'idir.<br>
+        Muammo bo'lsa, biz bilan bog'laning.
+      </div>
+      <div class="receipt-footer-contacts">
+        <span>📞 +998 90 123 45 67</span>
+        <span>✉️ info@nexgear.uz</span>
+        <span>🌐 nexgear.uz</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function downloadReceipt() {
+  // Create a printable HTML blob and download it
+  const receipt = document.getElementById('receiptCard');
+  const styles = document.querySelector('style').outerHTML;
+
+  const html = `<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <title>Chek #{{ order.order_number }} — NexGear</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
+  ${styles}
+  <style>
+    body { background: #fff !important; color: #111 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .receipt-page { margin: 0; padding: 20px; max-width: 100%; }
+    .receipt { border: 1px solid #ddd !important; box-shadow: none !important; background: #fff !important; }
+    .receipt-header, .receipt-info, .receipt-items, .receipt-totals, .receipt-footer { background: #fff !important; color: #111 !important; }
+    .receipt-divider { border-color: #ddd !important; }
+    .receipt-info-label, .receipt-info-sub, .receipt-total-label, .receipt-item-price, .receipt-item-qty, .receipt-date, .receipt-footer-text, .receipt-footer-contacts { color: #666 !important; }
+    .receipt-number { color: #222 !important; }
+    .receipt-grand-total .receipt-total-value { color: #111 !important; text-shadow: none !important; }
+    .receipt-footer-thanks { color: #333 !important; }
+    .receipt-logo-icon { background: #333 !important; color: #fff !important; box-shadow: none !important; }
+    .receipt-logo-accent { color: #333 !important; }
+    .receipt-toolbar { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="receipt-page">
+    ${receipt.outerHTML}
+  </div>
+</body>
+</html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'NexGear_Chek_{{ order.order_number }}.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>

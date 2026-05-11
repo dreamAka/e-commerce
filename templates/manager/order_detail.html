@@ -39,17 +39,18 @@
     </div>
 
     <div class="card">
-      <div class="card-header"><h3 class="card-title">Statusni o'zgartirish</h3></div>
+      <div class="card-header"><h3 class="card-title">📦 Buyurtma statusini o'zgartirish</h3></div>
       <form method="post">
         {% csrf_token %}
+        <input type="hidden" name="form_type" value="order_status">
         <div class="form-group">
           <select name="order_status" class="form-control">
-            <option value="pending" {% if order.order_status == 'pending' %}selected{% endif %}>Kutilmoqda</option>
-            <option value="confirmed" {% if order.order_status == 'confirmed' %}selected{% endif %}>Tasdiqlangan</option>
-            <option value="processing" {% if order.order_status == 'processing' %}selected{% endif %}>Tayyorlanmoqda</option>
-            <option value="shipped" {% if order.order_status == 'shipped' %}selected{% endif %}>Jo'natildi</option>
-            <option value="delivered" {% if order.order_status == 'delivered' %}selected{% endif %}>Yetkazildi</option>
-            <option value="cancelled" {% if order.order_status == 'cancelled' %}selected{% endif %}>Bekor qilish</option>
+            <option value="pending" {% if order.order_status == 'pending' %}selected{% endif %}>⏳ Kutilmoqda</option>
+            <option value="confirmed" {% if order.order_status == 'confirmed' %}selected{% endif %}>✅ Tasdiqlangan</option>
+            <option value="processing" {% if order.order_status == 'processing' %}selected{% endif %}>📦 Tayyorlanmoqda</option>
+            <option value="shipped" {% if order.order_status == 'shipped' %}selected{% endif %}>🚚 Jo'natildi</option>
+            <option value="delivered" {% if order.order_status == 'delivered' %}selected{% endif %}>🏠 Yetkazildi</option>
+            <option value="cancelled" {% if order.order_status == 'cancelled' %}selected{% endif %}>❌ Bekor qilish</option>
           </select>
         </div>
         <button type="submit" class="btn btn-primary btn-sm" style="width:100%">Yangilash</button>
@@ -57,10 +58,78 @@
     </div>
 
     <div class="card">
-      <div class="card-header"><h3 class="card-title">To'lov</h3></div>
-      <p><span class="badge badge-{{ order.payment_status }}">{{ order.get_payment_status_display }}</span></p>
-      <p style="margin-top:8px;font-size:0.88rem;color:var(--text-muted)">Usul: {{ order.payment_method|default:"—" }}</p>
+      <div class="card-header"><h3 class="card-title">💳 To'lov holati</h3></div>
+      <div style="margin-bottom:12px">
+        <span class="badge badge-{{ order.payment_status }}" style="font-size:0.85rem">{{ order.get_payment_status_display }}</span>
+        <span style="margin-left:8px;font-size:0.82rem;color:var(--text-muted)">
+          {% if order.payment_method == 'naqd' %}💵 Naqd pul
+          {% elif order.payment_method == 'karta' %}💳 Plastik karta
+          {% elif order.payment_method == 'click' %}📱 Click / Payme
+          {% else %}{{ order.payment_method|default:"—" }}{% endif %}
+        </span>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="payment_status">
+        <div class="form-group">
+          <label style="font-size:0.78rem;color:var(--text-muted);margin-bottom:6px">To'lov holatini o'zgartirish</label>
+          <select name="payment_status" class="form-control">
+            <option value="pending" {% if order.payment_status == 'pending' %}selected{% endif %}>⏳ Kutilmoqda</option>
+            <option value="paid" {% if order.payment_status == 'paid' %}selected{% endif %}>✅ To'langan</option>
+            <option value="failed" {% if order.payment_status == 'failed' %}selected{% endif %}>❌ Xatolik</option>
+            <option value="refunded" {% if order.payment_status == 'refunded' %}selected{% endif %}>↩️ Qaytarilgan</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm" style="width:100%">To'lov holatini yangilash</button>
+      </form>
+      <p style="margin-top:8px;font-size:0.78rem;color:var(--text-muted)">📅 {{ order.created_at|date:"d.m.Y H:i" }}</p>
     </div>
+
+    {% if order.shipping_address %}
+    <div class="card">
+      <div class="card-header"><h3 class="card-title">📍 Yetkazish manzili</h3></div>
+      <p style="font-weight:600;margin-bottom:4px">{{ order.shipping_address.full_name }}</p>
+      <p style="font-size:0.85rem;color:var(--text-muted)">{{ order.shipping_address.region }}, {{ order.shipping_address.city }}</p>
+      <p style="font-size:0.85rem;color:var(--text-muted)">{{ order.shipping_address.street_address }}</p>
+      <p style="font-size:0.85rem;color:var(--text-muted)">📱 {{ order.shipping_address.phone }}</p>
+    </div>
+    {% endif %}
+
+    <div class="card">
+      <div class="card-header"><h3 class="card-title">🧾 Chek</h3></div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <a href="{% url 'manager:order_receipt' order.pk %}" target="_blank"
+          class="btn btn-primary btn-sm" style="width:100%;justify-content:center;gap:8px">
+          🖨 Chekni ko'rish
+        </a>
+        <a href="{% url 'manager:order_receipt' order.pk %}" target="_blank"
+          onclick="event.preventDefault();downloadReceiptManager()"
+          class="btn btn-outline btn-sm" style="width:100%;justify-content:center;gap:8px">
+          ⬇ Yuklab olish
+        </a>
+      </div>
+    </div>
+
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function downloadReceiptManager() {
+  fetch("{% url 'manager:order_receipt' order.pk %}")
+    .then(res => res.text())
+    .then(html => {
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'NexGear_Chek_{{ order.order_number }}.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+}
+</script>
 {% endblock %}

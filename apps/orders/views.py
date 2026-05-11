@@ -30,13 +30,27 @@ def add_to_cart(request, product_id):
     product = get_object_or_404(Product, pk=product_id, product_status='active')
     qty = int(request.POST.get('quantity', 1))
 
-    cart_item, created = ShoppingCart.objects.get_or_create(
-        user=request.user, product=product, variant=None,
-        defaults={'quantity': qty}
-    )
-    if not created:
-        cart_item.quantity += qty
-        cart_item.save()
+    # Check stock
+    existing = ShoppingCart.objects.filter(user=request.user, product=product, variant=None).first()
+    current_in_cart = existing.quantity if existing else 0
+    
+    if product.stock_quantity <= 0:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': "Bu mahsulot omborda tugagan."})
+        messages.error(request, "Bu mahsulot omborda tugagan.")
+        return redirect('orders:cart')
+    
+    if current_in_cart + qty > product.stock_quantity:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': f"Omborda faqat {product.stock_quantity} ta mavjud."})
+        messages.error(request, f"Omborda faqat {product.stock_quantity} ta mavjud.")
+        return redirect('orders:cart')
+
+    if existing:
+        existing.quantity += qty
+        existing.save()
+    else:
+        ShoppingCart.objects.create(user=request.user, product=product, variant=None, quantity=qty)
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         count = ShoppingCart.objects.filter(user=request.user).count()
@@ -176,3 +190,17 @@ def order_detail(request, order_id):
     order = get_object_or_404(Order, pk=order_id, user=request.user)
     items = order.items.select_related('product', 'variant')
     return render(request, 'orders/order_detail.html', {'order': order, 'items': items})
+
+
+@login_required
+def order_receipt(request, order_id):
+    """Buyurtma cheki — yangi tabda ochiladi (print uchun)"""
+    order = get_object_or_404(
+        Order.objects.select_related('user', 'shipping_address'),
+        pk=order_id, user=request.user
+    )
+    items = order.items.select_related('product', 'variant')
+    return render(request, 'orders/receipt.html', {
+        'order': order,
+        'items': items,
+    })

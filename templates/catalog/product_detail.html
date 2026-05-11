@@ -438,18 +438,47 @@ html.light-mode .pd-breadcrumb .current { color: #333; }
         </div>
         {% endif %}
 
+        <!-- Stock info -->
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          {% if product.stock_quantity > 0 %}
+            {% if product.stock_quantity <= 5 %}
+              <span style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;font-size:0.82rem;font-weight:600;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444;">
+                <i class="fa-solid fa-fire"></i> Faqat {{ product.stock_quantity }} ta qoldi!
+              </span>
+            {% elif product.stock_quantity <= 20 %}
+              <span style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;font-size:0.82rem;font-weight:600;background:rgba(255,170,0,0.1);border:1px solid rgba(255,170,0,0.2);color:#ffaa00;">
+                <i class="fa-solid fa-box"></i> Omborda: {{ product.stock_quantity }} ta
+              </span>
+            {% else %}
+              <span style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;font-size:0.82rem;font-weight:600;background:rgba(68,214,44,0.08);border:1px solid rgba(68,214,44,0.15);color:var(--green);">
+                <i class="fa-solid fa-check-circle"></i> Omborda: {{ product.stock_quantity }} ta
+              </span>
+            {% endif %}
+          {% else %}
+            <span style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;font-size:0.82rem;font-weight:600;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444;">
+              <i class="fa-solid fa-xmark-circle"></i> Omborda tugagan
+            </span>
+          {% endif %}
+        </div>
+
         <!-- Add to Cart -->
         <form method="post" action="{% url 'orders:add_to_cart' product.pk %}">
           {% csrf_token %}
           <div class="pd-cart-row">
             <div class="pd-qty-wrap">
-              <button type="button" class="pd-qty-btn" onclick="changeQty(-1)">−</button>
-              <input type="number" class="pd-qty-input" id="qty" name="quantity" value="1" min="1">
-              <button type="button" class="pd-qty-btn" onclick="changeQty(1)">+</button>
+              <button type="button" class="pd-qty-btn" onclick="changeProductQty(-1)">−</button>
+              <input type="number" class="pd-qty-input" id="qty" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}" readonly>
+              <button type="button" class="pd-qty-btn" onclick="changeProductQty(1)">+</button>
             </div>
+            {% if product.stock_quantity > 0 %}
             <button type="submit" class="pd-add-btn" id="addToCartBtn">
               <i class="fa-solid fa-cart-shopping"></i>&nbsp; Savatga qo'shish
             </button>
+            {% else %}
+            <button type="button" class="pd-add-btn" disabled style="opacity:0.4;cursor:not-allowed;background:#555;">
+              <i class="fa-solid fa-ban"></i>&nbsp; Tugagan
+            </button>
+            {% endif %}
             <button type="button" class="pd-wishlist-btn {% if is_wishlisted %}active{% endif %}" onclick="toggleWishlist(event, this, {{ product.pk }})" aria-label="Sevimlilar">
               <i class="fa-{% if is_wishlisted %}solid{% else %}regular{% endif %} fa-heart"></i>
             </button>
@@ -573,10 +602,12 @@ html.light-mode .pd-breadcrumb .current { color: #333; }
 </section>
 
 <script>
-function changeQty(d) {
+function changeProductQty(d) {
   const inp = document.getElementById('qty');
+  const max = parseInt(inp.getAttribute('max')) || 999;
   let v = parseInt(inp.value) + d;
   if (v < 1) v = 1;
+  if (v > max) v = max;
   inp.value = v;
 }
 function switchImage(url, thumb) {

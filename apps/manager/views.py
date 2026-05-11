@@ -226,14 +226,36 @@ def order_detail(request, order_id):
     items = order.items.select_related('product', 'variant')
 
     if request.method == 'POST':
-        new_status = request.POST.get('order_status')
-        if new_status:
-            order.order_status = new_status
-            order.save()
-            messages.success(request, f"Buyurtma statusi '{order.get_order_status_display()}' ga o'zgartirildi.")
-            return redirect('manager:order_detail', order_id=order.pk)
+        form_type = request.POST.get('form_type', 'order_status')
+
+        if form_type == 'order_status':
+            new_status = request.POST.get('order_status')
+            if new_status:
+                order.order_status = new_status
+                order.save()
+                messages.success(request, f"Buyurtma statusi '{order.get_order_status_display()}' ga o'zgartirildi.")
+
+        elif form_type == 'payment_status':
+            new_payment = request.POST.get('payment_status')
+            if new_payment:
+                order.payment_status = new_payment
+                order.save()
+                messages.success(request, f"To'lov holati '{order.get_payment_status_display()}' ga o'zgartirildi.")
+
+        return redirect('manager:order_detail', order_id=order.pk)
 
     return render(request, 'manager/order_detail.html', {'order': order, 'items': items})
+
+
+@admin_required
+def order_receipt(request, order_id):
+    """Manager: buyurtma cheki"""
+    order = get_object_or_404(Order.objects.select_related('user', 'shipping_address'), pk=order_id)
+    items = order.items.select_related('product', 'variant')
+    return render(request, 'orders/receipt.html', {
+        'order': order,
+        'items': items,
+    })
 
 
 # ══════════════════════════════════════════════════════════════
@@ -438,7 +460,7 @@ def category_form(request, category_id=None):
 
 @admin_required
 def storefront_settings(request):
-    heroes = HeroSection.objects.order_by('order')
+    heroes = HeroSection.objects.select_related('product').order_by('order')
     return render(request, 'manager/storefront_settings.html', {'heroes': heroes})
 
 
@@ -458,6 +480,14 @@ def hero_form(request, hero_id=None):
         hero.accent_color = data.get('accent_color', '#44d62c')
         hero.order = int(data.get('order', 0))
         hero.is_active = data.get('is_active') == 'on'
+
+        # Mahsulot bog'lash
+        product_id = data.get('product')
+        if product_id:
+            hero.product_id = int(product_id)
+        else:
+            hero.product = None
+
         hero.save()
 
         # Rasm yuklash
@@ -468,8 +498,10 @@ def hero_form(request, hero_id=None):
         messages.success(request, f"Banner '{hero.title}' saqlandi.")
         return redirect('manager:storefront')
 
+    products = Product.objects.filter(product_status='active').order_by('product_name')
     return render(request, 'manager/hero_form.html', {
         'hero': hero,
+        'products': products,
         'preset_colors': ['#44d62c', '#00d4ff', '#ff4d4d', '#ff8c00', '#c084fc', '#ffffff'],
     })
 

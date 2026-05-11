@@ -318,9 +318,40 @@ html.light-mode .od-item-meta { color: #999; }
     </div>
     {% endif %}
 
+    <!-- ══ RECEIPT ACTIONS ══ -->
+    <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+      <a href="{% url 'orders:order_receipt' order.pk %}" target="_blank" class="od-back" style="background:var(--green);color:#000;border-color:var(--green);font-weight:700">
+        <i class="fa-solid fa-receipt"></i> Chekni ko'rish
+      </a>
+      <a href="{% url 'orders:order_receipt' order.pk %}" target="_blank" class="od-back" onclick="event.preventDefault();downloadReceiptFromDetail()" style="background:rgba(255,255,255,.04)">
+        <i class="fa-solid fa-download"></i> Chekni yuklab olish
+      </a>
+    </div>
+
     <a href="{% url 'orders:order_list' %}" class="od-back">
       <i class="fa-solid fa-arrow-left"></i> Barcha buyurtmalar
     </a>
   </div>
 </section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function downloadReceiptFromDetail() {
+  fetch("{% url 'orders:order_receipt' order.pk %}")
+    .then(res => res.text())
+    .then(html => {
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'NexGear_Chek_{{ order.order_number }}.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+}
+</script>
 {% endblock %}
