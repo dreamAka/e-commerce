@@ -34,14 +34,13 @@ def dashboard(request):
 
     # Stats
     total_orders = Order.objects.count()
-    total_revenue = Order.objects.filter(payment_status='paid').aggregate(s=Sum('total_amount'))['s'] or 0
+    total_revenue = Order.objects.exclude(order_status__in=['cancelled', 'refunded']).aggregate(s=Sum('total_amount'))['s'] or 0
     total_products = Product.objects.filter(product_status='active').count()
     total_users = CustomUser.objects.filter(account_status='active').count()
 
     # Today
     today_orders = Order.objects.filter(created_at__date=today).count()
-    today_revenue = Order.objects.filter(created_at__date=today, payment_status='paid').aggregate(
-        s=Sum('total_amount'))['s'] or 0
+    today_revenue = Order.objects.filter(created_at__date=today).exclude(order_status__in=['cancelled', 'refunded']).aggregate(s=Sum('total_amount'))['s'] or 0
 
     # Recent orders
     recent_orders = Order.objects.select_related('user').order_by('-created_at')[:10]
@@ -146,7 +145,7 @@ def dashboard_day_stats(request):
 
     orders_qs = Order.objects.filter(created_at__date=selected_date)
     day_orders = orders_qs.count()
-    day_revenue = orders_qs.filter(payment_status='paid').aggregate(s=Sum('total_amount'))['s'] or 0
+    day_revenue = orders_qs.exclude(order_status__in=['cancelled', 'refunded']).aggregate(s=Sum('total_amount'))['s'] or 0
 
     # Soatlik taqsimot (0-23)
     hourly = [0] * 24
