@@ -47,7 +47,7 @@ def dashboard(request):
     total_cost = Decimal('0')
     total_sell = Decimal('0')
     for item in active_items:
-        cost = item.product.cost_price if item.product.cost_price else Decimal('0')
+        cost = item.cost_price if item.cost_price is not None else (item.product.cost_price or Decimal('0'))
         total_cost += cost * item.quantity
         total_sell += item.unit_price * item.quantity
     total_profit = total_sell - total_cost
@@ -64,7 +64,7 @@ def dashboard(request):
     today_cost = Decimal('0')
     today_sell = Decimal('0')
     for item in today_items:
-        cost = item.product.cost_price if item.product.cost_price else Decimal('0')
+        cost = item.cost_price if item.cost_price is not None else (item.product.cost_price or Decimal('0'))
         today_cost += cost * item.quantity
         today_sell += item.unit_price * item.quantity
     today_profit = today_sell - today_cost
@@ -182,7 +182,7 @@ def dashboard_day_stats(request):
         order__created_at__date=selected_date,
         order__order_status__in=['pending', 'confirmed', 'processing', 'shipped', 'delivered']
     ).select_related('product')
-    day_cost = sum(((item.product.cost_price or Decimal('0')) * item.quantity) for item in day_items)
+    day_cost = sum(((item.cost_price if item.cost_price is not None else (item.product.cost_price or Decimal('0'))) * item.quantity) for item in day_items)
     day_sell = sum((item.unit_price * item.quantity) for item in day_items)
     day_profit = day_sell - day_cost
 

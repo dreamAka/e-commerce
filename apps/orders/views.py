@@ -149,6 +149,7 @@ def checkout_view(request):
                 variant=item.variant,
                 quantity=item.quantity,
                 unit_price=price,
+                cost_price=item.product.cost_price,
                 subtotal=price * item.quantity,
             )
 

@@ -55,6 +55,7 @@ class OrderItem(models.Model):
     variant = models.ForeignKey('catalog.ProductVariant', on_delete=models.SET_NULL, null=True, blank=True)
     quantity = models.IntegerField(default=1)
     unit_price = models.DecimalField(max_digits=12, decimal_places=2)
+    cost_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     subtotal = models.DecimalField(max_digits=12, decimal_places=2)
 
     def __str__(self):
