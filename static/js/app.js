@@ -816,8 +816,11 @@ function initHeroSwiper() {
     grabCursor: true,
     watchOverflow: true,
 
-    // Effect – smooth slide
-    effect: 'slide',
+    // Effect – fade with crossFade
+    effect: 'fade',
+    fadeEffect: {
+      crossFade: true
+    },
 
     // Autoplay
     autoplay: {

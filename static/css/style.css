@@ -3121,8 +3121,8 @@ body.light-mode .form-input { background: #fff; color: #111; }
 }
 
 @keyframes hs-content-in {
-  from { opacity: 0; transform: translateX(-40px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; transform: translateY(30px); filter: blur(8px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
 /* Badge */
@@ -3317,8 +3317,8 @@ html.light-mode .hs-badge    { color: var(--green) !important; }
 }
 
 @keyframes hs-visual-in {
-  from { opacity: 0; transform: translateX(40px) scale(.95); }
-  to   { opacity: 1; transform: translateX(0) scale(1); }
+  from { opacity: 0; transform: scale(.85) translateY(20px); filter: blur(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
 }
 
 /* Radial glow behind emoji */
