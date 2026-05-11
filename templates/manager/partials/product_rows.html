@@ -12,8 +12,14 @@
   </td>
   <td>{{ p.category.category_name|default:"-" }}</td>
   <td>{{ p.brand.brand_name|default:"-" }}</td>
-  <td style="font-weight:600">{{ p.base_price|price_format }} so'm</td>
-  <td>{% if p.sale_price %}<span style="color:var(--accent)">{{ p.sale_price|price_format }} so'm</span>{% else %}-{% endif %}</td>
+  <td style="font-weight:600">{{ p.current_price|price_format }} so'm</td>
+  <td>{% if p.cost_price %}{{ p.cost_price|price_format }} so'm{% else %}-{% endif %}</td>
+  <td>
+    {% if p.profit %}
+    <span style="color:var(--accent);font-weight:600;">+{{ p.profit|price_format }}</span>
+    <br><span style="font-size:0.75rem;color:var(--text-muted)">({{ p.markup_percent }}%)</span>
+    {% else %}-{% endif %}
+  </td>
   <td><span class="badge badge-{{ p.product_status }}">{{ p.get_product_status_display }}</span></td>
   <td>
     <a href="{% url 'manager:product_edit' p.pk %}" class="btn btn-outline btn-sm">✏️</a>
@@ -21,5 +27,5 @@
   </td>
 </tr>
 {% empty %}
-<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:40px">Mahsulotlar topilmadi</td></tr>
+<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:40px">Mahsulotlar topilmadi</td></tr>
 {% endfor %}

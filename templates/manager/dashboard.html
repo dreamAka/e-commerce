@@ -6,7 +6,7 @@
 
 {% block content %}
 <!-- Stats -->
-<div class="stats-grid">
+<div class="stats-grid" style="grid-template-columns:repeat(5, 1fr)">
   <a href="{% url 'manager:order_list' %}" class="stat-card" style="display:block; text-decoration:none; color:inherit;">
     <div class="stat-icon">📦</div>
     <div class="stat-value">{{ total_orders }}</div>
@@ -17,6 +17,11 @@
     <div class="stat-value">{{ total_revenue|price_format }}</div>
     <div class="stat-label">Jami daromad (so'm)</div>
   </a>
+  <div class="stat-card" style="border:1px solid rgba(68,214,44,0.15)">
+    <div class="stat-icon">📈</div>
+    <div class="stat-value" style="color:var(--accent)">{{ total_profit|price_format }}</div>
+    <div class="stat-label">Sof foyda (so'm)</div>
+  </div>
   <a href="{% url 'manager:product_list' %}" class="stat-card" style="display:block; text-decoration:none; color:inherit;">
     <div class="stat-icon">🎮</div>
     <div class="stat-value">{{ total_products }}</div>
@@ -30,7 +35,7 @@
 </div>
 
 <!-- Today stats -->
-<div class="stats-grid" style="margin-bottom:32px">
+<div class="stats-grid" style="margin-bottom:32px;grid-template-columns:repeat(5, 1fr)">
   <a href="{% url 'manager:order_list' %}" class="stat-card" style="display:block; text-decoration:none; color:inherit; border-left:3px solid var(--accent)">
     <div class="stat-value" style="font-size:1.4rem">{{ today_orders }}</div>
     <div class="stat-label">Bugungi buyurtmalar</div>
@@ -39,6 +44,10 @@
     <div class="stat-value" style="font-size:1.4rem">{{ today_revenue|price_format }}</div>
     <div class="stat-label">Bugungi daromad</div>
   </a>
+  <div class="stat-card" style="border-left:3px solid var(--accent)">
+    <div class="stat-value" style="font-size:1.4rem;color:var(--accent)">{{ today_profit|price_format }}</div>
+    <div class="stat-label">Bugungi sof foyda</div>
+  </div>
   <a href="javascript:void(0)" class="stat-card" style="display:block; text-decoration:none; color:inherit; border-left:3px solid var(--danger); cursor:default">
     <div class="stat-value" style="font-size:1.4rem">{{ pending_reviews }}</div>
     <div class="stat-label">Kutayotgan sharhlar</div>

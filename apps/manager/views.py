@@ -38,9 +38,34 @@ def dashboard(request):
     total_products = Product.objects.filter(product_status='active').count()
     total_users = CustomUser.objects.filter(account_status='active').count()
 
+    # Sof foyda: (sotish narxi - tan narxi) * miqdor
+    active_items = OrderItem.objects.filter(
+        order__order_status__in=['pending', 'confirmed', 'processing', 'shipped', 'delivered']
+    ).select_related('product')
+    total_cost = Decimal('0')
+    total_sell = Decimal('0')
+    for item in active_items:
+        cost = item.product.cost_price if item.product.cost_price else Decimal('0')
+        total_cost += cost * item.quantity
+        total_sell += item.unit_price * item.quantity
+    total_profit = total_sell - total_cost
+
     # Today
     today_orders = Order.objects.filter(created_at__date=today).count()
     today_revenue = Order.objects.filter(created_at__date=today).exclude(order_status__in=['cancelled', 'refunded']).aggregate(s=Sum('total_amount'))['s'] or 0
+
+    # Today profit
+    today_items = OrderItem.objects.filter(
+        order__created_at__date=today,
+        order__order_status__in=['pending', 'confirmed', 'processing', 'shipped', 'delivered']
+    ).select_related('product')
+    today_cost = Decimal('0')
+    today_sell = Decimal('0')
+    for item in today_items:
+        cost = item.product.cost_price if item.product.cost_price else Decimal('0')
+        today_cost += cost * item.quantity
+        today_sell += item.unit_price * item.quantity
+    today_profit = today_sell - today_cost
 
     # Recent orders
     recent_orders = Order.objects.select_related('user').order_by('-created_at')[:10]
@@ -109,6 +134,9 @@ def dashboard(request):
         'total_users': total_users,
         'today_orders': today_orders,
         'today_revenue': today_revenue,
+        'today_profit': today_profit,
+        'total_profit': total_profit,
+        'total_cost': total_cost,
         'recent_orders': recent_orders,
         'low_stock': low_stock,
         'pending_reviews': pending_reviews,

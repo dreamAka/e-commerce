@@ -95,6 +95,20 @@ class Product(models.Model):
         img = self.images.filter(is_primary=True).first()
         return img if img else self.images.first()
 
+    @property
+    def profit(self):
+        """Sof foyda: sotish narxi - tan narxi"""
+        if self.cost_price and self.cost_price > 0:
+            return self.current_price - self.cost_price
+        return None
+
+    @property
+    def markup_percent(self):
+        """Ustiga qo'yilgan foiz: (foyda / tan narxi) * 100"""
+        if self.cost_price and self.cost_price > 0:
+            return int(((self.current_price - self.cost_price) / self.cost_price) * 100)
+        return None
+
 
 class ProductVariant(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='variants')
