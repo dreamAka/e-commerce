@@ -244,6 +244,53 @@
 }
 .pd-meta span i { margin-right: 6px; color: rgba(68,214,44,0.4); }
 
+/* ── TRUST BADGES ── */
+.pd-trust-badges {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.pd-trust-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  transition: all 0.25s ease;
+}
+.pd-trust-badge:hover {
+  border-color: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  transform: translateY(-2px);
+}
+.pd-trust-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+.pd-trust-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.pd-trust-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+}
+.pd-trust-sub {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.35);
+}
+
 /* ── REVIEWS ── */
 .pd-reviews-section { margin-top: 60px; }
 .pd-section-title {
@@ -330,6 +377,10 @@ html.light-mode .pd-related-card { background: #f8f8f8; border-color: #e5e5e5; }
 html.light-mode .pd-meta { color: #999; border-top-color: #e5e5e5; }
 html.light-mode .pd-breadcrumb a { color: #999; }
 html.light-mode .pd-breadcrumb .current { color: #333; }
+html.light-mode .pd-trust-badge { background: #f8f8f8; border-color: #e5e5e5; }
+html.light-mode .pd-trust-badge:hover { background: #f0f0f0; border-color: #ddd; }
+html.light-mode .pd-trust-title { color: #222; }
+html.light-mode .pd-trust-sub { color: #888; }
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -338,6 +389,10 @@ html.light-mode .pd-breadcrumb .current { color: #333; }
   .pd-name { font-size: 1.3rem; }
   .pd-price { font-size: 1.5rem; }
   .pd-cart-row { flex-direction: column; }
+  .pd-trust-badges { grid-template-columns: 1fr 1fr; gap: 8px; }
+}
+@media (max-width: 420px) {
+  .pd-trust-badges { grid-template-columns: 1fr; }
 }
 </style>
 {% endblock %}
@@ -405,6 +460,46 @@ html.light-mode .pd-breadcrumb .current { color: #333; }
           <span class="pd-old-price">{{ product.base_price|price_format }} so'm</span>
           <span class="pd-discount-badge">-{{ product.discount_percent }}%</span>
           {% endif %}
+        </div>
+
+        <!-- ═══ TRUST BADGES (Uzum style) ═══ -->
+        <div class="pd-trust-badges">
+          <div class="pd-trust-badge">
+            <div class="pd-trust-icon" style="background:rgba(68,214,44,0.08);color:#44d62c">
+              <i class="fa-solid fa-certificate"></i>
+            </div>
+            <div class="pd-trust-text">
+              <span class="pd-trust-title">100% Original</span>
+              <span class="pd-trust-sub">Rasmiy kafolat bilan</span>
+            </div>
+          </div>
+          <div class="pd-trust-badge">
+            <div class="pd-trust-icon" style="background:rgba(59,130,246,0.08);color:#3b82f6">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div class="pd-trust-text">
+              <span class="pd-trust-title">12 oy garantiya</span>
+              <span class="pd-trust-sub">Ishlab chiqaruvchidan</span>
+            </div>
+          </div>
+          <div class="pd-trust-badge">
+            <div class="pd-trust-icon" style="background:rgba(168,85,247,0.08);color:#a855f7">
+              <i class="fa-solid fa-truck-fast"></i>
+            </div>
+            <div class="pd-trust-text">
+              <span class="pd-trust-title">Bepul yetkazish</span>
+              <span class="pd-trust-sub">Toshkent bo'ylab</span>
+            </div>
+          </div>
+          <div class="pd-trust-badge">
+            <div class="pd-trust-icon" style="background:rgba(255,170,0,0.08);color:#ffaa00">
+              <i class="fa-solid fa-lock"></i>
+            </div>
+            <div class="pd-trust-text">
+              <span class="pd-trust-title">Xavfsiz to'lov</span>
+              <span class="pd-trust-sub">Naqd / Karta / Click</span>
+            </div>
+          </div>
         </div>
 
         <!-- Description (Accordion) -->
