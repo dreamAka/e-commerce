@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
-  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=8">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=9">
   <link rel="stylesheet" href="{% static 'css/responsive.css' %}?v=1">
   {% block extra_css %}{% endblock %}
   <script>
@@ -520,6 +520,9 @@ function toggleWishlist(e, btn, productId) {
           btn.style.borderColor = 'rgba(239,68,68,0.3)';
           btn.style.background = 'rgba(239,68,68,0.1)';
           icon.style.filter = 'drop-shadow(0 0 8px rgba(239,68,68,0.5))';
+          icon.style.animation = 'none'; // reset
+          void icon.offsetWidth; // trigger reflow
+          icon.style.animation = 'heart-bop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
         }
       } else {
         icon.classList.remove('fa-solid');
