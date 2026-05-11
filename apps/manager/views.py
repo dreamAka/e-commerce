@@ -13,6 +13,8 @@ from django.contrib import messages
 from datetime import timedelta
 from decimal import Decimal
 
+from django.db.models.functions import ExtractHour
+
 from apps.accounts.decorators import admin_required
 from apps.accounts.models import CustomUser
 from apps.catalog.models import Product, Category, Brand, HeroSection, ProductImage
@@ -175,19 +177,29 @@ def dashboard_day_stats(request):
     day_orders = orders_qs.count()
     day_revenue = orders_qs.exclude(order_status__in=['cancelled', 'refunded']).aggregate(s=Sum('total_amount'))['s'] or 0
 
+    # Sof foyda
+    day_items = OrderItem.objects.filter(
+        order__created_at__date=selected_date,
+        order__order_status__in=['pending', 'confirmed', 'processing', 'shipped', 'delivered']
+    ).select_related('product')
+    day_cost = sum(((item.product.cost_price or Decimal('0')) * item.quantity) for item in day_items)
+    day_sell = sum((item.unit_price * item.quantity) for item in day_items)
+    day_profit = day_sell - day_cost
+
     # Soatlik taqsimot (0-23)
     hourly = [0] * 24
     hourly_data = (
         orders_qs
-        .extra(select={'hour': "strftime('%%H', created_at)"})
+        .annotate(hour=ExtractHour('created_at'))
         .values('hour')
         .annotate(cnt=Count('id'))
     )
     for h in hourly_data:
-        try:
-            hourly[int(h['hour'])] = h['cnt']
-        except (ValueError, TypeError):
-            pass
+        if h['hour'] is not None:
+            try:
+                hourly[int(h['hour'])] = h['cnt']
+            except (ValueError, TypeError):
+                pass
 
     # Top mahsulotlar shu kunga
     top_products = list(
@@ -202,6 +214,7 @@ def dashboard_day_stats(request):
         'date': date_str,
         'orders': day_orders,
         'revenue': float(day_revenue),
+        'profit': float(day_profit),
         'hourly': hourly,
         'top_products': top_products,
     })

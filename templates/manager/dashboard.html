@@ -100,6 +100,10 @@
           <div style="font-size:1.3rem;font-weight:700;font-family:'Orbitron',sans-serif" id="calDayRevenue">0</div>
           <div style="font-size:0.72rem;color:var(--text-muted)">Daromad</div>
         </div>
+        <div>
+          <div style="font-size:1.3rem;font-weight:700;color:var(--accent);font-family:'Orbitron',sans-serif" id="calDayProfit">0</div>
+          <div style="font-size:0.72rem;color:var(--text-muted)">Sof foyda</div>
+        </div>
       </div>
       <!-- Top mahsulotlar -->
       <div id="calTopProducts" style="margin-top:10px;display:none">
@@ -311,6 +315,8 @@ function loadDayStats(dateStr) {
       document.getElementById('calDayOrders').textContent = data.orders;
       document.getElementById('calDayRevenue').textContent =
         formatPrice(data.revenue) + " so'm";
+      document.getElementById('calDayProfit').textContent =
+        formatPrice(data.profit) + " so'm";
 
       // Top mahsulotlar
       const topDiv = document.getElementById('calTopProducts');
