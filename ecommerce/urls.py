@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import RedirectView
+from django.http import HttpResponse
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -20,7 +20,7 @@ urlpatterns = [
     path('api/', include('apps.orders.api_urls')),
 
     # Favicon — 404 xatosini oldini olish (base.html da SVG data URI ishlatiladi)
-    path('favicon.ico', RedirectView.as_view(url='data:,', permanent=False)),
+    path('favicon.ico', lambda request: HttpResponse(status=204)),
 ]
 
 if settings.DEBUG:

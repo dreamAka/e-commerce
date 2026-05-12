@@ -288,6 +288,42 @@ def order_detail(request, order_id):
 
 
 @admin_required
+def order_update_status(request, order_id):
+    """AJAX: Dropdown o'zgarganda buyurtma yoki to'lov statusini yangilash"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'POST only'}, status=405)
+
+    order = get_object_or_404(Order, pk=order_id)
+
+    field = request.POST.get('field')  # 'order_status' yoki 'payment_status'
+    value = request.POST.get('value')
+
+    if field == 'order_status' and value:
+        valid_statuses = [c[0] for c in Order.OrderStatus.choices]
+        if value in valid_statuses:
+            order.order_status = value
+            order.save()
+            return JsonResponse({
+                'success': True,
+                'display': order.get_order_status_display(),
+                'value': value,
+            })
+
+    elif field == 'payment_status' and value:
+        valid_payments = [c[0] for c in Order.PaymentStatus.choices]
+        if value in valid_payments:
+            order.payment_status = value
+            order.save()
+            return JsonResponse({
+                'success': True,
+                'display': order.get_payment_status_display(),
+                'value': value,
+            })
+
+    return JsonResponse({'success': False, 'error': "Noto'g'ri qiymat"}, status=400)
+
+
+@admin_required
 def order_receipt(request, order_id):
     """Manager: buyurtma cheki"""
     order = get_object_or_404(Order.objects.select_related('user', 'shipping_address'), pk=order_id)
@@ -351,7 +387,21 @@ def product_form(request, product_id=None):
         product.brand_id = data.get('brand') or None
         product.product_status = data.get('product_status', 'draft')
         product.is_featured = data.get('is_featured') == 'on'
+        
+        # stock_quantity ni to'g'ridan-to'g'ri o'zgartirish
+        new_stock = int(data.get('stock_quantity', 10))
+        product.stock_quantity = new_stock
         product.save()
+
+        # Inventory ni sinxronlash
+        from apps.warehouse.models import Warehouse, Inventory
+        warehouse = Warehouse.objects.first()
+        if not warehouse:
+            warehouse = Warehouse.objects.create(warehouse_name="Asosiy Ombor", address="Tashkent", city="Tashkent", region="Tashkent")
+        
+        inventory, created = Inventory.objects.get_or_create(product=product, warehouse=warehouse)
+        inventory.quantity_available = new_stock
+        inventory.save()
 
         # ── O'chiriladigan rasmlar ──
         delete_ids = data.getlist('delete_image')

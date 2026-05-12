@@ -62,3 +62,16 @@ class InventoryMovement(models.Model):
 
     def __str__(self):
         return f"{self.get_movement_type_display()}: {self.quantity}"
+
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from django.db.models import Sum
+
+@receiver([post_save, post_delete], sender=Inventory)
+def update_product_stock(sender, instance, **kwargs):
+    """Zaxira o'zgarganda, mahsulotning umumiy sonini yangilash"""
+    if instance.product:
+        total = instance.product.inventory.aggregate(total=Sum('quantity_available'))['total'] or 0
+        instance.product.stock_quantity = total
+        instance.product.save(update_fields=['stock_quantity'])
+

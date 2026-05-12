@@ -92,26 +92,25 @@
         </a>
         <div class="nav-dropdown">
           <div class="nav-dropdown-inner">
-            <a href="{% url 'catalog:product_list' %}?search=Razer" class="nav-dropdown-item">
-              <span class="nav-dropdown-icon" style="color: #44d62c"><i class="fa-solid fa-gamepad"></i></span>
-              <span>Razer</span>
-            </a>
-            <a href="{% url 'catalog:product_list' %}?search=Logitech" class="nav-dropdown-item">
-              <span class="nav-dropdown-icon" style="color: #00b8fc"><i class="fa-solid fa-mouse"></i></span>
-              <span>Logitech</span>
-            </a>
-            <a href="{% url 'catalog:product_list' %}?search=Asus" class="nav-dropdown-item">
-              <span class="nav-dropdown-icon" style="color: #ff002a"><i class="fa-solid fa-laptop"></i></span>
-              <span>Asus ROG</span>
-            </a>
-            <a href="{% url 'catalog:product_list' %}?search=HyperX" class="nav-dropdown-item">
-              <span class="nav-dropdown-icon" style="color: #ff0000"><i class="fa-solid fa-headphones"></i></span>
-              <span>HyperX</span>
-            </a>
-            <a href="{% url 'catalog:product_list' %}?search=Corsair" class="nav-dropdown-item">
-              <span class="nav-dropdown-icon" style="color: #ffcc00"><i class="fa-solid fa-keyboard"></i></span>
-              <span>Corsair</span>
-            </a>
+            {% if nav_brands %}
+              {% for brand in nav_brands %}
+              <a href="{% url 'catalog:product_list' %}?brand={{ brand.id }}" class="nav-dropdown-item">
+                <span class="nav-dropdown-icon" style="color: var(--accent)">
+                  {% if brand.logo_url %}
+                    <img src="{{ brand.logo_url.url }}" alt="{{ brand.brand_name }}" style="width:20px;height:20px;object-fit:contain;">
+                  {% else %}
+                    <i class="fa-solid fa-tag"></i>
+                  {% endif %}
+                </span>
+                <span>{{ brand.brand_name }}</span>
+              </a>
+              {% endfor %}
+            {% else %}
+              <a href="{% url 'catalog:product_list' %}" class="nav-dropdown-item">
+                <span class="nav-dropdown-icon"><i class="fa-solid fa-boxes-stacked"></i></span>
+                <span>Barcha mahsulotlar</span>
+              </a>
+            {% endif %}
             <div class="nav-dropdown-footer">
               <a href="{% url 'catalog:product_list' %}">Barcha brendlar →</a>
             </div>

@@ -39,49 +39,41 @@
     </div>
 
     <div class="card">
-      <div class="card-header"><h3 class="card-title">📦 Buyurtma statusini o'zgartirish</h3></div>
-      <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="form_type" value="order_status">
-        <div class="form-group">
-          <select name="order_status" class="form-control">
-            <option value="pending" {% if order.order_status == 'pending' %}selected{% endif %}>⏳ Kutilmoqda</option>
-            <option value="confirmed" {% if order.order_status == 'confirmed' %}selected{% endif %}>✅ Tasdiqlangan</option>
-            <option value="processing" {% if order.order_status == 'processing' %}selected{% endif %}>📦 Tayyorlanmoqda</option>
-            <option value="shipped" {% if order.order_status == 'shipped' %}selected{% endif %}>🚚 Jo'natildi</option>
-            <option value="delivered" {% if order.order_status == 'delivered' %}selected{% endif %}>🏠 Yetkazildi</option>
-            <option value="cancelled" {% if order.order_status == 'cancelled' %}selected{% endif %}>❌ Bekor qilish</option>
-          </select>
-        </div>
-        <button type="submit" class="btn btn-primary btn-sm" style="width:100%">Yangilash</button>
-      </form>
+      <div class="card-header">
+        <h3 class="card-title">📦 Buyurtma statusi</h3>
+        <span id="orderStatusBadge" class="badge badge-{{ order.order_status }}" style="font-size:0.75rem;margin-left:8px">{{ order.get_order_status_display }}</span>
+      </div>
+      <div class="form-group">
+        <select id="orderStatusSelect" class="form-control" style="cursor:pointer" data-field="order_status">
+          <option value="pending" {% if order.order_status == 'pending' %}selected{% endif %}>⏳ Kutilmoqda</option>
+          <option value="confirmed" {% if order.order_status == 'confirmed' %}selected{% endif %}>✅ Tasdiqlangan</option>
+          <option value="processing" {% if order.order_status == 'processing' %}selected{% endif %}>📦 Tayyorlanmoqda</option>
+          <option value="shipped" {% if order.order_status == 'shipped' %}selected{% endif %}>🚚 Jo'natildi</option>
+          <option value="delivered" {% if order.order_status == 'delivered' %}selected{% endif %}>🏠 Yetkazildi</option>
+          <option value="cancelled" {% if order.order_status == 'cancelled' %}selected{% endif %}>❌ Bekor qilingan</option>
+        </select>
+      </div>
     </div>
 
     <div class="card">
-      <div class="card-header"><h3 class="card-title">💳 To'lov holati</h3></div>
-      <div style="margin-bottom:12px">
-        <span class="badge badge-{{ order.payment_status }}" style="font-size:0.85rem">{{ order.get_payment_status_display }}</span>
-        <span style="margin-left:8px;font-size:0.82rem;color:var(--text-muted)">
-          {% if order.payment_method == 'naqd' %}💵 Naqd pul
-          {% elif order.payment_method == 'karta' %}💳 Plastik karta
-          {% elif order.payment_method == 'click' %}📱 Click / Payme
-          {% else %}{{ order.payment_method|default:"—" }}{% endif %}
-        </span>
+      <div class="card-header">
+        <h3 class="card-title">💳 To'lov holati</h3>
+        <span id="paymentStatusBadge" class="badge badge-{{ order.payment_status }}" style="font-size:0.75rem;margin-left:8px">{{ order.get_payment_status_display }}</span>
       </div>
-      <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="form_type" value="payment_status">
-        <div class="form-group">
-          <label style="font-size:0.78rem;color:var(--text-muted);margin-bottom:6px">To'lov holatini o'zgartirish</label>
-          <select name="payment_status" class="form-control">
-            <option value="pending" {% if order.payment_status == 'pending' %}selected{% endif %}>⏳ Kutilmoqda</option>
-            <option value="paid" {% if order.payment_status == 'paid' %}selected{% endif %}>✅ To'langan</option>
-            <option value="failed" {% if order.payment_status == 'failed' %}selected{% endif %}>❌ Xatolik</option>
-            <option value="refunded" {% if order.payment_status == 'refunded' %}selected{% endif %}>↩️ Qaytarilgan</option>
-          </select>
-        </div>
-        <button type="submit" class="btn btn-primary btn-sm" style="width:100%">To'lov holatini yangilash</button>
-      </form>
+      <div style="margin-bottom:12px;font-size:0.85rem;color:var(--text-muted)">
+        Usul: {% if order.payment_method == 'naqd' %}💵 Naqd pul
+        {% elif order.payment_method == 'karta' %}💳 Plastik karta
+        {% elif order.payment_method == 'click' %}📱 Click / Payme
+        {% else %}{{ order.payment_method|default:"—" }}{% endif %}
+      </div>
+      <div class="form-group">
+        <select id="paymentStatusSelect" class="form-control" style="cursor:pointer" data-field="payment_status">
+          <option value="pending" {% if order.payment_status == 'pending' %}selected{% endif %}>⏳ Kutilmoqda</option>
+          <option value="paid" {% if order.payment_status == 'paid' %}selected{% endif %}>✅ To'langan</option>
+          <option value="failed" {% if order.payment_status == 'failed' %}selected{% endif %}>❌ Xatolik</option>
+          <option value="refunded" {% if order.payment_status == 'refunded' %}selected{% endif %}>↩️ Qaytarilgan</option>
+        </select>
+      </div>
       <p style="margin-top:8px;font-size:0.78rem;color:var(--text-muted)">📅 {{ order.created_at|date:"d.m.Y H:i" }}</p>
     </div>
 
@@ -131,5 +123,81 @@ function downloadReceiptManager() {
       URL.revokeObjectURL(url);
     });
 }
+
+// AJAX Status Update
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const selects = document.querySelectorAll('#orderStatusSelect, #paymentStatusSelect');
+  
+  selects.forEach(select => {
+    select.addEventListener('change', function() {
+      const field = this.dataset.field;
+      const value = this.value;
+      const originalValue = this.getAttribute('data-original') || this.querySelector('option[selected]')?.value;
+      
+      // Kichik yuklanish effekti
+      this.style.opacity = '0.7';
+      this.disabled = true;
+
+      fetch("{% url 'manager:order_update_status' order.pk %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': getCookie('csrftoken'),
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: new URLSearchParams({
+          'field': field,
+          'value': value
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        this.style.opacity = '1';
+        this.disabled = false;
+        
+        if(data.success) {
+          // Badgeni yangilash
+          const badgeId = field === 'order_status' ? 'orderStatusBadge' : 'paymentStatusBadge';
+          const badge = document.getElementById(badgeId);
+          if(badge) {
+            badge.textContent = data.display;
+            badge.className = `badge badge-${data.value}`;
+            
+            // Kichik yashil flash animatsiyasi
+            badge.style.transition = 'all 0.3s';
+            badge.style.transform = 'scale(1.1)';
+            setTimeout(() => badge.style.transform = 'scale(1)', 300);
+          }
+          this.setAttribute('data-original', data.value);
+        } else {
+          alert('Xatolik: ' + (data.error || 'Noma\'lum xatolik'));
+          this.value = originalValue;
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        this.style.opacity = '1';
+        this.disabled = false;
+        this.value = originalValue;
+        alert('Tarmoq xatosi yuz berdi!');
+      });
+    });
+  });
+});
 </script>
 {% endblock %}

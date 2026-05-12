@@ -10,6 +10,7 @@ urlpatterns = [
     # Orders
     path('orders/', views.order_list, name='order_list'),
     path('orders/<int:order_id>/', views.order_detail, name='order_detail'),
+    path('orders/<int:order_id>/update-status/', views.order_update_status, name='order_update_status'),
     path('orders/<int:order_id>/receipt/', views.order_receipt, name='order_receipt'),
 
     # Products
