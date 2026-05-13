@@ -380,16 +380,36 @@ def product_form(request, product_id=None):
         product.slug = data.get('slug', '')
         product.sku = data.get('sku', '')
         product.description = data.get('description', '')
-        product.base_price = Decimal(data.get('base_price', '0'))
-        product.sale_price = Decimal(data.get('sale_price', '0')) if data.get('sale_price') else None
-        product.cost_price = Decimal(data.get('cost_price', '0')) if data.get('cost_price') else None
+        def clean_price(val):
+            if not val: return '0'
+            import re
+            cleaned = re.sub(r'\D', '', val)
+            return cleaned if cleaned else '0'
+
+        product.base_price = Decimal(clean_price(data.get('base_price', '0')))
+        
+        try:
+            discount_percent = int(data.get('discount_percent') or 0)
+        except ValueError:
+            discount_percent = 0
+
+        if discount_percent > 0:
+            pct = Decimal(discount_percent)
+            product.sale_price = product.base_price - (product.base_price * pct / 100)
+        else:
+            product.sale_price = None
+            
+        product.cost_price = Decimal(clean_price(data.get('cost_price', ''))) if clean_price(data.get('cost_price')) != '0' else None
         product.category_id = data.get('category') or None
         product.brand_id = data.get('brand') or None
         product.product_status = data.get('product_status', 'draft')
         product.is_featured = data.get('is_featured') == 'on'
         
         # stock_quantity ni to'g'ridan-to'g'ri o'zgartirish
-        new_stock = int(data.get('stock_quantity', 10))
+        try:
+            new_stock = int(data.get('stock_quantity') or 10)
+        except ValueError:
+            new_stock = 10
         product.stock_quantity = new_stock
         product.save()
 
