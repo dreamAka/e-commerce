@@ -79,22 +79,39 @@ html.light-mode .custom-option:hover, html.light-mode .custom-option.selected { 
 <script>
 let timer;
 function fetchProducts() {
-  const q = document.getElementById('sidebarSearch').value;
+  const q = document.getElementById('sidebarSearch').value.trim();
   const cat = document.getElementById('catFilter').value;
   const brand = document.getElementById('brandFilter').value;
   const sort = document.getElementById('sortFilter').value;
+
+  // Update browser URL without reload so refresh preserves filters
+  const params = new URLSearchParams();
+  if (q) params.set('q', q);
+  if (cat) params.set('category', cat);
+  if (brand) params.set('brand', brand);
+  if (sort && sort !== 'newest') params.set('sort', sort);
+  const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+  history.replaceState(null, '', newUrl);
+
   fetch(`/products/?q=${encodeURIComponent(q)}&category=${cat}&brand=${brand}&sort=${sort}`,
     {headers:{'X-Requested-With':'XMLHttpRequest'}})
-    .then(r=>r.json()).then(d=>{
-      document.getElementById('djangoProductsGrid').innerHTML=d.html;
-      document.getElementById('productCount').textContent=d.count+' ta mahsulot';
+    .then(r => r.json())
+    .then(d => {
+      document.getElementById('djangoProductsGrid').innerHTML = d.html;
+      document.getElementById('productCount').textContent = d.count + ' ta mahsulot';
+    })
+    .catch(err => {
+      console.error('Filter fetch error:', err);
     });
 }
-['sidebarSearch'].forEach(id=>{
-  document.getElementById(id).addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(fetchProducts,400);});
+
+document.getElementById('sidebarSearch').addEventListener('input', () => {
+  clearTimeout(timer);
+  timer = setTimeout(fetchProducts, 400);
 });
-['catFilter','brandFilter','sortFilter'].forEach(id=>{
-  document.getElementById(id).addEventListener('change',fetchProducts);
+
+['catFilter','brandFilter','sortFilter'].forEach(id => {
+  document.getElementById(id).addEventListener('change', fetchProducts);
 });
 
 // Custom select initialization function
@@ -102,34 +119,34 @@ function initCustomSelects() {
   const selects = document.querySelectorAll('.custom-dropdown');
   selects.forEach(select => {
     select.style.display = 'none'; // Hide original
-    
+
     const wrapper = document.createElement('div');
     wrapper.className = 'custom-select-wrapper';
     select.parentNode.insertBefore(wrapper, select);
     wrapper.appendChild(select);
-    
+
     const trigger = document.createElement('div');
     trigger.className = 'custom-select-trigger';
     const selectedOption = select.options[select.selectedIndex];
     trigger.textContent = selectedOption ? selectedOption.textContent : 'Tanlang';
     wrapper.appendChild(trigger);
-    
+
     const optionsContainer = document.createElement('div');
     optionsContainer.className = 'custom-select-options';
     wrapper.appendChild(optionsContainer);
-    
+
     Array.from(select.options).forEach(option => {
       const optionEl = document.createElement('div');
       optionEl.className = 'custom-option' + (option.selected ? ' selected' : '');
       optionEl.textContent = option.textContent;
       optionEl.dataset.value = option.value;
-      
+
       optionEl.addEventListener('click', function() {
         select.value = this.dataset.value;
-        
+
         const event = new Event('change');
         select.dispatchEvent(event); // Triggers fetchProducts
-        
+
         trigger.textContent = this.textContent;
         wrapper.querySelectorAll('.custom-option').forEach(el => el.classList.remove('selected'));
         this.classList.add('selected');
@@ -137,7 +154,7 @@ function initCustomSelects() {
       });
       optionsContainer.appendChild(optionEl);
     });
-    
+
     trigger.addEventListener('click', function(e) {
       e.stopPropagation();
       document.querySelectorAll('.custom-select-wrapper').forEach(w => {
@@ -145,13 +162,31 @@ function initCustomSelects() {
       });
       wrapper.classList.toggle('open');
     });
+
+    // Store reference so we can sync trigger text later
+    select._customTrigger = trigger;
+    select._customOptions = optionsContainer;
   });
-  
+
   document.addEventListener('click', function(e) {
     if (!e.target.closest('.custom-select-wrapper')) {
       document.querySelectorAll('.custom-select-wrapper').forEach(w => w.classList.remove('open'));
     }
   });
+}
+
+// Sync custom select trigger text with the current <select> value
+function syncCustomSelect(selectEl) {
+  if (!selectEl._customTrigger) return;
+  const opt = selectEl.options[selectEl.selectedIndex];
+  if (opt) {
+    selectEl._customTrigger.textContent = opt.textContent;
+    // Update selected class on custom options
+    const options = selectEl._customOptions.querySelectorAll('.custom-option');
+    options.forEach(o => {
+      o.classList.toggle('selected', o.dataset.value === selectEl.value);
+    });
+  }
 }
 
 // On page load — sync URL params to filters and fetch fresh data
@@ -161,15 +196,20 @@ function initCustomSelects() {
   const brand = params.get('brand') || '';
   const q = params.get('q') || '';
   const sort = params.get('sort') || 'newest';
-  
-  if (cat) document.getElementById('catFilter').value = cat;
-  if (brand) document.getElementById('brandFilter').value = brand;
-  if (q) document.getElementById('sidebarSearch').value = q;
-  if (sort) document.getElementById('sortFilter').value = sort;
-  
+
+  document.getElementById('catFilter').value = cat;
+  document.getElementById('brandFilter').value = brand;
+  document.getElementById('sidebarSearch').value = q;
+  document.getElementById('sortFilter').value = sort;
+
   // Initialize custom selects AFTER values are synced
   initCustomSelects();
-  
+
+  // Sync trigger text for all custom selects (fixes stale label after URL restore)
+  syncCustomSelect(document.getElementById('catFilter'));
+  syncCustomSelect(document.getElementById('brandFilter'));
+  syncCustomSelect(document.getElementById('sortFilter'));
+
   // Always fetch fresh data from server
   fetchProducts();
 })();

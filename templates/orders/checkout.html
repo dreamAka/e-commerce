@@ -308,6 +308,46 @@
 }
 .co-card-input:focus { outline: none; border-color: var(--green); }
 .co-card-input::placeholder { color: rgba(255,255,255,.15); letter-spacing: 1px; font-family: 'Inter', sans-serif; }
+
+/* Card Validation Error States */
+.co-card-input.input-error {
+  border-color: #ef4444 !important;
+  background: rgba(239,68,68,0.06);
+  animation: shakeInput 0.4s ease;
+}
+.co-card-input.input-error:focus {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239,68,68,0.15);
+}
+.co-card-error-msg {
+  display: none;
+  color: #ef4444;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 10px;
+  align-items: center;
+  gap: 8px;
+  animation: shakeInput 0.4s ease;
+}
+.co-card-error-msg.show {
+  display: flex;
+}
+.co-card-error-msg i {
+  font-size: 0.9rem;
+}
+@keyframes shakeInput {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+html.light-mode .co-card-input.input-error { background: rgba(239,68,68,0.05); }
+html.light-mode .co-card-error-msg { background: rgba(239,68,68,0.06); border-color: rgba(239,68,68,0.15); }
 html.light-mode .co-card-form { background: #f0f0f0; border-color: #ddd; }
 html.light-mode .co-card-input { background: #fff; border-color: #ddd; color: #111; }
 html.light-mode .co-card-input-group label { color: #888; }
@@ -545,6 +585,10 @@ html.light-mode .co-input-group label { color: #888; }
                   </div>
                 </div>
               </div>
+              <div class="co-card-error-msg" id="cardErrorMsg">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>Iltimos, karta ma'lumotlarini to'liq kiriting!</span>
+              </div>
             </div>
           </div>
 
@@ -686,6 +730,18 @@ document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
   });
 });
 
+// Clear error on input for card fields
+document.querySelectorAll('.co-card-input').forEach(inp => {
+  inp.addEventListener('input', function() {
+    this.classList.remove('input-error');
+    // Hide error message if all errors cleared
+    const remaining = document.querySelectorAll('.co-card-input.input-error');
+    if (remaining.length === 0) {
+      document.getElementById('cardErrorMsg').classList.remove('show');
+    }
+  });
+});
+
 function formatCardNum(input) {
   let v = input.value.replace(/\D/g, '').substring(0, 16);
   let formatted = v.replace(/(\d{4})(?=\d)/g, '$1 ');
@@ -747,8 +803,38 @@ checkoutForm.addEventListener('submit', function(e) {
   if (cardMethods.includes(paymentMethod)) {
     // Check if card details are filled
     const cardNum = document.getElementById('cardNumInput').value.replace(/\s/g, '');
+    const cardName = document.getElementById('cardNameInput').value.trim();
+    const cardExp = document.getElementById('cardExpInput').value.trim();
+    const cardCvv = document.querySelector('input[name="card_cvv"]').value.trim();
+    const isVisa = paymentMethod === 'visa';
+    const errorMsg = document.getElementById('cardErrorMsg');
+    let hasError = false;
+
+    // Clear previous errors
+    document.querySelectorAll('.co-card-input').forEach(inp => inp.classList.remove('input-error'));
+    errorMsg.classList.remove('show');
+
     if (cardNum.length < 16) {
-      alert("Iltimos, karta raqamini to'liq kiriting.");
+      document.getElementById('cardNumInput').classList.add('input-error');
+      hasError = true;
+    }
+    if (!cardName) {
+      document.getElementById('cardNameInput').classList.add('input-error');
+      hasError = true;
+    }
+    if (cardExp.length < 5) {
+      document.getElementById('cardExpInput').classList.add('input-error');
+      hasError = true;
+    }
+    if (isVisa && cardCvv.length < 3) {
+      document.querySelector('input[name="card_cvv"]').classList.add('input-error');
+      hasError = true;
+    }
+
+    if (hasError) {
+      errorMsg.classList.add('show');
+      // Scroll to card form
+      document.getElementById('cardForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
     // Show SMS Modal
