@@ -27,14 +27,19 @@
             </div>
             {% endif %}
             <div class="hs-actions">
-              <a href="{% if hero.product %}{% url 'catalog:product_detail' hero.product.slug %}{% else %}{{ hero.button_url }}{% endif %}" class="hs-btn hs-btn-primary" style="background:{{ hero.accent_color }}">
-                {{ hero.button_text }}
+              <a href="{% if hero.product %}{% url 'catalog:product_detail' hero.product.slug %}{% else %}{{ hero.button_url }}{% endif %}" class="hs-btn-text" style="--btn-color: {{ hero.accent_color|default:'#44d62c' }}">
+                {{ hero.button_text|default:'Batafsil' }} <i class="fa-solid fa-chevron-right"></i>
               </a>
+              {% if hero.product %}
+              <a href="{% url 'catalog:product_detail' hero.product.slug %}" class="hs-btn-text" style="--btn-color: {{ hero.accent_color|default:'#44d62c' }}">
+                Sotib olish <i class="fa-solid fa-chevron-right"></i>
+              </a>
+              {% endif %}
             </div>
           </div>
           <div class="hs-visual hs-visual--fullbleed">
             {% if hero.image %}
-            <img src="{{ hero.image.url }}" alt="{{ hero.title }}" class="hs-hero-product">
+            <img src="{{ hero.image.url }}" alt="{{ hero.title }}" class="hs-hero-product" style="--img-scale: calc({{ hero.image_scale|default:100 }} / 100);">
             {% endif %}
           </div>
         </div>
@@ -49,7 +54,12 @@
             <h1 class="hs-title">NexGear<br><span class="hs-accent">Gaming Store</span></h1>
             <p class="hs-subtitle">O'zbekistondagi eng yaxshi gaming aksessuarlar do'koni</p>
             <div class="hs-actions">
-              <a href="{% url 'catalog:product_list' %}" class="hs-btn hs-btn-primary">Mahsulotlar →</a>
+              <a href="{% url 'catalog:product_list' %}" class="hs-btn-text" style="--btn-color: var(--green)">
+                Batafsil <i class="fa-solid fa-chevron-right"></i>
+              </a>
+              <a href="{% url 'catalog:product_list' %}" class="hs-btn-text" style="--btn-color: var(--green)">
+                Sotib olish <i class="fa-solid fa-chevron-right"></i>
+              </a>
             </div>
           </div>
           <div class="hs-visual hs-visual--fullbleed">

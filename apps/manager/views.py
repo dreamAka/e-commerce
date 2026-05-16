@@ -588,7 +588,17 @@ def hero_form(request, hero_id=None):
         hero.button_text = data.get('button_text', 'Sotib Olish')
         hero.button_url = data.get('button_url', '#products')
         hero.accent_color = data.get('accent_color', '#44d62c')
-        hero.order = int(data.get('order', 0))
+        
+        try:
+            hero.image_scale = int(data.get('image_scale') or 100)
+        except ValueError:
+            hero.image_scale = 100
+            
+        try:
+            hero.order = int(data.get('order') or 0)
+        except ValueError:
+            hero.order = 0
+            
         hero.is_active = data.get('is_active') == 'on'
 
         # Mahsulot bog'lash

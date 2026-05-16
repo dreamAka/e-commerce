@@ -216,6 +216,7 @@ class HeroSection(models.Model):
     button_text = models.CharField(max_length=50, default='Sotib Olish')
     button_url = models.CharField(max_length=200, default='#products')
     accent_color = models.CharField(max_length=7, default='#44d62c')
+    image_scale = models.IntegerField(default=100, verbose_name="Rasm masshtabi (%)")
     is_active = models.BooleanField(default=True)
     order = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
