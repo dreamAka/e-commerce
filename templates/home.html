@@ -31,9 +31,12 @@
                 {{ hero.button_text|default:'Batafsil' }} <i class="fa-solid fa-chevron-right"></i>
               </a>
               {% if hero.product %}
-              <a href="{% url 'catalog:product_detail' hero.product.slug %}" class="hs-btn-text" style="--btn-color: {{ hero.accent_color|default:'#44d62c' }}">
-                Sotib olish <i class="fa-solid fa-chevron-right"></i>
-              </a>
+              <form action="{% url 'orders:add_to_cart' hero.product.id %}" method="post" style="display:inline">
+                {% csrf_token %}
+                <button type="submit" class="hs-btn-text" style="--btn-color: {{ hero.accent_color|default:'#44d62c' }}; background:none; border:none; cursor:pointer; padding:0; font:inherit; outline:none;">
+                  Sotib olish <i class="fa-solid fa-chevron-right"></i>
+                </button>
+              </form>
               {% endif %}
             </div>
           </div>

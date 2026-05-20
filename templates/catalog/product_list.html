@@ -14,8 +14,11 @@
           <h3 style="font-size:0.9rem;margin-bottom:16px;color:#44d62c">Filtrlar</h3>
           <div style="margin-bottom:20px">
             <label style="font-size:0.8rem;color:#888;display:block;margin-bottom:6px">Qidirish</label>
-            <input type="text" id="sidebarSearch" value="{{ current_q }}" placeholder="Mahsulot nomi..."
-              style="width:100%;background:var(--bg-void);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:0.88rem">
+            <div style="position:relative">
+              <input type="text" id="sidebarSearch" value="{{ current_q }}" placeholder="Mahsulot nomi..."
+                style="width:100%;background:var(--bg-void);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:0.88rem" autocomplete="off">
+              <div id="searchSuggestions" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:999;background:var(--bg-card);border:1px solid var(--border);border-radius:0 0 12px 12px;max-height:320px;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.5);"></div>
+            </div>
           </div>
           <div style="margin-bottom:20px">
             <label style="font-size:0.8rem;color:#888;display:block;margin-bottom:6px">Kategoriya</label>
@@ -108,6 +111,59 @@ function fetchProducts() {
 document.getElementById('sidebarSearch').addEventListener('input', () => {
   clearTimeout(timer);
   timer = setTimeout(fetchProducts, 400);
+  // Autocomplete suggestions
+  clearTimeout(suggestTimer);
+  suggestTimer = setTimeout(fetchSuggestions, 250);
+});
+
+let suggestTimer;
+const suggestBox = document.getElementById('searchSuggestions');
+
+function fetchSuggestions() {
+  const q = document.getElementById('sidebarSearch').value.trim();
+  if (q.length < 1) {
+    suggestBox.style.display = 'none';
+    suggestBox.innerHTML = '';
+    return;
+  }
+  fetch(`/search/suggestions/?q=${encodeURIComponent(q)}`)
+    .then(r => r.json())
+    .then(d => {
+      if (!d.products || d.products.length === 0) {
+        suggestBox.innerHTML = '<div style="padding:14px 16px;color:#888;font-size:0.85rem;text-align:center">Hech narsa topilmadi</div>';
+        suggestBox.style.display = 'block';
+        return;
+      }
+      suggestBox.innerHTML = d.products.map(p => `
+        <a href="${p.url}" style="display:flex;align-items:center;gap:12px;padding:10px 14px;text-decoration:none;color:var(--text);border-bottom:1px solid var(--border);transition:background .15s ease">
+          <img src="${p.image || ''}" alt="" style="width:40px;height:40px;object-fit:contain;border-radius:6px;background:rgba(255,255,255,.05);flex-shrink:0">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:0.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+            <div style="font-size:0.78rem;color:#44d62c;font-weight:700;margin-top:2px">${Number(p.price).toLocaleString('uz-UZ')} so'm</div>
+          </div>
+        </a>
+      `).join('');
+      suggestBox.style.display = 'block';
+
+      // Hover effect
+      suggestBox.querySelectorAll('a').forEach(a => {
+        a.addEventListener('mouseenter', () => a.style.background = 'rgba(68,214,44,.08)');
+        a.addEventListener('mouseleave', () => a.style.background = 'transparent');
+      });
+    })
+    .catch(() => { suggestBox.style.display = 'none'; });
+}
+
+// Hide suggestions when clicking outside
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#sidebarSearch') && !e.target.closest('#searchSuggestions')) {
+    suggestBox.style.display = 'none';
+  }
+});
+
+// Hide suggestions on Escape
+document.getElementById('sidebarSearch').addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') suggestBox.style.display = 'none';
 });
 
 ['catFilter','brandFilter','sortFilter'].forEach(id => {
