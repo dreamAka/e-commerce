@@ -5,7 +5,7 @@
 {% block content %}
 <section style="padding:100px 0 60px;min-height:100vh">
   <div class="container" style="max-width:1300px;margin:0 auto;padding:0 20px">
-    <h1 style="font-family:'Orbitron',sans-serif;font-size:2rem;margin-bottom:32px">Mahsulotlar</h1>
+    <h1 style="font-family:'Rajdhani',sans-serif;font-size:2rem;margin-bottom:32px">Mahsulotlar</h1>
 
     <div class="catalog-layout" style="display:flex;gap:24px">
       <!-- Sidebar Filters -->
@@ -62,16 +62,17 @@
 <style>
 /* Custom Select (Products Sidebar) */
 .custom-select-wrapper { position: relative; user-select: none; width: 100%; }
-.custom-select-trigger { display: flex; justify-content: space-between; align-items: center; width: 100%; background: var(--bg-void); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 0.9rem; cursor: pointer; transition: border-color 0.3s; }
+.custom-select-trigger { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; background: var(--bg-void); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text, #e8e8e8); font-size: 0.9rem; cursor: pointer; transition: border-color 0.3s; min-height: 40px; }
+.custom-select-trigger span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .custom-select-trigger:hover, .custom-select-wrapper.open .custom-select-trigger { border-color: #44d62c; }
-.custom-select-trigger::after { content: ''; display: inline-block; width: 8px; height: 8px; border-right: 2px solid var(--text); border-bottom: 2px solid var(--text); transform: rotate(45deg); transition: transform 0.3s; margin-bottom: 4px; }
+.custom-select-trigger::after { content: ''; display: inline-block; width: 8px; height: 8px; border-right: 2px solid var(--text, #e8e8e8); border-bottom: 2px solid var(--text, #e8e8e8); transform: rotate(45deg); transition: transform 0.3s; margin-bottom: 4px; flex-shrink: 0; }
 .custom-select-wrapper.open .custom-select-trigger::after { transform: rotate(-135deg); margin-bottom: -4px; }
 .custom-select-options { position: absolute; top: calc(100% + 4px); left: 0; width: 100%; background: var(--bg-void); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; max-height: 0; opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 .custom-select-wrapper.open .custom-select-options { max-height: 300px; opacity: 1; visibility: visible; overflow-y: auto; }
 .custom-option { padding: 10px 14px; color: var(--text-muted); cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
 .custom-option:hover, .custom-option.selected { background: rgba(68,214,44,0.1); color: #44d62c; }
 
-html.light-mode .custom-select-trigger, html.light-mode .custom-select-options { background: #fff; border-color: #ddd; }
+html.light-mode .custom-select-trigger, html.light-mode .custom-select-options { background: #fff; border-color: #ddd; color: #333; }
 html.light-mode .custom-select-trigger::after { border-color: #333; }
 html.light-mode .custom-option { color: #555; }
 html.light-mode .custom-option:hover, html.light-mode .custom-option.selected { background: rgba(68,214,44,0.1); color: #44d62c; }
@@ -183,8 +184,10 @@ function initCustomSelects() {
 
     const trigger = document.createElement('div');
     trigger.className = 'custom-select-trigger';
+    const triggerText = document.createElement('span');
     const selectedOption = select.options[select.selectedIndex];
-    trigger.textContent = selectedOption ? selectedOption.textContent : 'Tanlang';
+    triggerText.textContent = selectedOption ? selectedOption.textContent : 'Tanlang';
+    trigger.appendChild(triggerText);
     wrapper.appendChild(trigger);
 
     const optionsContainer = document.createElement('div');
@@ -203,7 +206,9 @@ function initCustomSelects() {
         const event = new Event('change');
         select.dispatchEvent(event); // Triggers fetchProducts
 
-        trigger.textContent = this.textContent;
+        const tSpan = trigger.querySelector('span');
+        if (tSpan) tSpan.textContent = this.textContent;
+        else trigger.textContent = this.textContent;
         wrapper.querySelectorAll('.custom-option').forEach(el => el.classList.remove('selected'));
         this.classList.add('selected');
         wrapper.classList.remove('open');
@@ -236,7 +241,9 @@ function syncCustomSelect(selectEl) {
   if (!selectEl._customTrigger) return;
   const opt = selectEl.options[selectEl.selectedIndex];
   if (opt) {
-    selectEl._customTrigger.textContent = opt.textContent;
+    const tSpan = selectEl._customTrigger.querySelector('span');
+    if (tSpan) tSpan.textContent = opt.textContent;
+    else selectEl._customTrigger.textContent = opt.textContent;
     // Update selected class on custom options
     const options = selectEl._customOptions.querySelectorAll('.custom-option');
     options.forEach(o => {

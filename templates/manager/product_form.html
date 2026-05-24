@@ -1,4 +1,4 @@
-{% extends "manager/base_manager.html" %}
+﻿{% extends "manager/base_manager.html" %}
 {% block title %}{% if product %}Tahrirlash{% else %}Yangi mahsulot{% endif %}{% endblock %}
 {% block page_title %}{% if product %}✏️ {{ product.product_name }}{% else %}➕ Yangi mahsulot{% endif %}{% endblock %}
 
@@ -83,7 +83,7 @@
         <div style="display:flex;align-items:center;gap:12px">
           <input type="number" name="discount_percent" id="discountPercent" class="form-control"
             value="{% if product %}{{ product.discount_percent|default:0 }}{% else %}0{% endif %}" min="0" max="100" step="1" oninput="calculateSalePrice()">
-          <span id="calculatedSalePrice" style="color:var(--accent);font-weight:700;font-family:'Orbitron',sans-serif;white-space:nowrap;width:150px">
+          <span id="calculatedSalePrice" style="color:var(--accent);font-weight:700;font-family:'Rajdhani',sans-serif;white-space:nowrap;width:150px">
             {% if product and product.sale_price %}{{ product.sale_price|floatformat:0 }} so'm{% endif %}
           </span>
         </div>

@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 {% load price_filters %}
 {% for product in products %}
 <div class="product-card-wrap" style="position:relative; height:100%;">
@@ -16,7 +16,7 @@
       {% endif %}
       <h3 style="font-size:0.95rem;font-weight:600;margin:6px 0">{{ product.product_name }}</h3>
       <div style="display:flex;align-items:baseline;gap:8px;margin-top:10px">
-        <span style="font-size:1.1rem;font-weight:700;font-family:'Orbitron',sans-serif;color:#44d62c">{{ product.current_price|price_format }} so'm</span>
+        <span style="font-size:1.1rem;font-weight:700;font-family:'Rajdhani',sans-serif;color:#44d62c">{{ product.current_price|price_format }} so'm</span>
         {% if product.sale_price %}
         <span style="font-size:0.8rem;color:#666;text-decoration:line-through">{{ product.base_price|price_format }}</span>
         {% endif %}

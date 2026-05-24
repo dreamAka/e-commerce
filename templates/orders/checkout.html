@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% block title %}Buyurtma berish{% endblock %}
 {% load price_filters %}
 
@@ -40,11 +40,11 @@
 .pr-xmark-x { transform-origin: 50% 50%; stroke-dasharray: 56; stroke-dashoffset: 56; stroke-width: 3; animation: prXDraw 0.3s cubic-bezier(0.65,0,0.45,1) 0.8s forwards; }
 @keyframes prXDraw { 0% { stroke-dashoffset: 56; } 100% { stroke-dashoffset: 0; } }
 
-.pr-title { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; margin-bottom: 8px; }
+.pr-title { font-family: 'Rajdhani', sans-serif; font-size: 1.2rem; margin-bottom: 8px; }
 .pr-title-success { color: #44d62c; }
 .pr-title-failure { color: #ef4444; }
 .pr-text { color: rgba(255,255,255,0.5); font-size: 0.88rem; margin-bottom: 20px; line-height: 1.5; }
-.pr-order-num { font-family: 'Orbitron', sans-serif; font-size: 0.85rem; color: var(--green); background: rgba(68,214,44,0.08); padding: 10px 20px; border-radius: 10px; border: 1px solid rgba(68,214,44,0.15); display: inline-block; margin-bottom: 24px; }
+.pr-order-num { font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; color: var(--green); background: rgba(68,214,44,0.08); padding: 10px 20px; border-radius: 10px; border: 1px solid rgba(68,214,44,0.15); display: inline-block; margin-bottom: 24px; }
 .pr-loader { width: 100%; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; margin-bottom: 12px; }
 .pr-loader-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #44d62c, #3ab825); border-radius: 2px; animation: prLoad 2.5s ease-in-out forwards; }
 @keyframes prLoad { 0% { width: 0%; } 100% { width: 100%; } }
@@ -60,7 +60,7 @@
 .co-container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
 
 .co-title {
-  font-family: 'Orbitron', sans-serif; font-size: 1.6rem;
+  font-family: 'Rajdhani', sans-serif; font-size: 1.6rem;
   margin-bottom: 8px; display: flex; align-items: center; gap: 14px;
 }
 .co-title::before {
@@ -211,7 +211,7 @@
 .co-summary-item:last-of-type { border-bottom: none; }
 .co-item-name { max-width: 180px; }
 .co-item-qty { color: rgba(255,255,255,.3); font-size: 0.8rem; }
-.co-item-price { font-weight: 600; font-family: 'Orbitron', sans-serif; font-size: 0.82rem; }
+.co-item-price { font-weight: 600; font-family: 'Rajdhani', sans-serif; font-size: 0.82rem; }
 .co-summary-total {
   display: flex; justify-content: space-between; align-items: center;
   padding-top: 18px; margin-top: 14px;
@@ -220,7 +220,7 @@
 .co-total-label { font-weight: 700; font-size: 1.05rem; }
 .co-total-value {
   font-weight: 900; font-size: 1.3rem; color: var(--green);
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Rajdhani', sans-serif;
 }
 .co-submit-btn {
   width: 100%; padding: 16px; margin-top: 20px;
@@ -275,11 +275,11 @@
   border: 1px solid rgba(0,0,0,0.15); border-radius: 3px;
 }
 .co-card-logo {
-  font-family: 'Orbitron', sans-serif; font-weight: 800; font-size: 1.2rem; font-style: italic;
+  font-family: 'Rajdhani', sans-serif; font-weight: 800; font-size: 1.2rem; font-style: italic;
   color: #fff; opacity: 0.8;
 }
 .co-card-number-preview {
-  font-family: 'Orbitron', monospace;
+  font-family: 'Rajdhani', monospace;
   font-size: 1.2rem; letter-spacing: 3px;
   color: rgba(255,255,255,.85); margin-bottom: 16px;
 }
@@ -302,7 +302,7 @@
   border-radius: 10px;
   background: rgba(255,255,255,.03);
   color: #fff; font-size: 0.95rem;
-  font-family: 'Orbitron', monospace;
+  font-family: 'Rajdhani', monospace;
   letter-spacing: 2px;
   transition: border-color 0.2s;
 }
@@ -389,13 +389,13 @@ html.light-mode .co-input-group label { color: #888; }
 }
 .sms-modal-overlay.active .sms-modal { transform: translateY(0); }
 .sms-icon { font-size: 3rem; color: #44d62c; margin-bottom: 16px; }
-.sms-title { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; margin-bottom: 8px; color: #fff; }
+.sms-title { font-family: 'Rajdhani', sans-serif; font-size: 1.3rem; margin-bottom: 8px; color: #fff; }
 .sms-text { font-size: 0.9rem; color: rgba(255,255,255,0.6); margin-bottom: 24px; line-height: 1.5; }
 .sms-input-group { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; }
 .sms-digit {
   width: 45px; height: 55px; font-size: 1.5rem; text-align: center;
   background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px; color: #fff; font-family: 'Orbitron', sans-serif;
+  border-radius: 8px; color: #fff; font-family: 'Rajdhani', sans-serif;
   transition: all 0.2s;
 }
 .sms-digit:focus { outline: none; border-color: #44d62c; background: rgba(68,214,44,0.05); }

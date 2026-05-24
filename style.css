@@ -1,4 +1,4 @@
-/* ========================================
+﻿/* ========================================
    NEXGEAR – Razer-Style Gaming Store
    style.css   v2.0  (Green × Black)
    ======================================== */
@@ -39,7 +39,7 @@
   --radius-sm: 3px;
   --shadow-green: 0 0 30px rgba(68, 214, 44, .18);
   --transition: .25s cubic-bezier(.4, 0, .2, 1);
-  --font-head: 'Orbitron', sans-serif;
+  --font-head: 'Rajdhani', sans-serif;
   --font-body: 'Inter', sans-serif;
 }
 
@@ -2038,7 +2038,7 @@ ul {
 
 /* --- Glitch Logo --- */
 .intro-logo {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Rajdhani', sans-serif;
   font-size: clamp(2.5rem, 8vw, 5.5rem);
   font-weight: 900;
   color: #fff;
@@ -2115,7 +2115,7 @@ ul {
 
 /* --- Tagline --- */
 .intro-tagline {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Rajdhani', sans-serif;
   font-size: clamp(.6rem, 1.5vw, .9rem);
   font-weight: 600;
   letter-spacing: .35em;
@@ -2180,7 +2180,7 @@ ul {
 }
 
 .intro-load-text {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Rajdhani', sans-serif;
   font-size: .62rem;
   letter-spacing: .18em;
   color: rgba(68, 214, 44, .7);
@@ -2224,7 +2224,7 @@ ul {
 }
 
 .intro-stat span {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Rajdhani', sans-serif;
   font-size: 1.3rem;
   font-weight: 900;
   color: var(--green);
@@ -2296,7 +2296,7 @@ ul {
   background: transparent;
   border: 1px solid rgba(68, 214, 44, .3);
   color: rgba(68, 214, 44, .6);
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Rajdhani', sans-serif;
   font-size: .62rem;
   letter-spacing: .14em;
   padding: 7px 16px;

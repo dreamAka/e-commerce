@@ -1,4 +1,4 @@
-/* ========================================
+﻿/* ========================================
    NEXGEAR – Razer-Style Gaming Store
    style.css   v2.0  (Green × Black)
    ======================================== */
@@ -25,7 +25,7 @@
   --radius-sm:   3px;
   --shadow-green:0 0 30px rgba(68,214,44,.18);
   --transition:  .25s cubic-bezier(.4,0,.2,1);
-  --font-head:   'Orbitron', sans-serif;
+  --font-head:   'Rajdhani', sans-serif;
   --font-body:   'Inter', sans-serif;
   /* Navbar bg — animatsiya uchun */
   --nav-bg:      rgba(0,0,0,.92);
@@ -2254,7 +2254,7 @@ html.light-mode .home-brand-item:hover .brand-logo { filter: none; }
 
 /* --- Glitch Logo --- */
 .intro-logo {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Rajdhani', sans-serif;
   font-size: clamp(2.5rem, 8vw, 5.5rem);
   font-weight: 900;
   color: #fff;
@@ -2306,7 +2306,7 @@ html.light-mode .home-brand-item:hover .brand-logo { filter: none; }
 
 /* --- Tagline --- */
 .intro-tagline {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Rajdhani', sans-serif;
   font-size: clamp(.6rem, 1.5vw, .9rem);
   font-weight: 600;
   letter-spacing: .35em;
@@ -2356,7 +2356,7 @@ html.light-mode .home-brand-item:hover .brand-logo { filter: none; }
   box-shadow: 0 0 12px #fff, 0 0 24px var(--green);
 }
 .intro-load-text {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Rajdhani', sans-serif;
   font-size: .62rem;
   letter-spacing: .18em;
   color: rgba(68,214,44,.7);
@@ -2390,7 +2390,7 @@ html.light-mode .home-brand-item:hover .brand-logo { filter: none; }
   font-family: 'Inter', sans-serif;
 }
 .intro-stat span {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Rajdhani', sans-serif;
   font-size: 1.3rem;
   font-weight: 900;
   color: var(--green);
@@ -2425,7 +2425,7 @@ html.light-mode .home-brand-item:hover .brand-logo { filter: none; }
   background: transparent;
   border: 1px solid rgba(68,214,44,.3);
   color: rgba(68,214,44,.6);
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Rajdhani', sans-serif;
   font-size: .62rem;
   letter-spacing: .14em;
   padding: 7px 16px;
